@@ -404,38 +404,28 @@ body{
       <svg id="scene" viewBox="0 0 1000 350" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
 
-    <!-- Вкладки вместо одного списка -->
+    <!-- Вкладки -->
     <aside class="panel">
       <div class="tabs-header" id="gameTabs">
         <button class="tab-btn active" data-target="tab-depts">ОТДЕЛЫ 🏭</button>
         <button class="tab-btn" data-target="tab-upgs">УЛУЧШЕНИЯ 🔬</button>
         <button class="tab-btn" data-target="tab-rebirth">РЕБИТЫ ☢</button>
       </div>
-
-      <!-- Вкладка 1: Отделы -->
       <div class="tab-pane active" id="tab-depts"></div>
-
-      <!-- Вкладка 2: Улучшения -->
       <div class="tab-pane" id="tab-upgs"></div>
-
-      <!-- Вкладка 3: Ребиты -->
       <div class="tab-pane" id="tab-rebirth">
         <div class="rebirth-box">
           <div style="font-size:12px; color:var(--muted); font-weight:800; letter-spacing:1px;">ТЕКУЩИЙ МНОЖИТЕЛЬ ДОХОДА</div>
           <div class="rebirth-stat" id="rb-current">1.0x</div>
           <div style="font-size:13px; color:#cbd5e1;">Следующий ребит даст: <b style="color:#34d399" id="rb-next">1.1x</b></div>
-          
           <div class="rebirth-warning">
             <b>ВНИМАНИЕ!</b><br>
-            Для совершения ребита <u>вся накопленная энергия ⚡</u> и <u>уровни отделов/улучшений</u> будут списаны!<br>
-            Уровень города и множитель сохраняются навсегда.
+            Для совершения ребита <u>вся энергия ⚡</u> и <u>уровни отделов</u> будут списаны!<br>Уровень города сохраняется навсегда.
           </div>
-
           <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin-bottom:14px;">
             <div style="font-size:11px; color:#7dd3fc; font-weight:bold; margin-bottom:4px;">ТРЕБОВАНИЯ ДЛЯ РЕБИТА:</div>
             <div id="rb-req" style="font-size:13px; font-weight:bold;"></div>
           </div>
-
           <button class="btn rad" id="btn-rebirth" style="font-size:16px;">☢ СДЕЛАТЬ РЕБИТ</button>
         </div>
       </div>
@@ -446,6 +436,13 @@ body{
 <div id="toasts"></div>
 
 <script>
+// --- ИНИЦИАЛИЗАЦИЯ ИНТЕГРАЦИИ ПОЛЬЗОВАТЕЛЯ ---
+let userId = localStorage.getItem('aes_user_id');
+if (!userId) {
+    userId = 'user_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('aes_user_id', userId);
+}
+
 // --- УБИРАЕМ ЗАГРУЗОЧНЫЙ ЭКРАН ---
 window.addEventListener('load', () => {
   setTimeout(() => {
@@ -454,7 +451,7 @@ window.addEventListener('load', () => {
       loader.style.opacity = '0';
       setTimeout(() => loader.remove(), 600);
     }
-  }, 1000); // Имитация загрузки ресурсов
+  }, 1000); 
 });
 
 // --- ТАБЫ (ВКЛАДКИ) ---
@@ -470,8 +467,8 @@ document.querySelectorAll('#gameTabs .tab-btn').forEach(btn => {
 const AVATARS = ['👷','👨‍🔬','👩‍🔬','🧑‍🚀','👨‍💼','👩‍💼','🦺','🔧','⚛️','☢️','👨‍💻','👩‍💻'];
 const DEFAULT_AVATAR = '👷';
 const DEFAULT_NAME = 'Оператор';
+const SAVE_KEY = 'aes_city_clicker_v2_6';
 
-// Добавлено поле `tab` для разделения по вкладкам
 const UPGRADES = [
   { id:'reactor', tab:'depts', name:'Реактор', icon:'☢', levels:[
     {cost:0, click:1, cps:0, title:'Базовый'},
@@ -503,9 +500,8 @@ const UPGRADES = [
 
 const CITY_THRESHOLDS = [0, 30, 150, 600, 2500, 10000, 50000, 250000, 1000000];
 
-const SAVE_KEY = 'aes_city_clicker_v2_6';
 let S = {
-  energy: 0, totalProduced: 0, cityProgress: 0, cityLevel: 0, rebirths: 0, // <-- rebirths добавлен
+  energy: 0, totalProduced: 0, cityProgress: 0, cityLevel: 0, rebirths: 0,
   up: { reactor:0, turbine:0, cooling:0, wires:0 },
   profile: { name:'', avatar: DEFAULT_AVATAR },
   settings: { music:true, sfx:true },
@@ -525,27 +521,23 @@ function getStats(){
   const t = UPGRADES[1].levels[S.up.turbine];
   const c = UPGRADES[2].levels[S.up.cooling];
   const w = UPGRADES[3].levels[S.up.wires];
-  
-  // Учитываем МНОЖИТЕЛЬ РЕБИТА
   const rbMult = parseFloat((1.0 + (S.rebirths * 0.1)).toFixed(1));
   
-  const baseCps = (r.cps || 0) + (t.cps || 0);
-  const cps = baseCps * (1 + (c.mult || 0)) * rbMult;
-  const click = (r.click || 1) * rbMult;
-  const cityMult = (1 + (w.cityMult || 0)) * rbMult;
-  
-  return { cps, click, cityMult, rbMult };
+  return { 
+    cps: ((r.cps || 0) + (t.cps || 0)) * (1 + (c.mult || 0)) * rbMult,
+    click: (r.click || 1) * rbMult,
+    cityMult: (1 + (w.cityMult || 0)) * rbMult,
+    rbMult
+  };
 }
 
-// Звуки
 const Sound = {
   ctx:null,
   init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
   click(){
     if(!S.settings.sfx) return;
     this.init(); if(!this.ctx) return;
-    const t = this.ctx.currentTime;
-    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    const t = this.ctx.currentTime, o = this.ctx.createOscillator(), g = this.ctx.createGain();
     o.frequency.setValueAtTime(600, t); o.frequency.exponentialRampToValueAtTime(300, t + 0.08);
     g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
     o.connect(g); g.connect(this.ctx.destination);
@@ -553,15 +545,35 @@ const Sound = {
   }
 };
 
-function save(){
+async function save(){
   S.lastSave = Date.now();
   try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
+  try {
+    fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: userId, saveData: S })
+    });
+  } catch (err) {}
 }
-function load(){
-  try{
+
+async function load(){
+  try {
     const raw = localStorage.getItem(SAVE_KEY);
     if(raw) S = Object.assign(S, JSON.parse(raw));
-  }catch(e){}
+  } catch(e){}
+  try {
+    const res = await fetch('/api/save/' + userId);
+    if(res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        S = Object.assign(S, json.data);
+        localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+      }
+    }
+  } catch (err) {
+    console.log("Локальный режим: сервер пока недоступен");
+  }
 }
 
 function showToast(text){
@@ -572,7 +584,6 @@ function showToast(text){
   setTimeout(()=>t.remove(), 2500);
 }
 
-// ДЕТАЛИЗИРОВАННАЯ СЦЕНА (SVG)
 const sceneEl = document.getElementById('scene');
 function buildScene(){
   const rl = S.up.reactor, tl = S.up.turbine, cl = S.up.cooling, cityLvl = S.cityLevel;
@@ -585,77 +596,49 @@ function buildScene(){
     <linearGradient id="cityGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1b253b"/><stop offset="100%" stop-color="#0b0f1a"/></linearGradient>
   </defs>`;
 
-  // Небо, звезды, луна
   h += `<rect width="1000" height="350" fill="url(#sky)"/>`;
   h += `<circle cx="850" cy="80" r="30" fill="#fde68a" opacity="0.9"/>`;
-  h += `<circle cx="840" cy="70" r="25" fill="url(#sky)"/>`; // Полумесяц
-  for(let i=0; i<30; i++) {
-     h += `<circle cx="${Math.random()*1000}" cy="${Math.random()*200}" r="${Math.random()*1.5}" fill="#fff" opacity="${Math.random()*0.8}"/>`;
-  }
+  h += `<circle cx="840" cy="70" r="25" fill="url(#sky)"/>`;
+  for(let i=0; i<30; i++) h += `<circle cx="${Math.random()*1000}" cy="${Math.random()*200}" r="${Math.random()*1.5}" fill="#fff" opacity="${Math.random()*0.8}"/>`;
 
-  // Земля и дорога
   h += `<rect y="280" width="1000" height="70" fill="#080c14"/>`;
   h += `<path d="M 0 320 Q 500 320 1000 350 L 0 350 Z" fill="#0d141f"/>`;
   h += `<line x1="0" y1="310" x2="1000" y2="310" stroke="#1e2b44" stroke-width="2"/>`;
 
-  // --- 1. ТРУБЫ ГРАДИРНИ (Слева) ---
   [100, 180].forEach((cx, idx) => {
-    // Пар
     if(cl > 0) {
       h += `<circle cx="${cx-10}" cy="160" r="15" fill="#94a3b8" opacity="0.3" style="animation: smokeRise ${2 + idx}s infinite"/>`;
       h += `<circle cx="${cx+10}" cy="150" r="20" fill="#94a3b8" opacity="0.2" style="animation: smokeRise ${2.5 + idx}s infinite 0.5s"/>`;
     }
-    // Сама башня
     h += `<path d="M ${cx-22} 170 Q ${cx-15} 230, ${cx-32} 290 L ${cx+32} 290 Q ${cx+15} 230, ${cx+22} 170 Z" fill="url(#gradTower)" stroke="#4a5464" stroke-width="1.5"/>`;
-    // Декоративный обод
     h += `<ellipse cx="${cx}" cy="170" rx="22" ry="5" fill="#161e2b" stroke="#4a5464"/>`;
   });
 
-  // --- 2. РЕАКТОР (Центр-Лево) ---
-  // Купол
   h += `<path d="M 320 230 A 60 60 0 0 1 440 230 Z" fill="#2a3442" stroke="#4a5464" stroke-width="2"/>`;
   h += `<rect x="320" y="230" width="120" height="60" fill="#1e2636" stroke="#4a5464" stroke-width="2"/>`;
-  // Трубы охлаждения к реактору
   h += `<path d="M 212 275 L 320 275" stroke="#38bdf8" stroke-width="4" opacity="${cl>0?1:0.2}"/>`;
   h += `<path d="M 212 285 L 320 285" stroke="#38bdf8" stroke-width="4" opacity="${cl>1?1:0.2}"/>`;
 
-  // Ядро
   h += `<circle cx="380" cy="220" r="40" fill="url(#glow)" opacity="0.85"/>`;
   h += `<circle cx="380" cy="220" r="${8 + rl*2}" fill="${coreColor}" class="core-pulse"/>`;
-  // Предупреждающие полосы
   h += `<rect x="322" y="280" width="116" height="8" fill="#fbbf24"/>`;
   h += `<path d="M 330 280 L 340 288 M 350 280 L 360 288 M 370 280 L 380 288 M 390 280 L 400 288 M 410 280 L 420 288 M 430 280 L 440 288" stroke="#000" stroke-width="4"/>`;
 
-  // --- 3. ТУРБИННЫЙ ЗАЛ ---
   h += `<rect x="460" y="240" width="100" height="50" fill="#1a2233" stroke="#4a5464" stroke-width="2"/>`;
-  h += `<path d="M 440 260 L 460 260" stroke="#f87171" stroke-width="6"/>`; // Труба от реактора
+  h += `<path d="M 440 260 L 460 260" stroke="#f87171" stroke-width="6"/>`;
   if(tl > 0){
     h += `<circle cx="510" cy="265" r="14" fill="none" stroke="#34d399" stroke-width="3" class="turbine-rotor"/>`;
     h += `<circle cx="510" cy="265" r="5" fill="#34d399"/>`;
   }
 
-  // --- 4. ГОРОД (Справа) ---
-  const buildings = [
-    {x:630, w:35, h:120, lvl:1},
-    {x:670, w:45, h:180, lvl:2},
-    {x:720, w:35, h:150, lvl:3},
-    {x:765, w:50, h:230, lvl:4},
-    {x:825, w:40, h:170, lvl:5},
-    {x:870, w:45, h:260, lvl:6},
-    {x:925, w:40, h:190, lvl:7},
-  ];
+  const buildings = [{x:630, w:35, h:120, lvl:1},{x:670, w:45, h:180, lvl:2},{x:720, w:35, h:150, lvl:3},{x:765, w:50, h:230, lvl:4},{x:825, w:40, h:170, lvl:5},{x:870, w:45, h:260, lvl:6},{x:925, w:40, h:190, lvl:7}];
   buildings.forEach(b => {
     if(b.lvl <= cityLvl + 1){
       const y = 290 - b.h;
       h += `<rect x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" fill="url(#cityGrad)" stroke="#1e2b44" stroke-width="2"/>`;
-      // Рандомные окна (желтые горящие)
       for(let wx = b.x + 8; wx < b.x + b.w - 10; wx += 12) {
         for(let wy = y + 10; wy < y + b.h - 20; wy += 15) {
-          if (Math.random() > 0.4) {
-            h += `<rect x="${wx}" y="${wy}" width="6" height="8" fill="#fde68a" opacity="0.85"/>`;
-          } else {
-            h += `<rect x="${wx}" y="${wy}" width="6" height="8" fill="#111" opacity="0.5"/>`;
-          }
+          h += `<rect x="${wx}" y="${wy}" width="6" height="8" fill="${Math.random()>0.4?'#fde68a':'#111'}" opacity="${Math.random()>0.4?'0.85':'0.5'}"/>`;
         }
       }
     }
@@ -667,35 +650,18 @@ function buildScene(){
   sceneEl.innerHTML = h;
 }
 
-// Построение карточек улучшений по вкладкам
 const upgRefs = {};
 function buildUpgradeCards(){
-  const tabDepts = document.getElementById('tab-depts');
-  const tabUpgs = document.getElementById('tab-upgs');
+  const tabDepts = document.getElementById('tab-depts'), tabUpgs = document.getElementById('tab-upgs');
   tabDepts.innerHTML = ''; tabUpgs.innerHTML = '';
-  
   UPGRADES.forEach(u => {
     const card = document.createElement('div');
     card.className = 'upg-card';
-    card.innerHTML = `
-      <div class="upg-icon">${u.icon}</div>
-      <div class="upg-body">
-        <div class="upg-name">${u.name}<span class="upg-level"></span></div>
-        <div class="upg-current"></div>
-        <div class="upg-next"></div>
-      </div>
-      <button class="upg-buy">КУПИТЬ</button>`;
-      
-    const refs = {
-      card, level:card.querySelector('.upg-level'), current:card.querySelector('.upg-current'),
-      next:card.querySelector('.upg-next'), btn:card.querySelector('.upg-buy')
-    };
+    card.innerHTML = `<div class="upg-icon">${u.icon}</div><div class="upg-body"><div class="upg-name">${u.name}<span class="upg-level"></span></div><div class="upg-current"></div><div class="upg-next"></div></div><button class="upg-buy">КУПИТЬ</button>`;
+    const refs = { card, level:card.querySelector('.upg-level'), current:card.querySelector('.upg-current'), next:card.querySelector('.upg-next'), btn:card.querySelector('.upg-buy') };
     refs.btn.addEventListener('click', () => buyUpgrade(u.id));
     upgRefs[u.id] = refs;
-    
-    // Раскладываем по вкладкам
-    if (u.tab === 'depts') tabDepts.appendChild(card);
-    else tabUpgs.appendChild(card);
+    if(u.tab === 'depts') tabDepts.appendChild(card); else tabUpgs.appendChild(card);
   });
 }
 
@@ -705,30 +671,17 @@ function updateUpgradeCards(){
     const lvl = S.up[u.id], maxed = lvl >= u.levels.length - 1;
     const cur = u.levels[lvl], next = maxed ? null : u.levels[lvl + 1];
     const canBuy = next && S.energy >= next.cost;
-
-    ref.level.textContent = `ур.${lvl}`;
-    ref.level.classList.toggle('max', maxed);
-
-    // Учитываем ребит-множитель для отображения характеристик
     const rbMult = parseFloat((1.0 + (S.rebirths * 0.1)).toFixed(1));
 
+    ref.level.textContent = `ур.${lvl}`; ref.level.classList.toggle('max', maxed);
     if(u.id === 'reactor') ref.current.innerHTML = `Клик: <b>${fmt((cur.click||1) * rbMult)}</b>`;
     if(u.id === 'turbine') ref.current.innerHTML = `Доход: <b>+${fmt((cur.cps||0) * rbMult)}/с</b>`;
     if(u.id === 'cooling') ref.current.innerHTML = `Бонус CPS: <b>+${Math.round(cur.mult*100)}%</b>`;
     if(u.id === 'wires') ref.current.innerHTML = `Рост города: <b>×${((1+cur.cityMult)*rbMult).toFixed(1)}</b>`;
 
-    if(next){
-      ref.next.innerHTML = `→ <b>${fmt(next.cost)} ⚡</b>`;
-    } else {
-      ref.next.innerHTML = '<b style="color:#6ee7b7">МАКСИМУМ</b>';
-    }
-
-    if(maxed){
-      ref.btn.classList.add('maxed'); ref.btn.textContent = 'МАКС';
-    } else {
-      ref.btn.classList.toggle('disabled', !canBuy);
-      ref.btn.textContent = fmt(next.cost) + ' ⚡';
-    }
+    if(next) ref.next.innerHTML = `→ <b>${fmt(next.cost)} ⚡</b>`; else ref.next.innerHTML = '<b style="color:#6ee7b7">МАКСИМУМ</b>';
+    if(maxed){ ref.btn.classList.add('maxed'); ref.btn.textContent = 'МАКС'; } 
+    else { ref.btn.classList.toggle('disabled', !canBuy); ref.btn.textContent = fmt(next.cost) + ' ⚡'; }
     ref.card.classList.toggle('maxed', maxed);
   });
 }
@@ -743,46 +696,30 @@ function buyUpgrade(id){
   updateUI(); save();
 }
 
-// --- ЛОГИКА РЕБИТА ---
 function updateRebirthUI() {
-  const currentMult = (1.0 + S.rebirths * 0.1).toFixed(1);
-  const nextMult = (1.0 + (S.rebirths + 1) * 0.1).toFixed(1);
-  
-  // Порог: каждый следующий ребит стоит дороже и требует более развитого города
-  const reqEnergy = 500000 * Math.pow(10, S.rebirths);
-  const reqCity = 3 + S.rebirths;
+  const currentMult = (1.0 + S.rebirths * 0.1).toFixed(1), nextMult = (1.0 + (S.rebirths + 1) * 0.1).toFixed(1);
+  const reqEnergy = 500000 * Math.pow(10, S.rebirths), reqCity = 3 + S.rebirths;
 
   document.getElementById('rb-current').textContent = currentMult + 'x';
   document.getElementById('rb-next').textContent = nextMult + 'x';
   document.getElementById('uiMult').textContent = currentMult + 'x';
   document.getElementById('profileRb').textContent = currentMult + 'x';
 
-  const btn = document.getElementById('btn-rebirth');
-  const reqText = document.getElementById('rb-req');
-
+  const btn = document.getElementById('btn-rebirth'), reqText = document.getElementById('rb-req');
   if (S.energy >= reqEnergy && S.cityLevel >= reqCity) {
-      btn.classList.remove('disabled');
-      reqText.innerHTML = `<span style="color:#34d399">✓ ТРЕБОВАНИЯ ВЫПОЛНЕНЫ</span>`;
-      btn.onclick = () => performRebirth();
+      btn.classList.remove('disabled'); reqText.innerHTML = `<span style="color:#34d399">✓ ТРЕБОВАНИЯ ВЫПОЛНЕНЫ</span>`;
+      btn.onclick = () => {
+        if(confirm("Вы уверены? Это сбросит всю накопленную энергию и улучшения! Город останется.")) {
+          S.energy = 0; S.up = { reactor:0, turbine:0, cooling:0, wires:0 }; S.rebirths += 1;
+          save(); updateUI(); showToast("☢ РЕБИТ УСПЕШЕН! Множитель увеличен.");
+        }
+      };
   } else {
-      btn.classList.add('disabled');
+      btn.classList.add('disabled'); btn.onclick = null;
       reqText.innerHTML = `<span style="color:#fca5a5">Нужно: ⚡ ${fmt(reqEnergy)} энергии и 🏙 ур.${reqCity}</span>`;
-      btn.onclick = null;
   }
 }
 
-function performRebirth() {
-  if(confirm("Вы уверены? Это сбросит всю накопленную энергию и улучшения! Город останется.")) {
-      S.energy = 0;
-      S.up = { reactor:0, turbine:0, cooling:0, wires:0 };
-      S.rebirths += 1;
-      save();
-      updateUI();
-      showToast("☢ РЕБИТ УСПЕШЕН! Множитель увеличен.");
-  }
-}
-
-// Клик по станции
 sceneEl.addEventListener('click', (e) => {
   const st = getStats(), gain = st.click;
   S.energy += gain; S.totalProduced += gain; S.cityProgress += gain * st.cityMult;
@@ -790,14 +727,11 @@ sceneEl.addEventListener('click', (e) => {
 
   const d = document.createElement('div');
   d.className = 'float-text'; d.textContent = '+' + fmt(gain);
-  const clientX = e.clientX || window.innerWidth/2;
-  const clientY = e.clientY || window.innerHeight/4;
-  d.style.left = clientX + 'px'; d.style.top = clientY + 'px';
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(), 800);
+  d.style.left = (e.clientX || window.innerWidth/2) + 'px'; d.style.top = (e.clientY || window.innerHeight/4) + 'px';
+  document.body.appendChild(d); setTimeout(()=>d.remove(), 800);
 
   let lvl = 0;
-  for(let i = 0; i < CITY_THRESHOLDS.length; i++){ if(S.cityProgress >= CITY_THRESHOLDS[i]) lvl = i; }
+  for(let i = 0; i < CITY_THRESHOLDS.length; i++) if(S.cityProgress >= CITY_THRESHOLDS[i]) lvl = i;
   if(lvl > S.cityLevel){ S.cityLevel = lvl; showToast(`🏙 Город вырос до уровня ${lvl}!`); }
   updateUI();
 });
@@ -809,59 +743,46 @@ function updateUI(){
   document.getElementById('uiCityLvl').textContent = S.cityLevel;
 
   const curThr = CITY_THRESHOLDS[S.cityLevel] || 0, nextThr = CITY_THRESHOLDS[S.cityLevel + 1];
-  let pct = 100;
-  if(nextThr) pct = Math.max(0, Math.min(100, ((S.cityProgress - curThr) / (nextThr - curThr)) * 100));
+  let pct = 100; if(nextThr) pct = Math.max(0, Math.min(100, ((S.cityProgress - curThr) / (nextThr - curThr)) * 100));
   document.getElementById('uiCityFill').style.width = pct + '%';
 
-  updateUpgradeCards();
-  updateRebirthUI();
-  buildScene();
+  updateUpgradeCards(); updateRebirthUI(); buildScene();
 }
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const el = document.getElementById(id);
-  if(el) el.classList.add('active');
+  const el = document.getElementById(id); if(el) el.classList.add('active');
   if(id === 'screen-game') updateUI();
   if(id === 'screen-profile') refreshProfileUI();
 }
 
 let selectedAvatar = DEFAULT_AVATAR;
-function buildAvatarGrid(){
-  const grid = document.getElementById('avatarGrid');
-  grid.innerHTML = '';
+function refreshProfileUI(){
+  const nm = S.profile.name || DEFAULT_NAME, av = S.profile.avatar || DEFAULT_AVATAR;
+  document.getElementById('menuProfileAvatar').textContent = av; document.getElementById('menuProfileName').textContent = nm;
+  document.getElementById('topbarAvatar').textContent = av; document.getElementById('topbarName').textContent = nm;
+  selectedAvatar = av; document.getElementById('profileAvatarBig').textContent = av;
+  document.getElementById('profileNameInput').value = S.profile.name || ''; document.getElementById('profileNameDisplay').textContent = nm;
+  
+  const grid = document.getElementById('avatarGrid'); grid.innerHTML = '';
   AVATARS.forEach(a => {
     const div = document.createElement('div');
-    div.className = 'avatar-opt' + (a === selectedAvatar ? ' selected' : '');
-    div.textContent = a;
+    div.className = 'avatar-opt' + (a === selectedAvatar ? ' selected' : ''); div.textContent = a;
     div.addEventListener('click', () => {
-      selectedAvatar = a;
-      grid.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
-      div.classList.add('selected');
-      document.getElementById('profileAvatarBig').textContent = a;
+      selectedAvatar = a; grid.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected'); document.getElementById('profileAvatarBig').textContent = a;
     });
     grid.appendChild(div);
   });
 }
 
-function refreshProfileUI(){
-  const nm = S.profile.name || DEFAULT_NAME, av = S.profile.avatar || DEFAULT_AVATAR;
-  document.getElementById('menuProfileAvatar').textContent = av;
-  document.getElementById('menuProfileName').textContent = nm;
-  document.getElementById('topbarAvatar').textContent = av;
-  document.getElementById('topbarName').textContent = nm;
-  selectedAvatar = av;
-  document.getElementById('profileAvatarBig').textContent = av;
-  document.getElementById('profileNameInput').value = S.profile.name || '';
-  document.getElementById('profileNameDisplay').textContent = nm;
-  buildAvatarGrid();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  load();
-  if(S.rebirths === undefined) S.rebirths = 0; // Инициализация для старых сохранений
+document.addEventListener('DOMContentLoaded', async () => {
+  await load(); 
+  if(S.rebirths === undefined) S.rebirths = 0;
+  
   buildUpgradeCards();
   refreshProfileUI();
+  updateUI();
 
   document.querySelectorAll('[data-go]').forEach(btn => {
     btn.addEventListener('click', () => showScreen(btn.getAttribute('data-go')));
@@ -875,27 +796,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('wipeBtn').addEventListener('click', () => {
     if(confirm('Сбросить весь прогресс? (Это безвозвратно)')){
-      localStorage.removeItem(SAVE_KEY);
-      location.reload();
+      S = { energy: 0, totalProduced: 0, cityProgress: 0, cityLevel: 0, rebirths: 0, up: { reactor:0, turbine:0, cooling:0, wires:0 }, profile: { name:'', avatar: DEFAULT_AVATAR }, settings: { music:true, sfx:true }, lastSave: Date.now() };
+      save(); location.reload();
     }
   });
 
-  // Игровой цикл пассивного дохода
   let lastTick = Date.now();
   setInterval(() => {
     const now = Date.now(), dt = (now - lastTick) / 1000; lastTick = now;
     if(dt > 0 && dt < 1){
       const st = getStats(), inc = st.cps * dt;
-      if(inc > 0){
-        S.energy += inc; S.totalProduced += inc; S.cityProgress += inc * st.cityMult;
-        updateUI();
-      }
+      if(inc > 0){ S.energy += inc; S.totalProduced += inc; S.cityProgress += inc * st.cityMult; updateUI(); }
     }
   }, 1000 / 30);
-
   setInterval(save, 10000);
 });
 </script>
 </body>
 </html>
-
