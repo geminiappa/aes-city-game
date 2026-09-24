@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>АЭС: Энергия Города — RI Studio</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#06080e;
+  --bg2:#0a0e18;
+  --panel:#0d1220;
+  --panel2:#121a2c;
+  --border:#1e2b44;
+  --accent:#38bdf8;
+  --accent2:#a78bfa;
+  --rad:#fbbf24;
+  --rad-dark:#111827;
+  --green:#34d399;
+  --red:#ef4444;
+  --text:#e2e8f0;
+  --muted:#7c8aa5;
+}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+  overflow:hidden;
+  user-select:none;
+}
+
+/* ============ ЭКРАНЫ ============ */
+.screen{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .28s ease, visibility .28s;
+}
+.screen.active{opacity:1;visibility:visible;pointer-events:auto}
+
+/* ============ МЕНЮ ============ */
+#screen-menu{
+  align-items:center;justify-content:center;padding:20px;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(251,191,36,.10), transparent 55%),
+    radial-gradient(circle at 15% 10%, rgba(56,189,248,.12), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(167,139,250,.10), transparent 45%),
+    var(--bg);
+  overflow-y:auto;
+}
+#screen-menu::before{
+  content:'';position:fixed;top:0;left:0;right:0;height:6px;
+  background-image:repeating-linear-gradient(-45deg,#fbbf24 0,#fbbf24 8px,#111827 8px,#111827 16px);
+  opacity:.7;pointer-events:none;z-index:2;
+}
+#screen-menu::after{
+  content:'';position:fixed;bottom:0;left:0;right:0;height:6px;
+  background-image:repeating-linear-gradient(45deg,#fbbf24 0,#fbbf24 8px,#111827 8px,#111827 16px);
+  opacity:.7;pointer-events:none;z-index:2;
+}
+.menu-box{
+  width:100%;max-width:460px;text-align:center;
+  background:linear-gradient(160deg,rgba(20,30,52,.96),rgba(10,14,24,.98));
+  border:1px solid var(--border);border-radius:22px;padding:0 0 22px;
+  box-shadow:0 24px 70px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.05);
+  animation:popIn .4s ease;overflow:hidden;position:relative;
+}
+.menu-box::before,.menu-box::after{
+  content:'';position:absolute;left:0;right:0;height:5px;
+  background-image:repeating-linear-gradient(-45deg,#fbbf24 0,#fbbf24 8px,#111827 8px,#111827 16px);
+  opacity:.85;
+}
+.menu-box::before{top:0}
+.menu-box::after{bottom:0;background-image:repeating-linear-gradient(45deg,#fbbf24 0,#fbbf24 8px,#111827 8px,#111827 16px)}
+@keyframes popIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.menu-inner{padding:34px 28px 4px}
+.rad-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 14px;border-radius:22px;font-size:11px;font-weight:800;
+  letter-spacing:2px;color:#fbbf24;
+  background:rgba(251,191,36,.08);
+  border:1px solid rgba(251,191,36,.35);
+  margin-bottom:14px;
+}
+.rad-badge svg{filter:drop-shadow(0 0 6px rgba(251,191,36,.8))}
+.logo{
+  font-size:38px;line-height:1;letter-spacing:3px;font-weight:800;
+  background:linear-gradient(90deg,#38bdf8,#a78bfa,#fbbf24);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(56,189,248,.35));
+}
+.logo span{font-size:22px;letter-spacing:7px;display:block;margin-top:6px;
+  background:linear-gradient(90deg,#fbbf24,#f59e0b);
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.tagline{color:var(--muted);font-size:12px;margin:14px 0 24px;letter-spacing:2px;font-weight:600}
+.menu-buttons{display:flex;flex-direction:column;gap:10px}
+.menu-footer{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);
+  color:#4b5a78;font-size:11px;letter-spacing:.5px;line-height:1.8}
+.menu-footer b{color:#fbbf24;font-weight:700}
+
+/* ============ КНОПКИ ============ */
+.btn{
+  width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);
+  background:linear-gradient(180deg,#1b2740,#131c30);color:var(--text);
+  font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.5px;
+  transition:.15s;font-family:inherit;position:relative;
+}
+.btn:hover{background:linear-gradient(180deg,#243354,#18233b);border-color:#3a4d73;transform:translateY(-1px)}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn.primary{
+  background:linear-gradient(180deg,#0ea5e9,#0369a1);border-color:#38bdf8;
+  box-shadow:0 0 26px rgba(56,189,248,.35);
+}
+.btn.primary:hover{background:linear-gradient(180deg,#38bdf8,#0284c7)}
+.btn.danger{color:#fca5a5;border-color:#4c2020}
+.btn.danger:hover{background:linear-gradient(180deg,#3a1717,#251010);border-color:#7f1d1d}
+.btn.rad{
+  background:linear-gradient(180deg,#fbbf24,#d97706);
+  border-color:#fbbf24;color:#111827;
+  box-shadow:0 0 26px rgba(251,191,36,.35);
+}
+.btn.rad:hover{background:linear-gradient(180deg,#fcd34d,#f59e0b)}
+.btn.small{width:auto;padding:9px 16px;font-size:13px}
+
+/* Кнопка-ссылка «Сайт разработчика» */
+.btn-link{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:14px;padding:12px 22px;
+  background:linear-gradient(180deg,rgba(56,189,248,.16),rgba(56,189,248,.06));
+  border:1px solid rgba(56,189,248,.5);
+  color:#7dd3fc;border-radius:11px;
+  font-size:13px;font-weight:800;letter-spacing:.6px;
+  text-decoration:none;transition:.18s;
+  position:relative;overflow:hidden;
+  cursor:pointer;
+}
+.btn-link::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background-image:repeating-linear-gradient(-45deg,#fbbf24 0,#fbbf24 5px,#111827 5px,#111827 10px);
+  opacity:.75;
+}
+.btn-link:hover{
+  background:linear-gradient(180deg,rgba(56,189,248,.28),rgba(56,189,248,.12));
+  color:#e0f2fe;border-color:#38bdf8;
+  box-shadow:0 0 24px rgba(56,189,248,.4);
+  transform:translateY(-1px);
+}
+.btn-link:active{transform:translateY(1px)}
+.btn-link svg{width:14px;height:14px;flex:0 0 14px}
+
+/* ============ СТРАНИЦЫ ============ */
+.page{
+  width:100%;max-width:600px;margin:auto;
+  background:linear-gradient(160deg,rgba(20,30,52,.96),rgba(10,14,24,.98));
+  border:1px solid var(--border);border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.7);
+  max-height:90vh;position:relative;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.page::before,.page::after{
+  content:'';position:absolute;left:0;right:0;height:5px;
+  background-image:repeating-linear-gradient(-45deg,#fbbf24 0,#fbbf24 8px,#111827 8px,#111827 16px);
+  opacity:.9;pointer-events:none;z-index:3;
+}
+.page::before{top:0}
+.page::after{bottom:0;background-image:repeating-linear-gradient(45deg,#fbbf24 0,#fbbf24 8px,#111827 8px,#111827 16px)}
+
+/* Стилизованный скроллбар в стиле АЭС */
+.page-inner{
+  flex:1;overflow-y:auto;padding:30px 26px 26px;
+  scrollbar-width:thin;
+  scrollbar-color:#fbbf24 #0a0e18;
+  scroll-behavior:smooth;
+}
+.page-inner::-webkit-scrollbar{width:12px;height:12px}
+.page-inner::-webkit-scrollbar-track{
+  background:linear-gradient(180deg,#050810,#0a0e18);
+  border-left:1px solid rgba(251,191,36,.25);
+  border-right:1px solid rgba(251,191,36,.1);
+}
+.page-inner::-webkit-scrollbar-thumb{
+  background-image:repeating-linear-gradient(
+    -45deg,
+    #fbbf24 0px,
+    #fbbf24 5px,
+    #111827 5px,
+    #111827 10px
+  );
+  border:2px solid #0a0e18;
+  border-radius:8px;
+  box-shadow:inset 0 0 6px rgba(0,0,0,.6), 0 0 8px rgba(251,191,36,.4);
+  transition:box-shadow .2s;
+}
+.page-inner::-webkit-scrollbar-thumb:hover{
+  background-image:repeating-linear-gradient(
+    -45deg,
+    #fcd34d 0px,
+    #fcd34d 5px,
+    #1f2937 5px,
+    #1f2937 10px
+  );
+  box-shadow:inset 0 0 6px rgba(0,0,0,.6), 0 0 14px rgba(251,191,36,.75);
+}
+.page-inner::-webkit-scrollbar-thumb:active{
+  background-image:repeating-linear-gradient(
+    -45deg,
+    #f59e0b 0px,
+    #f59e0b 5px,
+    #0a0e18 5px,
+    #0a0e18 10px
+  );
+}
+.page-inner::-webkit-scrollbar-corner{background:#0a0e18}
+
+#screen-settings,#screen-about,#screen-help{padding:20px;align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(251,191,36,.07), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(56,189,248,.06), transparent 60%),
+    var(--bg);}
+.page h2{
+  font-size:22px;margin-bottom:20px;letter-spacing:2px;color:#fbbf24;
+  display:flex;align-items:center;gap:10px;font-weight:800;
+  text-shadow:0 0 20px rgba(251,191,36,.3);
+}
+.page h3{
+  font-size:14px;margin:18px 0 10px;letter-spacing:1.5px;color:#38bdf8;
+  text-transform:uppercase;font-weight:800;
+  display:flex;align-items:center;gap:8px;
+}
+.page h3::before{
+  content:'';display:inline-block;width:8px;height:8px;
+  background:#fbbf24;transform:rotate(45deg);
+  box-shadow:0 0 8px rgba(251,191,36,.7);
+}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:13px 0;border-bottom:1px solid rgba(34,48,77,.5);}
+.setting-row:last-of-type{border-bottom:none}
+.setting-label{font-size:14px;font-weight:600}
+.setting-sub{font-size:11px;color:var(--muted);margin-top:3px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:150px;height:6px;border-radius:6px;
+  background:linear-gradient(90deg,#fbbf24,#38bdf8);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:#fff;box-shadow:0 0 10px rgba(251,191,36,.9);cursor:pointer;border:2px solid #fbbf24;}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border:2px solid #fbbf24;border-radius:50%;background:#fff;
+  box-shadow:0 0 10px rgba(251,191,36,.9);cursor:pointer;}
+.switch{position:relative;width:52px;height:28px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#2a3854;border-radius:28px;transition:.25s;cursor:pointer}
+.slider::before{content:'';position:absolute;width:20px;height:20px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.25s}
+.switch input:checked + .slider{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+.switch input:checked + .slider::before{transform:translateX(24px)}
+.back-row{margin-top:22px;display:flex;gap:10px;justify-content:flex-end}
+
+/* ============ О РАЗРАБОТЧИКЕ ============ */
+.about-text{font-size:13.5px;line-height:1.75;color:#c3cfe3}
+.about-text b{color:#38bdf8}
+.rad-info{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:14px;border-radius:12px;margin-bottom:8px;
+  background:linear-gradient(160deg,rgba(251,191,36,.06),rgba(251,191,36,.02));
+  border:1px solid rgba(251,191,36,.22);
+}
+.rad-info-icon{
+  width:42px;height:42px;flex:0 0 42px;border-radius:10px;
+  background:rgba(251,191,36,.1);
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(251,191,36,.3);
+}
+.rad-info-body{flex:1;font-size:13px;line-height:1.65;color:#cbd5e1}
+.rad-info-body b{color:#fbbf24}
+.rad-info-title{font-size:11px;font-weight:800;letter-spacing:2px;color:#fbbf24;margin-bottom:4px;text-transform:uppercase}
+
+.dev-card{
+  margin-top:16px;padding:18px;border-radius:14px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,rgba(56,189,248,.08),rgba(167,139,250,.04));
+  border:1px solid rgba(56,189,248,.28);
+}
+.dev-card::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:5px;
+  background-image:repeating-linear-gradient(0deg,#fbbf24 0,#fbbf24 8px,#111827 8px,#111827 16px);
+}
+.dev-card .name{font-size:20px;font-weight:800;color:#fff;letter-spacing:1px;
+  background:linear-gradient(90deg,#38bdf8,#a78bfa);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  display:flex;align-items:center;gap:8px}
+.dev-card .role{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.5px}
+.dev-card .desc{font-size:13px;color:#c3cfe3;margin-top:12px;line-height:1.7}
+
+.copyright{
+  margin-top:22px;padding:16px;border-radius:12px;
+  background:rgba(10,14,24,.6);
+  border:1px dashed rgba(251,191,36,.35);
+  text-align:center;font-size:12px;line-height:1.8;color:#94a3b8;
+}
+.copyright .sym{color:#fbbf24;font-weight:800;font-size:15px;margin-bottom:4px}
+.copyright .studio{color:#fff;font-weight:800;letter-spacing:1.5px}
+
+/* ============ ИГРА ============ */
+#screen-game{background:#05070f;flex-direction:column}
+
+.topbar{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:rgba(13,18,32,.94);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(8px);flex:0 0 auto;z-index:5;position:relative;
+}
+.topbar::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;
+  background-image:repeating-linear-gradient(-45deg,#fbbf24 0,#fbbf24 4px,#111827 4px,#111827 8px);
+  opacity:.5;
+}
+.icon-btn{
+  width:40px;height:40px;border-radius:10px;border:1px solid var(--border);
+  background:#121a2c;color:var(--text);font-size:17px;cursor:pointer;transition:.15s;
+}
+.icon-btn:hover{background:#1f2c4a;border-color:#3a4d73}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .lbl{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:700;
+  display:flex;align-items:center;gap:4px}
+.stat .lbl .rad-dot{
+  width:8px;height:8px;border-radius:50%;background:#fbbf24;
+  box-shadow:0 0 8px rgba(251,191,36,.9);
+  animation:radPulse 2s ease-in-out infinite;
+}
+@keyframes radPulse{0%,100%{opacity:1}50%{opacity:.35}}
+.stat .val{font-size:18px;font-weight:800;color:#fff;line-height:1}
+.stat .val small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
+.stat.energy .val{color:#fbbf24;text-shadow:0 0 12px rgba(251,191,36,.55)}
+.stat.cps .val{color:#34d399}
+.stat.city .val{color:#67e8f9}
+.topbar .spacer{flex:1}
+.city-progress{width:120px;height:6px;background:#1a2338;border-radius:6px;overflow:hidden;margin-top:4px;
+  border:1px solid rgba(251,191,36,.2);}
+.city-progress .fill{height:100%;width:0%;
+  background:linear-gradient(90deg,#fbbf24,#f59e0b);transition:width .4s ease;
+  box-shadow:0 0 12px rgba(251,191,36,.7);}
+
+.game-main{flex:1;display:flex;overflow:hidden;min-height:0}
+
+.scene-wrap{
+  flex:1;position:relative;min-width:0;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(251,191,36,.04), transparent 65%),
+    radial-gradient(ellipse at 50% 90%, rgba(56,189,248,.05), transparent 70%);
+}
+#scene{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation}
+
+/* ============ ПАНЕЛЬ ============ */
+.panel{
+  width:410px;flex:0 0 410px;display:flex;flex-direction:column;
+  background:rgba(13,18,32,.95);border-left:1px solid var(--border);
+  backdrop-filter:blur(8px);min-height:0;position:relative;
+}
+.panel::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:4px;
+  background-image:repeating-linear-gradient(0deg,#fbbf24 0,#fbbf24 10px,#111827 10px,#111827 20px);
+  opacity:.7;
+}
+.panel-head{
+  padding:12px 14px 12px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;
+  background:linear-gradient(180deg,rgba(251,191,36,.05),transparent);
+}
+.panel-head .title{font-size:12.5px;font-weight:800;letter-spacing:2.5px;color:#fbbf24;
+  display:flex;align-items:center;gap:8px}
+.panel-head .title .rad-mini{
+  width:14px;height:14px;flex:0 0 14px;
+}
+.panel-head .sub{font-size:10.5px;color:var(--muted);letter-spacing:.3px}
+.panel-body{flex:1;overflow-y:auto;padding:10px 10px 10px 14px;min-height:0;
+  scrollbar-width:thin;scrollbar-color:#fbbf24 #0a0e18;}
+.panel-body::-webkit-scrollbar{width:12px;height:12px}
+.panel-body::-webkit-scrollbar-track{
+  background:linear-gradient(180deg,#050810,#0a0e18);
+  border-left:1px solid rgba(251,191,36,.25);
+  border-right:1px solid rgba(251,191,36,.1);
+}
+.panel-body::-webkit-scrollbar-thumb{
+  background-image:repeating-linear-gradient(
+    -45deg,
+    #fbbf24 0px,
+    #fbbf24 5px,
+    #111827 5px,
+    #111827 10px
+  );
+  border:2px solid #0a0e18;
+  border-radius:8px;
+  box-shadow:inset 0 0 6px rgba(0,0,0,.6), 0 0 8px rgba(251,191,36,.4);
+}
+.panel-body::-webkit-scrollbar-thumb:hover{
+  background-image:repeating-linear-gradient(
+    -45deg,
+    #fcd34d 0px,
+    #fcd34d 5px,
+    #1f2937 5px,
+    #1f2937 10px
+  );
+  box-shadow:inset 0 0 6px rgba(0,0,0,.6), 0 0 14px rgba(251,191,36,.75);
+}
+
+/* ============ КАРТОЧКИ АПГРЕЙДОВ ============ */
+.upg-card{
+  display:flex;gap:11px;padding:12px 12px 12px 14px;margin-bottom:9px;
+  background:linear-gradient(160deg,#131c30,#0d1524);
+  border:1px solid var(--border);border-radius:14px;
+  transition:border-color .15s, background .15s;
+  position:relative;overflow:hidden;
+}
+.upg-card::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:4px;
+  background-image:repeating-linear-gradient(0deg,#fbbf24 0,#fbbf24 6px,#111827 6px,#111827 12px);
+  opacity:.55;
+}
+.upg-card:hover{border-color:rgba(251,191,36,.35)}
+.upg-card.maxed{
+  border-color:rgba(52,211,153,.4);
+  background:linear-gradient(160deg,rgba(52,211,153,.06),#0d1524);
+}
+.upg-card.maxed::before{
+  background-image:repeating-linear-gradient(0deg,#34d399 0,#34d399 6px,#0d1524 6px,#0d1524 12px);
+}
+.upg-card.cant-afford .upg-icon{opacity:.55}
+.upg-card.cant-afford .upg-body{opacity:.78}
+
+.upg-icon{
+  width:52px;height:52px;flex:0 0 52px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 30% 25%,rgba(251,191,36,.18),rgba(251,191,36,.04));
+  border:1px solid rgba(251,191,36,.28);position:relative;
+  transition:opacity .15s;
+}
+.upg-icon::after{
+  content:'';position:absolute;inset:-2px;border-radius:14px;
+  border:1px solid rgba(251,191,36,.08);pointer-events:none;
+}
+.upg-icon svg{width:34px;height:34px;filter:drop-shadow(0 0 5px rgba(251,191,36,.55))}
+.upg-icon .glyph{font-size:26px;line-height:1}
+
+.upg-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;
+  transition:opacity .15s;}
+.upg-name{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;color:#fff}
+.upg-level{
+  font-size:10px;font-weight:800;padding:2px 8px;border-radius:9px;
+  background:rgba(56,189,248,.15);color:#7dd3fc;letter-spacing:.5px;
+  border:1px solid rgba(56,189,248,.25);
+  transition:background .2s, color .2s, border-color .2s;
+}
+.upg-level.max{background:rgba(52,211,153,.18);color:#6ee7b7;border-color:rgba(52,211,153,.4)}
+.upg-desc{font-size:11px;color:var(--muted);line-height:1.35}
+.upg-current{font-size:11px;color:#94a3b8;margin-top:2px}
+.upg-current b{color:#e2e8f0}
+.upg-next{font-size:11px;color:#34d399;font-weight:700;margin-top:1px;min-height:14px}
+.upg-next b{color:#6ee7b7}
+.upg-btn{
+  align-self:center;flex:0 0 auto;min-width:112px;padding:10px 12px;
+  border-radius:11px;cursor:pointer;font-family:inherit;font-weight:800;font-size:12px;
+  background:linear-gradient(180deg,#fbbf24,#d97706);border:1px solid #fbbf24;
+  color:#111827;display:flex;flex-direction:column;align-items:center;gap:2px;
+  transition:filter .15s, background .2s, border-color .2s;
+  letter-spacing:.3px;position:relative;overflow:hidden;
+}
+.upg-btn::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background-image:repeating-linear-gradient(-45deg,#111827 0,#111827 4px,transparent 4px,transparent 8px);
+  opacity:.35;
+}
+.upg-btn:hover:not(.disabled):not(.maxed){filter:brightness(1.12)}
+.upg-btn:active:not(.disabled):not(.maxed){filter:brightness(.92)}
+.upg-btn .cost{font-size:11px;font-weight:700;opacity:.88}
+.upg-btn.disabled{
+  background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed;
+  filter:none;
+}
+.upg-btn.disabled::before{opacity:.15}
+.upg-btn.maxed{
+  background:linear-gradient(180deg,#10b981,#047857);
+  border-color:#34d399;color:#fff;cursor:default;
+}
+.upg-btn.maxed::before{display:none}
+
+/* ============ ПЛАВАЮЩИЙ ТЕКСТ ============ */
+.float-text{
+  position:fixed;pointer-events:none;font-weight:800;font-size:20px;
+  color:#fbbf24;text-shadow:0 0 14px rgba(251,191,36,.95);z-index:999;
+  animation:floatUp .9s cubic-bezier(.2,.7,.4,1) forwards;
+  transform:translate(-50%,-50%);
+}
+@keyframes floatUp{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(.7)}
+  100%{opacity:0;transform:translate(-50%,-200%) scale(1.4)}
+}
+
+/* ============ ТОСТЫ ============ */
+#toasts{
+  position:fixed;top:16px;right:16px;z-index:1000;
+  display:flex;flex-direction:column;gap:9px;pointer-events:none;max-width:340px;
+}
+.toast{
+  padding:13px 16px 13px 20px;border-radius:12px;font-size:13px;font-weight:600;
+  background:linear-gradient(160deg,rgba(30,44,72,.97),rgba(13,18,32,.97));
+  border:1px solid var(--rad);color:#fde68a;position:relative;overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,.6), 0 0 22px rgba(251,191,36,.22);
+  animation:toastIn .35s cubic-bezier(.2,.9,.3,1.3);transition:.4s;
+}
+.toast::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:5px;
+  background-image:repeating-linear-gradient(0deg,#fbbf24 0,#fbbf24 6px,#111827 6px,#111827 12px);
+}
+.toast.out{opacity:0;transform:translateX(120%)}
+@keyframes toastIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
+
+/* ============ SVG АНИМАЦИИ ============ */
+@keyframes corePulse{0%,100%{opacity:.85}50%{opacity:1}}
+@keyframes steamRise{
+  0%{transform:translate(0,0) scale(1);opacity:0}
+  12%{opacity:.6}
+  100%{transform:translate(0,-140px) scale(2.9);opacity:0}
+}
+@keyframes dashFlow{to{stroke-dashoffset:-40}}
+@keyframes blinkLight{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes wireFlow{to{stroke-dashoffset:-30}}
+@keyframes rotateTur{to{transform:rotate(360deg)}}
+
+.core-pulse{animation:corePulse 1.8s ease-in-out infinite}
+.steam-puff{transform-box:fill-box;transform-origin:center;animation:steamRise 3.6s ease-out infinite;}
+.pipe-flow{stroke-dasharray:6 10;animation:dashFlow 1.4s linear infinite;}
+.city-light{animation:blinkLight 3.4s ease-in-out infinite}
+.wire-flow{stroke-dasharray:4 8;animation:wireFlow 1.2s linear infinite}
+.turbine-rotor{transform-box:fill-box;transform-origin:center;animation:rotateTur 1s linear infinite}
+
+.smoke-puff{animation:smokeRise 5s ease-out infinite;transform-box:fill-box;transform-origin:center;opacity:.45}
+@keyframes smokeRise{0%{transform:translateY(0) scale(.5);opacity:.05}30%{opacity:.45}100%{transform:translateY(-130px) translateX(25px) scale(2.5);opacity:0}}
+/* ============ АДАПТИВ ============ */
+@media (max-width:980px){
+  .game-main{flex-direction:column}
+  .panel{width:100%;flex:0 0 48%;border-left:none;border-top:1px solid var(--border)}
+  .scene-wrap{flex:1 1 auto;min-height:0}
+  .upg-icon{width:44px;height:44px;flex:0 0 44px}
+  .upg-icon svg{width:28px;height:28px}
+}
+@media (max-width:560px){
+  .panel{flex:0 0 52%}
+  .topbar{padding:8px 10px;gap:8px}
+  .stat .val{font-size:15px}
+  .city-progress{width:80px}
+  .logo{font-size:30px}
+  .logo span{font-size:18px;letter-spacing:5px}
+  .upg-btn{min-width:90px;padding:9px 8px;font-size:11px}
+  .upg-card{padding:10px 10px 10px 12px;gap:9px}
+  .menu-inner{padding:28px 20px 4px}
+  .page-inner{padding:24px 18px 20px}
+  .rad-info{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== ГЛАВНОЕ МЕНЮ ==================== -->
+<div class="screen active" id="screen-menu">
+  <div class="menu-box">
+    <div class="menu-inner">
+      <div class="rad-badge">
+        <svg viewBox="0 0 40 40" width="16" height="16" id="menu-rad-badge"></svg>
+        ОПАСНАЯ ЗОНА · РЕАКТОР
+      </div>
+      <h1 class="logo">АЭС<span>ЭНЕРГИЯ ГОРОДА</span></h1>
+      <p class="tagline">RI STUDIO · v2.2 · ЯДЕРНЫЙ РЕАКТОР</p>
+      <div class="menu-buttons">
+        <button class="btn primary" data-go="screen-game">☢ &nbsp;НАЧАТЬ СМЕНУ</button>
+        <button class="btn rad" data-go="screen-help">📖 &nbsp;КАК ИГРАТЬ</button>
+        <button class="btn" data-go="screen-settings">⚙ &nbsp;НАСТРОЙКИ</button>
+        <button class="btn" data-go="screen-profile">👤 &nbsp;ПРОФИЛЬ</button>
+        <button class="btn" data-go="screen-about">🏢 &nbsp;О РАЗРАБОТЧИКЕ · RI STUDIO</button>
+        <button class="btn danger" id="wipeBtn">🗑 &nbsp;СБРОСИТЬ ПРОГРЕСС</button>
+      </div>
+      <div class="menu-footer">
+        <b>© 2026 RI STUDIO</b> · Все права защищены
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== КАК ИГРАТЬ ==================== -->
+<div class="screen" id="screen-help">
+  <div class="page">
+    <div class="page-inner">
+      <h2>📖 КАК ИГРАТЬ</h2>
+      <div class="rad-info">
+        <div class="rad-info-icon" id="help-rad-icon"></div>
+        <div class="rad-info-body">
+          <div class="rad-info-title">ЦЕЛЬ ИГРЫ</div>
+          Развить атомную электростанцию до максимального уровня и обеспечить
+          энергией растущий город.
+        </div>
+      </div>
+      <h3>Порядок действий</h3>
+      <div class="about-text">
+        <p><b>1. Кликайте по АЭС.</b> Каждый клик по станции вырабатывает
+        <b>энергию ⚡</b>. Всплывающие числа показывают прибавку.</p>
+        <br>
+        <p><b>2. Покупайте улучшения</b> справа — Реактор, Турбины, Охлаждение,
+        ЛЭП и Безопасность. Каждое улучшение усиливает выработку и клик.</p>
+        <br>
+        <p><b>3. Следите за ростом города.</b> Энергия идёт в город — он растёт
+        новыми домами и уровнем. Чем мощнее ЛЭП, тем быстрее рост.</p>
+        <br>
+        <p><b>4. Копите энергию.</b> Автовыработка работает даже когда вы не
+        кликаете. Возвращайтесь — станция продолжает работать
+        (оффлайн-доход до 2 часов).</p>
+        <br>
+        <p><b>5. Соблюдайте радиационную безопасность.</b> Улучшение
+        «Безопасность» даёт мощные множители к клику.</p>
+      </div>
+      <h3>Подсказки</h3>
+      <div class="about-text">
+        <p>• Все 5 веток улучшений взаимосвязаны: Охлаждение усиливает выработку
+        всех источников, а Безопасность — силу клика.</p>
+        <p style="margin-top:8px">• Сцена слева меняется в реальном времени:
+        светится реактор, вращаются турбины, идёт пар, город зажигает окна.</p>
+      </div>
+      <div class="back-row">
+        <button class="btn small" data-go="screen-menu">← Назад в меню</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== НАСТРОЙКИ ==================== -->
+<div class="screen" id="screen-settings">
+  <div class="page">
+    <div class="page-inner">
+      <h2>⚙ НАСТРОЙКИ</h2>
+      <div class="setting-row">
+        <div><div class="setting-label">Музыка</div>
+          <div class="setting-sub">Фоновый эмбиент реакторного зала</div></div>
+        <label class="switch"><input type="checkbox" id="setMusic"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Громкость музыки</div>
+          <div class="setting-sub"><span id="musicVolLabel">40</span>%</div></div>
+        <input type="range" id="musicVol" min="0" max="100" value="40">
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Звуковые эффекты</div>
+          <div class="setting-sub">Клики, покупки, события</div></div>
+        <label class="switch"><input type="checkbox" id="setSfx"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Громкость эффектов</div>
+          <div class="setting-sub"><span id="sfxVolLabel">70</span>%</div></div>
+        <input type="range" id="sfxVol" min="0" max="100" value="70">
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Проверка звука</div>
+          <div class="setting-sub">Приятный тестовый сигнал</div></div>
+        <button class="btn small" id="testSound">▶ Тест</button>
+      </div>
+      <div class="back-row">
+        <button class="btn small" data-go="screen-menu">← Назад в меню</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== О РАЗРАБОТЧИКЕ ==================== -->
+<div class="screen" id="screen-about">
+  <div class="page">
+    <div class="page-inner">
+      <h2>🏢 О РАЗРАБОТЧИКЕ</h2>
+
+      <!-- МИНИ-ОПИСАНИЕ ИГРЫ -->
+      <div class="rad-info">
+        <div class="rad-info-icon" id="about-rad-icon"></div>
+        <div class="rad-info-body">
+          <div class="rad-info-title">ОБ ИГРЕ</div>
+          <b>«АЭС: Энергия Города»</b> — кликер-симулятор атомной электростанции.
+          Кликайте по реактору, чтобы вырабатывать энергию, вкладывайте её в
+          улучшения (Реактор, Турбины, Охлаждение, ЛЭП, Безопасность) и
+          наблюдайте, как растёт город на горизонте. Все улучшения видно прямо
+          на экране — светится ядро реактора, вращаются турбины, поднимается
+          пар, а город зажигает окна.
+        </div>
+      </div>
+
+      <div class="rad-info">
+        <div class="rad-info-icon" id="about-what-rad"></div>
+        <div class="rad-info-body">
+          <div class="rad-info-title">ЧТО НУЖНО ДЕЛАТЬ</div>
+          <b>1.</b> Кликать по станции для добычи энергии.<br>
+          <b>2.</b> Покупать улучшения в правой панели.<br>
+          <b>3.</b> Развивать город, накапливая энергию.<br>
+          <b>4.</b> Соблюдать радиационную безопасность.
+        </div>
+      </div>
+
+      <h3>Студия</h3>
+      <div class="dev-card">
+        <div class="name">
+          <svg viewBox="0 0 40 40" width="22" height="22" id="about-rad-icon2"></svg>
+          RI STUDIO
+        </div>
+        <div class="role">ГЕЙМДЕВ-СТУДИЯ · ИНДИ-РАЗРАБОТКА · 2026</div>
+        <div class="desc">
+          Мы делаем небольшие браузерные игры с атмосферным дизайном, живой
+          графикой и объёмным звуком. «АЭС: Энергия Города» — полностью
+          самостоятельная игра: работает офлайн, автоматически сохраняет
+          прогресс и не требует установки.
+        </div>
+      </div>
+
+      <!-- КОПИРАЙТ -->
+      <div class="copyright">
+        <div class="sym">☢</div>
+        <div><span class="studio">© 2026 RI STUDIO</span></div>
+        <div>Все права защищены.</div>
+        <div style="margin-top:8px;font-size:11px;color:#64748b">
+          Копирование, распространение или модификация без письменного
+          разрешения правообладателя запрещены.
+        </div>
+        <a class="btn-link"
+           href="https://ri-studio-games.onrender.com/index.html"
+           target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          САЙТ РАЗРАБОТЧИКА
+        </a>
+      </div>
+
+      <div class="back-row">
+        <button class="btn small" data-go="screen-menu">← Назад в меню</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ПРОФИЛЬ ==================== -->
+<div class="screen" id="screen-profile">
+  <div class="page">
+    <div class="page-inner">
+      <h2>👤 ПРОФИЛЬ</h2>
+      <div style="text-align:center">
+        <img id="avatarPreview" src="" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:2px solid #fbbf24;background:#111827">
+      </div>
+      <h3>Имя</h3>
+      <input id="profileName" class="btn" placeholder="Введите имя" style="text-align:left">
+      <h3>Аватар</h3>
+      <input id="profileAvatar" type="file" accept="image/*">
+      <div class="back-row">
+        <button class="btn small" id="saveProfile">💾 Сохранить</button>
+        <button class="btn small" data-go="screen-menu">← Назад</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ИГРА ==================== -->
+<div class="screen" id="screen-game">
+  <header class="topbar">
+    <button class="icon-btn" data-go="screen-menu" title="В меню">←</button>
+    <div class="stat energy">
+      <div class="lbl"><span class="rad-dot"></span>⚡ Энергия</div>
+      <div class="val" id="uiEnergy">0</div>
+    </div>
+    <div class="stat cps">
+      <div class="lbl">Выработка</div>
+      <div class="val"><span id="uiCps">0</span><small>/сек</small></div>
+    </div>
+    <div class="stat city">
+      <div class="lbl">🏙 Город · ур.<span id="uiCityLvl">0</span></div>
+      <div class="city-progress"><div class="fill" id="uiCityFill"></div></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="stat" style="text-align:right">
+      <div class="lbl">За клик</div>
+      <div class="val" style="color:#a78bfa" id="uiClick">1</div>
+    </div>
+  </header>
+
+  <main class="game-main">
+    <div class="scene-wrap">
+      <svg id="scene" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <aside class="panel">
+      <div class="panel-head">
+        <span class="title">
+          <svg class="rad-mini" viewBox="0 0 40 40" id="panel-rad-icon"></svg>
+          УЛУЧШЕНИЯ АЭС
+        </span>
+        <span class="sub">Клик по станции</span>
+      </div>
+      <div class="panel-body" id="upgrades"></div>
+    </aside>
+  </main>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+/* =========================================================
+   0. РАДИАЦИОННЫЙ ЗНАК
+   ========================================================= */
+function radSymbol(cx, cy, r, color){
+  const ir = r * 0.30;
+  const or_ = r;
+  const cr = r * 0.20;
+  let s = `<circle cx="${cx}" cy="${cy}" r="${cr}" fill="${color}"/>`;
+  const centers = [-90, 30, 150];
+  for(const center of centers){
+    const a1 = (center - 30) * Math.PI / 180;
+    const a2 = (center + 30) * Math.PI / 180;
+    const x1 = cx + Math.cos(a1) * ir, y1 = cy + Math.sin(a1) * ir;
+    const x2 = cx + Math.cos(a1) * or_, y2 = cy + Math.sin(a1) * or_;
+    const x3 = cx + Math.cos(a2) * or_, y3 = cy + Math.sin(a2) * or_;
+    const x4 = cx + Math.cos(a2) * ir, y4 = cy + Math.sin(a2) * ir;
+    s += `<path d="M ${x1.toFixed(2)} ${y1.toFixed(2)} L ${x2.toFixed(2)} ${y2.toFixed(2)} A ${or_} ${or_} 0 0 1 ${x3.toFixed(2)} ${y3.toFixed(2)} L ${x4.toFixed(2)} ${y4.toFixed(2)} A ${ir} ${ir} 0 0 0 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${color}"/>`;
+  }
+  return s;
+}
+function radSVGInline(id, size, color){
+  const el = document.getElementById(id);
+  if(el) el.innerHTML = radSymbol(20, 20, 18, color || '#fbbf24');
+}
+
+/* =========================================================
+   1. КОНФИГ АПГРЕЙДОВ
+   ========================================================= */
+const UPGRADES = [
+  { id:'reactor', name:'Реактор', icon:'☢', useRad:true,
+    desc:'Сердце станции. Даёт силу клика и базовую выработку.',
+    levels:[
+      {cost:0,       click:1,    cps:0,    title:'Базовый'},
+      {cost:100,     click:5,    cps:1,    title:'Улучшенный'},
+      {cost:800,     click:20,   cps:8,    title:'Продвинутый'},
+      {cost:6000,    click:80,   cps:40,   title:'Плазменный'},
+      {cost:50000,   click:300,  cps:200,  title:'Термоядерный'},
+      {cost:400000,  click:1200, cps:1000, title:'Квантовый'},
+    ]},
+  { id:'turbine', name:'Турбины', icon:'⚙', useRad:false,
+    desc:'Вращаются от пара реактора. Дают постоянную выработку.',
+    levels:[
+      {cost:0,       cps:0,    title:'Отсутствуют'},
+      {cost:200,     cps:3,    title:'Малые'},
+      {cost:1500,    cps:15,   title:'Средние'},
+      {cost:12000,   cps:80,   title:'Мощные'},
+      {cost:90000,   cps:450,  title:'Промышленные'},
+      {cost:700000,  cps:2500, title:'Магнитные'},
+    ]},
+  { id:'cooling', name:'Охлаждение', icon:'❄', useRad:false,
+    desc:'Градирни отводят тепло. Множитель ко всей выработке.',
+    levels:[
+      {cost:0,       mult:0,   title:'Нет'},
+      {cost:400,     mult:0.3, title:'Пассивное'},
+      {cost:3000,    mult:0.8, title:'Активное'},
+      {cost:25000,   mult:1.8, title:'Жидкостное'},
+      {cost:200000,  mult:4.0, title:'Криогенное'},
+      {cost:1500000, mult:9.0, title:'Квантовое'},
+    ]},
+  { id:'wires', name:'ЛЭП', icon:'⚡', useRad:false,
+    desc:'Линии электропередачи. Ускоряют рост города.',
+    levels:[
+      {cost:0,       cityMult:0,  title:'Нет'},
+      {cost:300,     cityMult:0.5,title:'Местные'},
+      {cost:2500,    cityMult:1.0,title:'Регион'},
+      {cost:20000,   cityMult:2.0,title:'Магистраль'},
+      {cost:150000,  cityMult:4.0,title:'Сверхпровод'},
+      {cost:1000000, cityMult:8.0,title:'Орбитальные'},
+    ]},
+  { id:'safety', name:'Безопасность', icon:'☢', useRad:true,
+    desc:'Защита контура. Множитель к силе клика.',
+    levels:[
+      {cost:0,       clickMult:0,  title:'Нет'},
+      {cost:500,     clickMult:0.5,title:'Базовый'},
+      {cost:4000,    clickMult:1.0,title:'Усиленный'},
+      {cost:35000,   clickMult:2.0,title:'Многослойный'},
+      {cost:280000,  clickMult:4.0,title:'Автоматический'},
+      {cost:2200000, clickMult:8.0,title:'ИИ-контроль'},
+    ]},
+];
+
+/* =========================================================
+   2. ГОРОД
+   ========================================================= */
+const CITY_BUILDINGS = [
+  {x:822,w:26,h:110,lvl:4, bg:true, antenna:true},
+  {x:868,w:32,h:148,lvl:6, bg:true, antenna:false},
+  {x:922,w:24,h:128,lvl:7, bg:true, antenna:true},
+  {x:978,w:30,h:175,lvl:8, bg:true, antenna:true},
+  {x:1042,w:26,h:150,lvl:9, bg:true, antenna:false},
+  {x:1102,w:28,h:195,lvl:10,bg:true, antenna:true},
+  {x:1168,w:24,h:170,lvl:10,bg:true, antenna:false},
+  {x:838,w:32,h:68, lvl:1, ac:true},
+  {x:884,w:38,h:98, lvl:2, antenna:true},
+  {x:934,w:28,h:58, lvl:3, ac:true},
+  {x:970,w:42,h:128,lvl:3, antenna:true},
+  {x:1022,w:32,h:82, lvl:4, ac:true},
+  {x:1062,w:38,h:112,lvl:5, antenna:true},
+  {x:1108,w:32,h:74, lvl:6, ac:true},
+  {x:1148,w:42,h:140,lvl:7, antenna:true},
+  {x:872,w:26,h:158,lvl:8, antenna:true},
+  {x:956,w:24,h:178,lvl:9, antenna:true},
+  {x:1046,w:22,h:200,lvl:10,antenna:true},
+];
+const CITY_THRESHOLDS = [0, 30, 150, 600, 2500, 10000, 50000, 250000, 1000000, 5000000, 25000000];
+
+/* =========================================================
+   3. СОСТОЯНИЕ И СИНХРОНИЗАЦИЯ С БАЗОЙ ДАННЫХ
+   ========================================================= */
+const SAVE_KEY = 'aes_city_clicker_v2_3';
+
+// Генерация уникального ID игрока для сохранения на бэкенде
+let userId = localStorage.getItem('aes_user_id');
+if(!userId){
+  userId = 'user_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  localStorage.setItem('aes_user_id', userId);
+}
+
+function defaultState(){
+  return {
+    energy: 0, totalProduced: 0, cityProgress: 0, cityLevel: 0,
+    up: { reactor:0, turbine:0, cooling:0, wires:0, safety:0 },
+    settings: { music:true, sfx:true, musicVol:0.4, sfxVol:0.7 },
+    lastSave: Date.now(),
+  };
+}
+let S = defaultState();
+
+/* =========================================================
+   4. УТИЛИТЫ
+   ========================================================= */
+const SUF = ['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td'];
+function fmt(n){
+  if(!isFinite(n)) return '∞';
+  if(n < 0) return '-' + fmt(-n);
+  if(n < 1000) return (Math.floor(n*10)/10).toString();
+  let i = 0;
+  while(n >= 1000 && i < SUF.length-1){ n /= 1000; i++; }
+  return n.toFixed(n < 10 ? 2 : n < 100 ? 1 : 0) + SUF[i];
+}
+function seededRand(x, y){
+  const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+  return s - Math.floor(s);
+}
+function upgCur(id){ return UPGRADES.find(u => u.id === id).levels[S.up[id]]; }
+
+/* =========================================================
+   5. СТАТИСТИКИ
+   ========================================================= */
+function getStats(){
+  const r = upgCur('reactor'), t = upgCur('turbine'), c = upgCur('cooling'),
+        w = upgCur('wires'),   s = upgCur('safety');
+  const baseCps = (r.cps || 0) + (t.cps || 0);
+  const cps = baseCps * (1 + (c.mult || 0));
+  const click = (r.click || 0) * (1 + (s.clickMult || 0));
+  const cityMult = 1 + (w.cityMult || 0);
+  return { cps, click, cityMult };
+}
+function cityLevelFromProgress(p){
+  let lvl = 0;
+  for(let i = 0; i < CITY_THRESHOLDS.length; i++){
+    if(p >= CITY_THRESHOLDS[i]) lvl = i;
+  }
+  return lvl;
+}
+
+/* =========================================================
+   6. ЗВУК
+   ========================================================= */
+const Sound = {
+  ctx:null, musicTimer:null, step:0,
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  resume(){ if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); },
+  click(){
+    if(!S.settings.sfx) return;
+    this.init(); this.resume(); if(!this.ctx) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const vol = 0.55 * S.settings.sfxVol;
+    if(vol <= 0.0008) return;
+    const o1 = ctx.createOscillator(), g1 = ctx.createGain();
+    const baseFreq = 720 + Math.random() * 40;
+    o1.type = 'sine';
+    o1.frequency.setValueAtTime(baseFreq, t);
+    o1.frequency.exponentialRampToValueAtTime(baseFreq * 0.72, t + 0.14);
+    g1.gain.setValueAtTime(0.0001, t);
+    g1.gain.exponentialRampToValueAtTime(0.32 * vol, t + 0.006);
+    g1.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    const o2 = ctx.createOscillator(), g2 = ctx.createGain();
+    o2.type = 'sine';
+    o2.frequency.setValueAtTime(baseFreq * 1.5, t);
+    o2.frequency.exponentialRampToValueAtTime(baseFreq * 1.05, t + 0.1);
+    g2.gain.setValueAtTime(0.0001, t);
+    g2.gain.exponentialRampToValueAtTime(0.10 * vol, t + 0.005);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
+    const o3 = ctx.createOscillator(), g3 = ctx.createGain();
+    o3.type = 'triangle';
+    o3.frequency.setValueAtTime(baseFreq * 2.4, t);
+    g3.gain.setValueAtTime(0.0001, t);
+    g3.gain.exponentialRampToValueAtTime(0.035 * vol, t + 0.004);
+    g3.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(4200, t);
+    filter.frequency.exponentialRampToValueAtTime(2400, t + 0.15);
+    filter.Q.value = 0.6;
+    o1.connect(g1); o2.connect(g2); o3.connect(g3);
+    g1.connect(filter); g2.connect(filter); g3.connect(filter);
+    filter.connect(ctx.destination);
+    o1.start(t); o1.stop(t + 0.22);
+    o2.start(t); o2.stop(t + 0.16);
+    o3.start(t); o3.stop(t + 0.1);
+  },
+  chime(){
+    if(!S.settings.sfx) return;
+    this.init(); this.resume(); if(!this.ctx) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const vol = 0.5 * S.settings.sfxVol;
+    if(vol <= 0.0008) return;
+    const notes = [523.25, 659.25, 783.99];
+    notes.forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(f, t + i * 0.06);
+      o.frequency.exponentialRampToValueAtTime(f * 0.94, t + i * 0.06 + 0.35);
+      g.gain.setValueAtTime(0.0001, t + i * 0.06);
+      g.gain.exponentialRampToValueAtTime(0.13 * vol, t + i * 0.06 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.06 + 0.42);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t + i * 0.06); o.stop(t + i * 0.06 + 0.5);
+    });
+  },
+  deny(){
+    if(!S.settings.sfx) return;
+    this.init(); this.resume(); if(!this.ctx) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const vol = 0.4 * S.settings.sfxVol;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(180, t);
+    o.frequency.exponentialRampToValueAtTime(90, t + 0.18);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.14 * vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + 0.25);
+  },
+  sfx(freq, dur=0.08, type='sine', vol=1){
+    if(!S.settings.sfx) return;
+    this.init(); this.resume(); if(!this.ctx) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    const v = Math.max(0.0002, 0.15 * vol * S.settings.sfxVol);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(v, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  },
+  startMusic(){
+    if(this.musicTimer || !S.settings.music) return;
+    this.init(); this.resume(); if(!this.ctx) return;
+    this.step = 0;
+    this.musicTimer = setInterval(() => this.musicTick(), 400);
+  },
+  stopMusic(){ if(this.musicTimer){ clearInterval(this.musicTimer); this.musicTimer = null; } },
+  musicTick(){
+    if(!S.settings.music || !this.ctx) return;
+    const vol = 0.05 * S.settings.musicVol;
+    if(vol <= 0.0006) return;
+    const bass  = [55.00, 55.00, 73.42, 82.41];
+    const chords = [
+      [220.00, 277.18, 329.63],
+      [220.00, 277.18, 329.63],
+      [293.66, 369.99, 440.00],
+      [329.63, 415.30, 493.88],
+    ];
+    const bar = Math.floor(this.step / 4) % 4;
+    if(this.step % 4 === 0) this.tone(bass[bar], 1.2, 'triangle', vol * 1.4);
+    const note = chords[bar][this.step % 3];
+    this.tone(note, 0.36, 'sine', vol);
+    this.step++;
+  },
+  tone(freq, dur, type, vol){
+    if(vol <= 0.0006) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+};
+
+/* =========================================================
+   7. СОХРАНЕНИЕ И СЕТЕВАЯ СИНХРОНИЗАЦИЯ
+   ========================================================= */
+async function save(){
+  S.lastSave = Date.now();
+  try{
+    // Локальное сохранение для резервной копии
+    localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+
+    // Отправка на сервер и в БД PostgreSQL
+    await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, saveData: S })
+    });
+  }catch(e){
+    console.warn('Не удалось сохранить данные на сервер:', e);
+  }
+}
+
+async function load(){
+  try{
+    const response = await fetch(`/api/save/${userId}`);
+    const result = await response.json();
+    
+    let d = null;
+    if (result.success && result.data) {
+      d = result.data;
+    } else {
+      // Резервное чтение из localStorage, если на сервере данных нет
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(raw) d = JSON.parse(raw);
+    }
+
+    if(d){
+      const base = defaultState();
+      S = Object.assign(base, d);
+      S.settings = Object.assign(base.settings, d.settings || {});
+      S.up = Object.assign(base.up, d.up || {});
+    }
+  }catch(e){
+    console.warn('Ошибка загрузки с сервера, используется локальный кэш:', e);
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(raw){
+        const d = JSON.parse(raw);
+        const base = defaultState();
+        S = Object.assign(base, d);
+      }
+    }catch(err){}
+  }
+}
+
+function applyOffline(){
+  const now = Date.now();
+  const elapsed = Math.min((now - (S.lastSave || now)) / 1000, 7200);
+  if(elapsed > 60){
+    const st = getStats();
+    const gain = st.cps * elapsed * 0.5;
+    if(gain > 0.5){
+      S.energy += gain;
+      S.totalProduced += gain;
+      S.cityProgress += st.cps * elapsed * 0.5 * st.cityMult;
+      setTimeout(()=>showToast(`🌙 Оффлайн-выработка: +${fmt(gain)} ⚡`), 600);
+    }
+  }
+  S.lastSave = now;
+}
+
+/* =========================================================
+   8. ТОСТЫ
+   ========================================================= */
+function showToast(text){
+  const box = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = text;
+  box.appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(), 420); }, 3400);
+}
+
+/* =========================================================
+   9. SVG СЦЕНА
+   ========================================================= */
+const sceneEl = document.getElementById('scene');
+let lastSceneSig = '';
+
+function sceneSignature(){
+  return [S.up.reactor, S.up.turbine, S.up.cooling, S.up.wires, S.up.safety, S.cityLevel].join('-');
+}
+
+function buildScene(){
+  const sig = sceneSignature();
+  if(sig === lastSceneSig) return;
+  lastSceneSig = sig;
+
+  const rl = S.up.reactor, tl = S.up.turbine, cl = S.up.cooling,
+        wl = S.up.wires,   cityLvl = S.cityLevel;
+
+  const coreColors = ['#94a3b8', '#60a5fa', '#22d3ee', '#22d3ee', '#67e8f9', '#c4b5fd'];
+  const glowColors = ['#475569', '#1d4ed8', '#0e7490', '#0891b2', '#06b6d4', '#8b5cf6'];
+  const coreColor = coreColors[Math.min(rl, 5)];
+  const glowColor = glowColors[Math.min(rl, 5)];
+  const coreR = 7 + rl * 4.5;
+  const glowR = coreR * 3.4;
+
+  const steamCount = cl * 3;
+  const turbinesActive = tl > 0;
+  const turbineDur = Math.max(0.35, 2.4 - tl * 0.4);
+  const pipesGlow = cl > 0;
+
+  let h = '';
+
+  h += `<defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#03050c"/>
+      <stop offset="35%" stop-color="#0a1024"/>
+      <stop offset="65%" stop-color="#1a1530"/>
+      <stop offset="100%" stop-color="#2c1e38"/>
+    </linearGradient>
+    <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0e1a1f"/>
+      <stop offset="100%" stop-color="#04070a"/>
+    </linearGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="${coreColor}" stop-opacity="1"/>
+      <stop offset="30%" stop-color="${glowColor}" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="${glowColor}" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="towerConcrete" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1a2029"/>
+      <stop offset="18%" stop-color="#3a4452"/>
+      <stop offset="48%" stop-color="#4d5868"/>
+      <stop offset="82%" stop-color="#2e3845"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="towerInner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a0e14" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#1a2029" stop-opacity="0.7"/>
+    </linearGradient>
+    <linearGradient id="domeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5a6578"/>
+      <stop offset="45%" stop-color="#3d4858"/>
+      <stop offset="100%" stop-color="#232a38"/>
+    </linearGradient>
+    <linearGradient id="domeSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1a2029"/>
+      <stop offset="50%" stop-color="#4a5464"/>
+      <stop offset="100%" stop-color="#1a2029"/>
+    </linearGradient>
+    <linearGradient id="bldgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a4457"/>
+      <stop offset="100%" stop-color="#1c2434"/>
+    </linearGradient>
+    <linearGradient id="bldgSide" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#2a3346"/>
+      <stop offset="100%" stop-color="#1a2230"/>
+    </linearGradient>
+    <linearGradient id="metalPipe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b7688"/>
+      <stop offset="35%" stop-color="#a4afc0"/>
+      <stop offset="55%" stop-color="#5a6478"/>
+      <stop offset="100%" stop-color="#2a3140"/>
+    </linearGradient>
+    <linearGradient id="windowLit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="windowDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a2334"/>
+      <stop offset="100%" stop-color="#0a0f18"/>
+    </linearGradient>
+    <pattern id="hazardPattern" patternUnits="userSpaceOnUse" width="14" height="14" patternTransform="rotate(45)">
+      <rect width="14" height="14" fill="#fbbf24"/>
+      <rect width="7" height="14" fill="#111827"/>
+    </pattern>
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="4.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+  h += `<rect width="1200" height="500" fill="url(#skyGrad)"/>`;
+  for(let i = 0; i < 80; i++){
+    const x = seededRand(i, 1) * 1200;
+    const y = seededRand(i, 2) * 320;
+    const r = 0.4 + seededRand(i, 3) * 1.3;
+    const op = 0.2 + seededRand(i, 4) * 0.7;
+    h += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"
+            fill="#dbeafe" opacity="${op.toFixed(2)}"/>`;
+  }
+  h += `<circle cx="1050" cy="80" r="34" fill="#e2e8f0" opacity="0.10"/>`;
+  h += `<circle cx="1050" cy="80" r="24" fill="#f1f5f9" opacity="0.28"/>`;
+  h += `<circle cx="1044" cy="74" r="4" fill="#cbd5e1" opacity="0.35"/>`;
+  h += `<circle cx="1057" cy="86" r="3" fill="#cbd5e1" opacity="0.3"/>`;
+
+  h += `<rect y="380" width="1200" height="120" fill="url(#groundGrad)"/>`;
+  h += `<rect y="380" width="1200" height="1.5" fill="#1f3a2c" opacity="0.85"/>`;
+  let groundPath = 'M 0 380 ';
+  for(let i = 0; i < 120; i++){
+    const x = i * 10;
+    const y = 380 - Math.sin(i * 0.7) * 1.2 - seededRand(i, 11) * 1.5;
+    groundPath += `L ${x} ${y.toFixed(1)} `;
+  }
+  groundPath += 'L 1200 380 Z';
+  h += `<path d="${groundPath}" fill="#1a2530" opacity="0.55"/>`;
+  h += `<line x1="30" y1="374" x2="770" y2="374" stroke="#3a4452" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>`;
+
+  function coolingTower(cx, towerH, topW, midW, botW){
+    const topY = 380 - towerH;
+    const midY = 380 - towerH * 0.55;
+    const botY = 380;
+    let s = '';
+    s += `<ellipse cx="${cx}" cy="${botY}" rx="${botW + 8}" ry="6" fill="#1a2029" opacity="0.7"/>`;
+    s += `<path d="M ${cx-topW} ${topY}
+              Q ${cx-midW} ${midY}, ${cx-botW} ${botY}
+              L ${cx+botW} ${botY}
+              Q ${cx+midW} ${midY}, ${cx+topW} ${topY}
+              Z" fill="url(#towerConcrete)" stroke="#5a6578" stroke-width="1.3"/>`;
+    s += `<path d="M ${cx-topW} ${topY}
+              Q ${cx-midW*0.9} ${midY - 4}, ${cx-botW*0.95} ${botY - 4}
+              L ${cx-botW*0.4} ${botY - 4}
+              Q ${cx-midW*0.6} ${midY}, ${cx-topW*0.4} ${topY}
+              Z" fill="#0a0e14" opacity="0.45"/>`;
+    for(let i = 1; i < 8; i++){
+      const t = i / 8;
+      const y = topY + (botY - topY) * t;
+      const w = topW + (botW - topW) * Math.pow(t, 1.6);
+      s += `<line x1="${(cx - w).toFixed(1)}" y1="${y.toFixed(1)}"
+              x2="${(cx + w).toFixed(1)}" y2="${y.toFixed(1)}"
+              stroke="#1a2029" stroke-width="0.7" opacity="0.55"/>`;
+    }
+    s += `<ellipse cx="${cx}" cy="${topY}" rx="${topW}" ry="${topW * 0.18}"
+            fill="#3a4452" stroke="#6b7688" stroke-width="1.2"/>`;
+    s += `<ellipse cx="${cx}" cy="${topY}" rx="${topW - 3}" ry="${(topW - 3) * 0.16}"
+            fill="url(#towerInner)"/>`;
+    s += radSymbol(cx, botY - 60, 12, '#fbbf24');
+    s += `<circle cx="${cx}" cy="${botY - 60}" r="15" fill="none" stroke="#fbbf24" stroke-width="0.8" opacity="0.6" stroke-dasharray="2 2"/>`;
+    s += `<path d="M ${cx-botW+6} ${botY-14} L ${cx+botW-6} ${botY-14}
+              L ${cx+botW-2} ${botY-6} L ${cx-botW+2} ${botY-6} Z"
+              fill="url(#hazardPattern)" opacity="0.85"/>`;
+    return s;
+  }
+  h += coolingTower(140, 210, 30, 26, 44);
+  h += coolingTower(250, 200, 27, 23, 40);
+
+  for(let i = 0; i < steamCount; i++){
+    const cx = (i % 2 === 0) ? 140 : 250;
+    const towerH = (i % 2 === 0) ? 210 : 200;
+    const topY = 380 - towerH;
+    const offX = ((i * 7.3) % 19) - 9;
+    const delay = ((i * 0.47) % 3.6).toFixed(2);
+    const dur = (3.2 + (i % 3) * 0.6).toFixed(2);
+    const r = 9 + (i % 3) * 2.5;
+    h += `<circle cx="${cx + offX}" cy="${topY - 6}" r="${r}"
+            fill="#cbd5e1" opacity="0.55" class="steam-puff"
+            style="animation-delay:${delay}s; animation-duration:${dur}s"/>`;
+  }
+
+  h += `<rect x="290" y="360" width="200" height="3" fill="#1a2029" opacity="0.7"/>`;
+  h += `<path d="M 292 362 L 480 362" stroke="url(#metalPipe)" stroke-width="9" fill="none" stroke-linecap="round"/>`;
+  h += `<path d="M 292 374 L 480 374" stroke="url(#metalPipe)" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+  if(pipesGlow){
+    h += `<path d="M 292 362 L 480 362" stroke="#67e8f9" stroke-width="1.8" fill="none"
+            class="pipe-flow" opacity="${0.35 + cl * 0.1}"/>`;
+    h += `<path d="M 292 374 L 480 374" stroke="#67e8f9" stroke-width="1.4" fill="none"
+            class="pipe-flow" opacity="${0.28 + cl * 0.08}"/>`;
+  }
+  for(let i = 0; i < 5; i++){
+    const fx = 310 + i * 40;
+    h += `<rect x="${fx}" y="357" width="4" height="10" fill="#8a94a6" opacity="0.9"/>`;
+    h += `<rect x="${fx}" y="370" width="4" height="8" fill="#7a8496" opacity="0.85"/>`;
+  }
+  h += `<circle cx="440" cy="366" r="6" fill="#4a5464" stroke="#a4afc0" stroke-width="1.2"/>`;
+  h += `<line x1="440" y1="360" x2="440" y2="346" stroke="#a4afc0" stroke-width="1.6"/>`;
+  h += `<line x1="435" y1="346" x2="445" y2="346" stroke="#a4afc0" stroke-width="1.6"/>`;
+
+  h += `<rect x="482" y="290" width="180" height="90" fill="url(#bldgGrad)" stroke="#5a6578" stroke-width="1.4"/>`;
+  h += `<rect x="482" y="290" width="14" height="90" fill="url(#bldgSide)" opacity="0.85"/>`;
+  h += `<rect x="478" y="286" width="188" height="6" fill="#4a5464" stroke="#5a6578" stroke-width="0.8"/>`;
+  h += `<line x1="500" y1="296" x2="500" y2="378" stroke="#1a2029" stroke-width="0.6" opacity="0.7"/>`;
+  h += `<line x1="644" y1="296" x2="644" y2="378" stroke="#1a2029" stroke-width="0.6" opacity="0.7"/>`;
+  for(let i = 0; i < 8; i++){
+    h += `<circle cx="${494 + i * 22}" cy="294" r="1" fill="#8a94a6" opacity="0.7"/>`;
+    h += `<circle cx="${494 + i * 22}" cy="376" r="1" fill="#8a94a6" opacity="0.6"/>`;
+  }
+  h += `<path d="M 482 290 Q 572 168 662 290 Z" fill="url(#domeGrad)" stroke="#5a6578" stroke-width="1.6"/>`;
+  h += `<path d="M 482 290 Q 572 178 662 290" fill="none" stroke="#2a3340" stroke-width="0.6" opacity="0.5"/>`;
+  h += `<path d="M 532 290 Q 550 200 572 172" fill="none" stroke="#2a3340" stroke-width="0.6" opacity="0.5"/>`;
+  h += `<path d="M 612 290 Q 594 200 572 172" fill="none" stroke="#2a3340" stroke-width="0.6" opacity="0.5"/>`;
+  h += `<path d="M 490 268 Q 572 172 654 268" fill="none" stroke="#4a5464" stroke-width="0.5" opacity="0.4"/>`;
+  for(let i = 0; i < 11; i++){
+    const t = i / 10;
+    const x = 482 + t * 180;
+    const y = 290 - Math.sin(t * Math.PI) * 2;
+    h += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="0.9" fill="#8a94a6" opacity="0.7"/>`;
+  }
+  h += `<circle cx="572" cy="255" r="46" fill="#0a0f1a" stroke="#6b7688" stroke-width="2.4"/>`;
+  h += `<circle cx="572" cy="255" r="44" fill="#050810"/>`;
+  for(let i = 0; i < 16; i++){
+    const ang = (i / 16) * Math.PI * 2;
+    const px = 572 + Math.cos(ang) * 47;
+    const py = 255 + Math.sin(ang) * 47;
+    h += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="1.2" fill="#8a94a6" opacity="0.85"/>`;
+  }
+  h += `<circle cx="572" cy="255" r="${glowR}" fill="url(#coreGlow)" opacity="0.85"/>`;
+  h += `<circle cx="572" cy="255" r="${coreR}" fill="${coreColor}" class="core-pulse" filter="url(#softGlow)"/>`;
+  h += `<circle cx="572" cy="255" r="${coreR * 0.55}" fill="${coreColor}" opacity="0.55" class="core-pulse"/>`;
+  if(rl >= 3){
+    h += `<circle cx="572" cy="255" r="${coreR + 9}" fill="none" stroke="${coreColor}"
+            stroke-width="1.2" opacity="0.55" stroke-dasharray="4 6"/>`;
+  }
+  if(rl >= 5){
+    h += `<circle cx="572" cy="255" r="${coreR + 17}" fill="none" stroke="${coreColor}"
+            stroke-width="1" opacity="0.4" stroke-dasharray="2 8"/>`;
+    h += `<circle cx="572" cy="255" r="${coreR + 25}" fill="none" stroke="${coreColor}"
+            stroke-width="0.8" opacity="0.25" stroke-dasharray="1 10"/>`;
+  }
+  h += `<g transform="translate(572, 200)" opacity="0.55">
+    <rect x="-22" y="-12" width="44" height="24" rx="3" fill="#111827" stroke="#fbbf24" stroke-width="1.4"/>
+    ${radSymbol(0, 0, 9, '#fbbf24')}
+  </g>`;
+  for(let vx = 0; vx < 2; vx++){
+    const x = 490 + vx * 158;
+    h += `<rect x="${x}" y="320" width="14" height="48" fill="#0a0f18" stroke="#5a6578" stroke-width="0.8"/>`;
+    for(let i = 0; i < 6; i++){
+      h += `<line x1="${x + 1}" y1="${324 + i * 7.5}" x2="${x + 13}" y2="${324 + i * 7.5}" stroke="#4a5464" stroke-width="0.8"/>`;
+    }
+  }
+  h += `<rect x="556" y="348" width="32" height="32" rx="1.5" fill="#0a0f18" stroke="#5a6578" stroke-width="1.2"/>`;
+  h += `<rect x="558" y="352" width="28" height="4" fill="url(#hazardPattern)"/>`;
+  h += `<circle cx="583" cy="366" r="1.2" fill="#fbbf24"/>`;
+  h += `<rect x="562" y="362" width="4" height="16" fill="#fbbf24" opacity="0.35" class="city-light"/>`;
+  h += `<rect x="500" y="368" width="24" height="12" fill="#2a3340" stroke="#5a6578" stroke-width="0.8"/>`;
+  h += `<rect x="503" y="363" width="18" height="6" fill="#3a4452" stroke="#5a6578" stroke-width="0.6"/>`;
+  h += `<line x1="572" y1="172" x2="572" y2="148" stroke="#8a94a6" stroke-width="1.6"/>`;
+  h += `<circle cx="572" cy="148" r="2.5" fill="#ef4444" class="city-light"/>`;
+  h += `<line x1="566" y1="158" x2="578" y2="158" stroke="#8a94a6" stroke-width="1"/>`;
+
+  h += `<rect x="680" y="320" width="150" height="60" fill="url(#bldgGrad)" stroke="#5a6578" stroke-width="1.4"/>`;
+  h += `<rect x="680" y="320" width="12" height="60" fill="url(#bldgSide)" opacity="0.85"/>`;
+  h += `<polygon points="676,320 755,294 830,320" fill="#3a4452" stroke="#5a6578" stroke-width="1.4"/>`;
+  h += `<polygon points="676,320 755,294 755,296 676,322 Z" fill="#5a6578" opacity="0.5"/>`;
+  for(let i = 0; i < 5; i++){
+    const t = i / 5;
+    const x1 = 676 + t * 79, y1 = 320 - t * 26;
+    const x2 = 830 - t * 79, y2 = 320 - t * 26;
+    h += `<line x1="${x1.toFixed(1)}" y1="${(y1+2).toFixed(1)}"
+            x2="${x2.toFixed(1)}" y2="${(y2+2).toFixed(1)}" stroke="#2a3340" stroke-width="0.5" opacity="0.5"/>`;
+  }
+  for(let i = 0; i < 3; i++){
+    const tx = 710 + i * 45, ty = 350;
+    h += `<circle cx="${tx}" cy="${ty}" r="16" fill="#0a0f1a" stroke="#6b7688" stroke-width="1.6"/>`;
+    h += `<circle cx="${tx}" cy="${ty}" r="13" fill="#050810"/>`;
+    for(let b = 0; b < 8; b++){
+      const ang = (b / 8) * Math.PI * 2;
+      const bx = tx + Math.cos(ang) * 16.5;
+      const by = ty + Math.sin(ang) * 16.5;
+      h += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="0.7" fill="#8a94a6" opacity="0.75"/>`;
+    }
+    if(turbinesActive){
+      h += `<g class="turbine-rotor" style="animation-duration:${turbineDur}s">
+        <line x1="${tx-11}" y1="${ty}" x2="${tx+11}" y2="${ty}" stroke="#67e8f9" stroke-width="2.6" opacity="0.9"/>
+        <line x1="${tx}" y1="${ty-11}" x2="${tx}" y2="${ty+11}" stroke="#67e8f9" stroke-width="2.6" opacity="0.9"/>
+        <line x1="${tx-7}" y1="${ty-7}" x2="${tx+7}" y2="${ty+7}" stroke="#67e8f9" stroke-width="1.6" opacity="0.55"/>
+        <line x1="${tx-7}" y1="${ty+7}" x2="${tx+7}" y2="${ty-7}" stroke="#67e8f9" stroke-width="1.6" opacity="0.55"/>
+      </g>`;
+      h += `<circle cx="${tx}" cy="${ty}" r="3" fill="#a5f3fc"/>`;
+    } else {
+      h += `<line x1="${tx-9}" y1="${ty}" x2="${tx+9}" y2="${ty}" stroke="#475569" stroke-width="2"/>`;
+      h += `<line x1="${tx}" y1="${ty-9}" x2="${tx}" y2="${ty+9}" stroke="#475569" stroke-width="2"/>`;
+    }
+  }
+  h += `<rect x="690" y="300" width="20" height="12" rx="1" fill="url(#windowDark)" stroke="#6b7688" stroke-width="0.8"/>`;
+  h += `<rect x="693" y="302" width="14" height="8" fill="#fbbf24" opacity="0.55" class="city-light"/>`;
+  h += `<rect x="716" y="300" width="14" height="12" rx="1" fill="url(#windowDark)" stroke="#6b7688" stroke-width="0.8"/>`;
+  h += `<rect x="718" y="302" width="10" height="8" fill="#67e8f9" opacity="0.4" class="city-light" style="animation-delay:0.8s"/>`;
+  h += `<path d="M 680 380 L 830 380" stroke="url(#metalPipe)" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+  h += `<rect x="700" y="376" width="4" height="8" fill="#8a94a6" opacity="0.8"/>`;
+  h += `<rect x="780" y="376" width="4" height="8" fill="#8a94a6" opacity="0.8"/>`;
+  h += `<rect x="812" y="302" width="8" height="18" fill="#2a3340" stroke="#5a6578" stroke-width="0.8"/>`;
+  h += `<ellipse cx="816" cy="302" rx="4" ry="1.5" fill="#4a5464"/>`;
+
+  const pylons = [880, 940, 1000];
+  pylons.forEach((px, idx) => {
+    if(wl === 0 || idx >= wl) return;
+    const baseY = 380;
+    h += `<g stroke="#5a6578" stroke-width="2.6" fill="none" stroke-linecap="round">
+      <path d="M ${px-18} ${baseY} L ${px} ${baseY-78} L ${px+18} ${baseY}"/>
+      <path d="M ${px-13} ${baseY-34} L ${px+13} ${baseY-34}"/>
+      <path d="M ${px-9} ${baseY-56} L ${px+9} ${baseY-56}"/>
+      <path d="M ${px-5} ${baseY-72} L ${px+5} ${baseY-72}"/>
+    </g>`;
+    h += `<rect x="${px-20}" y="${baseY-4}" width="40" height="6" rx="1" fill="#2a3340" stroke="#5a6578" stroke-width="0.8"/>`;
+    h += `<circle cx="${px-5}" cy="${baseY-74}" r="2" fill="#8a94a6"/>`;
+    h += `<circle cx="${px+5}" cy="${baseY-74}" r="2" fill="#8a94a6"/>`;
+    h += `<circle cx="${px}" cy="${baseY-84}" r="2.8" fill="#ef4444" class="city-light" style="animation-delay:${idx * 0.3}s"/>`;
+  });
+
+  const wireCount = Math.min(3, Math.max(1, Math.ceil(wl / 2)));
+  if(wl > 0){
+    const wireSpans = [];
+    if(wl >= 1) wireSpans.push([830, 880]);
+    if(wl >= 2) wireSpans.push([880, 940]);
+    if(wl >= 3) wireSpans.push([940, 1000]);
+    if(wl >= 4) wireSpans.push([1000, 1075]);
+    wireSpans.forEach(([x1, x2]) => {
+      for(let w = 0; w < wireCount; w++){
+        const yOff = w * 7;
+        const y1 = 380 - 78 - yOff;
+        const y2 = 380 - 78 - yOff;
+        const my = Math.max(y1, y2) + 20;
+        h += `<path d="M ${x1} ${y1} Q ${(x1+x2)/2} ${my} ${x2} ${y2}" stroke="#3a4452" stroke-width="1.5" fill="none" opacity="0.65"/>`;
+        h += `<path d="M ${x1} ${y1} Q ${(x1+x2)/2} ${my} ${x2} ${y2}" stroke="#67e8f9" stroke-width="1.3" fill="none" class="wire-flow" opacity="${0.3 + wl * 0.09}"/>`;
+      }
+    });
+  }
+
+  CITY_BUILDINGS.filter(b => b.bg).forEach(b => {
+    if(b.lvl > cityLvl) return;
+    const y = 380 - b.h;
+    h += `<rect x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" fill="#161e2c" stroke="#242e3f" stroke-width="0.9"/>`;
+    h += `<rect x="${b.x}" y="${y}" width="3" height="${b.h}" fill="#0a1018" opacity="0.6"/>`;
+    const cols = Math.max(1, Math.floor(b.w / 6));
+    const rows = Math.max(1, Math.floor(b.h / 8));
+    for(let r = 0; r < rows; r++){
+      for(let c = 0; c < cols; c++){
+        const wx = b.x + 3 + c * 6;
+        const wy = y + 4 + r * 8;
+        const lit = seededRand(b.x + c * 3, b.h + r * 5) < 0.28;
+        h += `<rect x="${wx}" y="${wy}" width="2.5" height="3.5" fill="${lit ? '#fbbf24' : '#0a0f18'}" opacity="${lit ? 0.5 : 0.85}"/>`;
+      }
+    }
+    if(b.antenna){
+      h += `<line x1="${b.x + b.w/2}" y1="${y}" x2="${b.x + b.w/2}" y2="${y - 12}" stroke="#3a4452" stroke-width="1.2"/>`;
+      h += `<circle cx="${b.x + b.w/2}" cy="${y - 12}" r="1.6" fill="#ef4444" class="city-light" style="animation-delay:${(b.x % 7) * 0.3}s"/>`;
+    }
+  });
+
+  CITY_BUILDINGS.filter(b => !b.bg).forEach(b => {
+    if(b.lvl > cityLvl) return;
+    const y = 380 - b.h;
+    h += `<rect x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" fill="url(#bldgGrad)" stroke="#5a6578" stroke-width="1.1"/>`;
+    h += `<rect x="${b.x}" y="${y}" width="3.5" height="${b.h}" fill="#6b7688" opacity="0.35"/>`;
+    h += `<rect x="${b.x - 1.5}" y="${y - 3}" width="${b.w + 3}" height="4" fill="#4a5464" stroke="#5a6578" stroke-width="0.8"/>`;
+    h += `<rect x="${b.x - 1.5}" y="${y - 3}" width="${b.w + 3}" height="1" fill="#8a94a6" opacity="0.5"/>`;
+    const cols = Math.max(1, Math.floor(b.w / 7));
+    const rows = Math.max(1, Math.floor(b.h / 9));
+    for(let r = 0; r < rows; r++){
+      for(let c = 0; c < cols; c++){
+        const wx = b.x + 4 + c * 7;
+        const wy = y + 6 + r * 9;
+        const lit = seededRand(b.x * 1.7 + c * 3, b.h * 1.3 + r * 5) < 0.68;
+        h += `<rect x="${wx}" y="${wy}" width="3.5" height="5" fill="url(#windowDark)" stroke="#1a2029" stroke-width="0.3"/>`;
+        if(lit){
+          h += `<rect x="${wx}" y="${wy}" width="3.5" height="5" fill="url(#windowLit)" class="city-light" style="animation-delay:${((b.x + r * 7) % 50) * 0.06}s"/>`;
+          h += `<rect x="${wx}" y="${wy}" width="3.5" height="1.5" fill="#fef3c7" opacity="0.55"/>`;
+        }
+      }
+    }
+    if(b.ac){
+      const ax = b.x + b.w/2 - 5, ay = y - 10;
+      h += `<rect x="${ax}" y="${ay}" width="10" height="7" rx="1" fill="#3a4452" stroke="#5a6578" stroke-width="0.7"/>`;
+      h += `<rect x="${ax - 1}" y="${ay - 2}" width="12" height="3" fill="#4a5464"/>`;
+    }
+    if(b.antenna && b.h > 90){
+      const ax = b.x + b.w/2;
+      h += `<line x1="${ax}" y1="${y - 3}" x2="${ax}" y2="${y - 20}" stroke="#6b7688" stroke-width="1.4"/>`;
+      h += `<line x1="${ax - 4}" y1="${y - 12}" x2="${ax + 4}" y2="${y - 12}" stroke="#6b7688" stroke-width="1"/>`;
+      h += `<circle cx="${ax}" cy="${y - 20}" r="1.9" fill="#ef4444" class="city-light" style="animation-delay:${(b.x % 5) * 0.4}s"/>`;
+    }
+    const dx = b.x + b.w/2 - 3;
+    h += `<rect x="${dx}" y="368" width="6" height="12" rx="0.8" fill="#0a0f18" stroke="#4a5464" stroke-width="0.6"/>`;
+    h += `<rect x="${dx + 0.8}" y="369" width="4.4" height="10" fill="#fbbf24" opacity="0.28" class="city-light"/>`;
+  });
+
+  for(let i = 0; i < 5; i++){
+    const lx = 850 + i * 70;
+    h += `<line x1="${lx}" y1="380" x2="${lx}" y2="360" stroke="#3a4452" stroke-width="1.4"/>`;
+    h += `<line x1="${lx}" y1="360" x2="${lx + 5}" y2="358" stroke="#3a4452" stroke-width="1.2"/>`;
+    h += `<circle cx="${lx + 5}" cy="358" r="1.8" fill="#fbbf24" class="city-light" style="animation-delay:${i * 0.4}s"/>`;
+    h += `<ellipse cx="${lx + 5}" cy="360" rx="8" ry="2" fill="#fbbf24" opacity="0.12"/>`;
+  }
+
+  h += `<rect x="880" y="374" width="14" height="5" rx="1.5" fill="#2a3340"/>`;
+  h += `<rect x="882" y="371" width="9" height="4" rx="1" fill="#4a5464"/>`;
+  h += `<circle cx="884" cy="379" r="1.4" fill="#0a0f18"/>`;
+  h += `<circle cx="891" cy="379" r="1.4" fill="#0a0f18"/>`;
+  h += `<circle cx="896" cy="374" r="1" fill="#fbbf24" opacity="0.9"/>`;
+
+  h += `<g transform="translate(460, 340)" opacity="0.85">
+    <rect x="-16" y="-14" width="32" height="28" rx="2" fill="#111827" stroke="#fbbf24" stroke-width="1.6"/>
+    ${radSymbol(0, 0, 11, '#fbbf24')}
+  </g>`;
+
+  h += `<text x="572" y="430" text-anchor="middle" font-size="14" font-weight="800"
+          fill="#fbbf24" opacity="0.7" letter-spacing="4" font-family="system-ui">АЭС</text>`;
+  h += `<text x="1010" y="430" text-anchor="middle" font-size="14" font-weight="800"
+          fill="#67e8f9" opacity="0.7" letter-spacing="4" font-family="system-ui">ГОРОД</text>`;
+
+  // Дым из труб
+  const smokeTowers = [190, 500];
+  smokeTowers.forEach((x,i)=>{
+    for(let j=0;j<4;j++){
+      h += `<circle class="smoke-puff" cx="${x + j*8}" cy="${80+j*8}" r="${18+j*4}" fill="#d1d5db" style="animation-delay:${i*1.2+j*0.5}s"/>`;
+    }
+  });
+
+  sceneEl.innerHTML = h;
+}
+
+/* =========================================================
+   10. ПАНЕЛЬ — IN-PLACE ОБНОВЛЕНИЕ
+   ========================================================= */
+const upgRefs = {};
+
+function buildUpgradeCards(){
+  const panel = document.getElementById('upgrades');
+  panel.innerHTML = '';
+  for(const u of UPGRADES){
+    const card = document.createElement('div');
+    card.className = 'upg-card';
+
+    let iconInner;
+    if(u.useRad){
+      const svgId = 'upg-rad-' + u.id;
+      iconInner = `<svg viewBox="0 0 40 40" id="${svgId}"></svg>`;
+    } else {
+      iconInner = `<span class="glyph">${u.icon}</span>`;
+    }
+
+    card.innerHTML = `
+      <div class="upg-icon">${iconInner}</div>
+      <div class="upg-body">
+        <div class="upg-name">${u.name}<span class="upg-level"></span></div>
+        <div class="upg-desc">${u.desc}</div>
+        <div class="upg-current"></div>
+        <div class="upg-next"></div>
+      </div>
+      <button class="upg-btn">
+        <span class="btn-label">УЛУЧШИТЬ</span>
+        <span class="cost"></span>
+      </button>`;
+    const refs = {
+      card,
+      level:  card.querySelector('.upg-level'),
+      current:card.querySelector('.upg-current'),
+      next:   card.querySelector('.upg-next'),
+      btn:    card.querySelector('.upg-btn'),
+      label:  card.querySelector('.btn-label'),
+      cost:   card.querySelector('.cost'),
+    };
+    refs.btn.addEventListener('click', () => buyUpgrade(u.id));
+    upgRefs[u.id] = refs;
+    panel.appendChild(card);
+
+    if(u.useRad){
+      const svg = document.getElementById('upg-rad-' + u.id);
+      if(svg) svg.innerHTML = radSymbol(20, 20, 18, '#fbbf24');
+    }
+  }
+}
+
+function updateUpgradeCards(){
+  for(const u of UPGRADES){
+    const ref = upgRefs[u.id];
+    if(!ref) continue;
+    const lvl = S.up[u.id];
+    const maxed = lvl >= u.levels.length - 1;
+    const cur = u.levels[lvl];
+    const next = maxed ? null : u.levels[lvl + 1];
+    const canBuy = next && S.energy >= next.cost;
+
+    ref.level.textContent = `ур. ${lvl}/${u.levels.length - 1}`;
+    ref.level.classList.toggle('max', maxed);
+
+    let curTxt = '';
+    if(u.id === 'reactor') curTxt = `Клик: <b>${fmt(cur.click)}</b> · CPS: <b>${fmt(cur.cps)}</b>`;
+    if(u.id === 'turbine') curTxt = `Выработка: <b>+${fmt(cur.cps)}</b>/сек`;
+    if(u.id === 'cooling') curTxt = `Множитель: <b>+${Math.round(cur.mult * 100)}%</b>`;
+    if(u.id === 'wires')   curTxt = `Рост города: <b>×${(1 + cur.cityMult).toFixed(1)}</b>`;
+    if(u.id === 'safety')  curTxt = `Клик: <b>+${Math.round(cur.clickMult * 100)}%</b>`;
+    if(ref.current.innerHTML !== curTxt) ref.current.innerHTML = curTxt;
+
+    let nextTxt = '';
+    if(next){
+      if(u.id === 'reactor') nextTxt = `→ Клик: <b>${fmt(next.click)}</b> · CPS: <b>${fmt(next.cps)}</b>`;
+      if(u.id === 'turbine') nextTxt = `→ Выработка: <b>+${fmt(next.cps)}</b>/сек`;
+      if(u.id === 'cooling') nextTxt = `→ Множитель: <b>+${Math.round(next.mult * 100)}%</b>`;
+      if(u.id === 'wires')   nextTxt = `→ Рост города: <b>×${(1 + next.cityMult).toFixed(1)}</b>`;
+      if(u.id === 'safety')  nextTxt = `→ Клик: <b>+${Math.round(next.clickMult * 100)}%</b>`;
+    }
+    if(ref.next.innerHTML !== nextTxt) ref.next.innerHTML = nextTxt;
+
+    if(maxed){
+      ref.btn.classList.add('maxed');
+      ref.btn.classList.remove('disabled');
+      if(ref.label.textContent !== 'МАКС'){
+        ref.label.textContent = 'МАКС';
+        ref.cost.textContent = `ур. ${lvl}`;
+      }
+    } else {
+      ref.btn.classList.remove('maxed');
+      ref.btn.classList.toggle('disabled', !canBuy);
+      if(ref.label.textContent !== 'УЛУЧШИТЬ') ref.label.textContent = 'УЛУЧШИТЬ';
+      const costTxt = fmt(next.cost) + ' ⚡';
+      if(ref.cost.textContent !== costTxt) ref.cost.textContent = costTxt;
+    }
+
+    ref.card.classList.toggle('maxed', maxed);
+    ref.card.classList.toggle('cant-afford', !maxed && !canBuy);
+  }
+}
+
+/* =========================================================
+   11. ПОКУПКА
+   ========================================================= */
+function buyUpgrade(id){
+  const u = UPGRADES.find(x => x.id === id);
+  const lvl = S.up[id];
+  if(lvl >= u.levels.length - 1) return;
+  const next = u.levels[lvl + 1];
+  if(S.energy < next.cost){ Sound.deny(); return; }
+  S.energy -= next.cost;
+  S.up[id] = lvl + 1;
+  Sound.chime();
+  showToast(`🔧 ${u.name} → ур. ${S.up[id]} («${next.title}»)`);
+  updateUI();
+  save();
+}
+
+/* =========================================================
+   12. КЛИК
+   ========================================================= */
+sceneEl.addEventListener('click', (e) => {
+  const st = getStats();
+  const gain = st.click;
+  S.energy += gain;
+  S.totalProduced += gain;
+  S.cityProgress += gain * st.cityMult;
+  Sound.click();
+  floatText(e, '+' + fmt(gain));
+  checkCityLevel();
+  updateUI();
+});
+
+function floatText(e, text){
+  const d = document.createElement('div');
+  d.className = 'float-text';
+  d.textContent = text;
+  let x = e.clientX, y = e.clientY;
+  if(!x && !y){
+    const r = sceneEl.getBoundingClientRect();
+    x = r.left + r.width / 2;
+    y = r.top + r.height / 2;
+  }
+  d.style.left = x + 'px';
+  d.style.top = y + 'px';
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(), 920);
+}
+
+/* =========================================================
+   13. УРОВНИ ГОРОДА
+   ========================================================= */
+function checkCityLevel(){
+  const lvl = cityLevelFromProgress(S.cityProgress);
+  if(lvl > S.cityLevel){
+    S.cityLevel = lvl;
+    showToast(`🏙 Город вырос до уровня ${lvl}!`);
+    Sound.chime();
+    lastSceneSig = '';
+  }
+}
+
+/* =========================================================
+   14. ОБНОВЛЕНИЕ UI
+   ========================================================= */
+function updateUI(){
+  const st = getStats();
+  document.getElementById('uiEnergy').textContent = fmt(S.energy);
+  document.getElementById('uiCps').textContent    = fmt(st.cps);
+  document.getElementById('uiClick').textContent  = fmt(st.click);
+  document.getElementById('uiCityLvl').textContent = S.cityLevel;
+
+  const curThr = CITY_THRESHOLDS[S.cityLevel] || 0;
+  const nextThr = CITY_THRESHOLDS[S.cityLevel + 1];
+  let pct = 100;
+  if(nextThr){
+    pct = Math.max(0, Math.min(100, ((S.cityProgress - curThr) / (nextThr - curThr)) * 100));
+  }
+  document.getElementById('uiCityFill').style.width = pct + '%';
+
+  updateUpgradeCards();
+  buildScene();
+}
+
+/* =========================================================
+   15. НАВИГАЦИЯ
+   ========================================================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+  if(id === 'screen-game') updateUI();
+  Sound.sfx(520, 0.05, 'sine', 0.5);
+}
+document.querySelectorAll('[data-go]').forEach(btn => {
+  btn.addEventListener('click', () => showScreen(btn.dataset.go));
+});
+
+/* =========================================================
+   16. НАСТРОЙКИ
+   ========================================================= */
+const elMusic    = document.getElementById('setMusic');
+const elSfx      = document.getElementById('setSfx');
+const elMusicVol = document.getElementById('musicVol');
+const elSfxVol   = document.getElementById('sfxVol');
+const lblMusic   = document.getElementById('musicVolLabel');
+const lblSfx     = document.getElementById('sfxVolLabel');
+
+function syncSettingsUI(){
+  elMusic.checked = S.settings.music;
+  elSfx.checked   = S.settings.sfx;
+  elMusicVol.value = Math.round(S.settings.musicVol * 100);
+  elSfxVol.value   = Math.round(S.settings.sfxVol * 100);
+  lblMusic.textContent = Math.round(S.settings.musicVol * 100);
+  lblSfx.textContent   = Math.round(S.settings.sfxVol * 100);
+}
+elMusic.addEventListener('change', () => {
+  S.settings.music = elMusic.checked;
+  if(S.settings.music) Sound.startMusic(); else Sound.stopMusic();
+  save();
+});
+elSfx.addEventListener('change', () => {
+  S.settings.sfx = elSfx.checked;
+  save();
+  if(S.settings.sfx) Sound.click();
+});
+elMusicVol.addEventListener('input', () => {
+  S.settings.musicVol = elMusicVol.value / 100;
+  lblMusic.textContent = elMusicVol.value;
+  save();
+});
+elSfxVol.addEventListener('input', () => {
+  S.settings.sfxVol = elSfxVol.value / 100;
+  lblSfx.textContent = elSfxVol.value;
+  save();
+});
+document.getElementById('testSound').addEventListener('click', () => Sound.chime());
+
+document.getElementById('wipeBtn').addEventListener('click', async () => {
+  if(confirm('⚠️ Весь прогресс АЭС будет безвозвратно удалён. Продолжить?')){
+    if(confirm('Последнее предупреждение. Точно удалить сохранение?')){
+      localStorage.removeItem(SAVE_KEY);
+      S = defaultState();
+      lastSceneSig = '';
+      updateUI();
+      await save();
+      showToast('🗑 Прогресс сброшен. Новая станция ждёт вас!');
+      showScreen('screen-menu');
+    }
+  }
+});
+
+/* =========================================================
+   17. АУДИО ПО ПЕРВОМУ ЖЕСТУ
+   ========================================================= */
+function firstGesture(){
+  Sound.init(); Sound.resume();
+  if(S.settings.music) Sound.startMusic();
+  document.removeEventListener('pointerdown', firstGesture);
+  document.removeEventListener('keydown', firstGesture);
+}
+document.addEventListener('pointerdown', firstGesture);
+document.addEventListener('keydown', firstGesture);
+
+/* =========================================================
+   18. ИГРОВОЙ ЦИКЛ
+   ========================================================= */
+let lastTick = Date.now();
+setInterval(() => {
+  const now = Date.now();
+  const dt = Math.min((now - lastTick) / 1000, 1);
+  lastTick = now;
+  const st = getStats();
+  if(st.cps > 0){
+    const gain = st.cps * dt;
+    S.energy += gain;
+    S.totalProduced += gain;
+    S.cityProgress += gain * st.cityMult;
+    checkCityLevel();
+  }
+  if(document.getElementById('screen-game').classList.contains('active')){
+    updateUI();
+  }
+}, 100);
+
+setInterval(save, 10000);
+window.addEventListener('beforeunload', save);
+document.addEventListener('visibilitychange', () => { if(document.hidden) save(); });
+
+/* =========================================================
+   19. ИНИЦИАЛИЗАЦИЯ
+   ========================================================= */
+
+
+// Профиль игрока
+const PROFILE_KEY = 'aes_profile';
+function loadProfile(){
+  const p = JSON.parse(localStorage.getItem(PROFILE_KEY)||'{}');
+  profileName.value = p.name || '';
+  if(p.avatar) avatarPreview.src = p.avatar;
+}
+saveProfile.onclick = ()=>{
+  const save = (avatar)=>localStorage.setItem(PROFILE_KEY, JSON.stringify({name:profileName.value, avatar}));
+  if(profileAvatar.files[0]){
+    const r=new FileReader(); r.onload=()=>save(r.result); r.readAsDataURL(profileAvatar.files[0]);
+  } else save(avatarPreview.src||'');
+};
+loadProfile();
+
+async function init(){
+  radSVGInline('menu-rad-badge', 16, '#fbbf24');
+  radSVGInline('panel-rad-icon', 16, '#fbbf24');
+  radSVGInline('about-rad-icon2', 22, '#fbbf24');
+
+  const helpIcon = document.getElementById('help-rad-icon');
+  if(helpIcon){
+    helpIcon.innerHTML = `<svg viewBox="0 0 40 40" width="26" height="26">${radSymbol(20, 20, 18, '#fbbf24')}</svg>`;
+  }
+  const aboutIcon = document.getElementById('about-rad-icon');
+  if(aboutIcon){
+    aboutIcon.innerHTML = `<svg viewBox="0 0 40 40" width="26" height="26">${radSymbol(20, 20, 18, '#fbbf24')}</svg>`;
+  }
+  const whatIcon = document.getElementById('about-what-rad');
+  if(whatIcon){
+    whatIcon.innerHTML = `<svg viewBox="0 0 40 40" width="26" height="26">${radSymbol(20, 20, 18, '#38bdf8')}</svg>`;
+  }
+
+  await load();
+  buildUpgradeCards();
+  syncSettingsUI();
+  applyOffline();
+  S.cityLevel = cityLevelFromProgress(S.cityProgress);
+  lastSceneSig = '';
+  updateUI();
+  await save();
+}
+init();
+</script>
+</body>
+</html>
