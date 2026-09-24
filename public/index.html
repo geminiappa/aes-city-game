@@ -13,18 +13,31 @@
   --rad:#fbbf24;--rad-dark:#111827;--green:#34d399;--red:#ef4444;
   --text:#e2e8f0;--muted:#7c8aa5;
 }
-html,body{
-  height:100%;height:100dvh;width:100vw;
-  overflow:hidden;position:fixed;
+html, body {
+  height: 100%; height: 100dvh; width: 100%;
+  background: #020306; /* Темный фон для ПК вокруг игры */
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  user-select: none; -webkit-user-select: none;
+  display: flex; justify-content: center; overflow: hidden;
 }
-body{
-  background:var(--bg);color:var(--text);
-  font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
-  user-select:none;-webkit-user-select:none;
+
+/* ============ АДАПТАЦИЯ ПК / МОБИЛКИ ============ */
+.app-container {
+  position: relative;
+  width: 100%; max-width: 500px; /* На ПК будет аккуратный центрированный блок, на телефоне - на весь экран */
+  height: 100%; height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
 }
+@media (min-width: 501px) {
+  .app-container { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+}
+
 /* ============ ЭКРАН ЗАГРУЗКИ ============ */
 #loading-screen {
-  position: fixed; inset: 0; background: #05070f; z-index: 99999;
+  position: absolute; inset: 0; background: #05070f; z-index: 99999;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   transition: opacity 0.6s ease, visibility 0.6s; color: #fbbf24;
 }
@@ -99,7 +112,7 @@ body{
   font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
   display:flex; align-items:center; justify-content:center; gap:8px;
 }
-.btn:active { transform: scale(0.97); }
+.btn:active:not(.disabled) { transform: scale(0.97); }
 .btn.primary{background:linear-gradient(180deg,#0ea5e9,#0369a1);border-color:#38bdf8}
 .btn.danger{color:#fca5a5;border-color:#4c2020; background:linear-gradient(180deg,#3f1a1a,#251010);}
 .btn.rad{background:linear-gradient(180deg,#fbbf24,#d97706);border-color:#fbbf24;color:#111827}
@@ -118,7 +131,7 @@ body{
   padding:16px;align-items:center;justify-content:center;
   background:radial-gradient(circle at 50% 0%, rgba(251,191,36,.07), transparent 55%), var(--bg);
 }
-.page h2{font-size:20px;margin-bottom:16px;color:#fbbf24;font-weight:800}
+.page h2{font-size:20px;margin-bottom:16px;color:#fbbf24;font-weight:800;text-align:center;}
 .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(34,48,77,.5)}
 .setting-label{font-size:13.5px;font-weight:600}
 .setting-sub{font-size:11px;color:var(--muted)}
@@ -128,7 +141,7 @@ body{
 .slider::before{content:'';position:absolute;width:18px;height:18px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.25s}
 .switch input:checked + .slider{background:#fbbf24}
 .switch input:checked + .slider::before{transform:translateX(22px)}
-.back-row{margin-top:18px;display:flex;gap:10px;justify-content:flex-end}
+.back-row{margin-top:18px;display:flex;gap:10px;justify-content:center}
 
 /* Профиль */
 .profile-hero{
@@ -184,7 +197,7 @@ body{
 }
 #scene{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation;}
 
-/* ============ ПАНЕЛЬ ВКЛАДОК (ОТДЕЛЫ, УЛУЧШЕНИЯ, РЕБИТЫ) ============ */
+/* ============ ПАНЕЛЬ ВКЛАДОК ============ */
 .panel{
   flex:1;display:flex;flex-direction:column;background:rgba(13,18,32,.98);min-height:0;position:relative;overflow:hidden;
 }
@@ -243,7 +256,7 @@ body{
 
 /* Эффекты клика и тосты */
 .float-text{
-  position:fixed;pointer-events:none;font-weight:800;font-size:20px;color:#fbbf24;
+  position:absolute;pointer-events:none;font-weight:800;font-size:20px;color:#fbbf24;
   text-shadow:0 0 12px rgba(251,191,36,1);z-index:999;
   animation:floatUp .8s cubic-bezier(.2,.7,.4,1) forwards;transform:translate(-50%,-50%);
 }
@@ -251,7 +264,7 @@ body{
   0%{opacity:1;transform:translate(-50%,-50%) scale(.7)}
   100%{opacity:0;transform:translate(-50%,-180%) scale(1.4)}
 }
-#toasts{position:fixed;top:15px;right:15px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+#toasts{position:absolute;top:15px;right:15px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none; width: 220px;}
 .toast{
   padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;
   background:rgba(30,44,72,.97);border:1px solid var(--rad);color:#fde68a;
@@ -269,171 +282,175 @@ body{
 </head>
 <body>
 
-<!-- Загрузочный экран -->
-<div id="loading-screen">
-  <h1 style="font-family: inherit; font-size: 26px; font-weight: 800; letter-spacing: 3px; margin: 0;">Powered by</h1>
-  <h2 style="font-family: inherit; font-size: 20px; font-weight: 600; color: #38bdf8; letter-spacing: 5px; margin-top: 5px;">RI STUDIO</h2>
-  <div class="loader-spinner"></div>
-</div>
+<div class="app-container">
 
-<!-- Меню -->
-<div class="screen" id="screen-menu">
-  <div class="menu-box">
-    <div class="menu-inner">
-      <div class="rad-badge">☣ ОПАСНАЯ ЗОНА · РЕАКТОР</div>
-      <h1 class="logo">АЭС<span>ЭНЕРГИЯ ГОРОДА</span></h1>
-      <p class="tagline">RI STUDIO · v2.5 · MOBILE OPTIMIZED</p>
+  <!-- Загрузочный экран -->
+  <div id="loading-screen">
+    <h1 style="font-family: inherit; font-size: 26px; font-weight: 800; letter-spacing: 3px; margin: 0;">Powered by</h1>
+    <h2 style="font-family: inherit; font-size: 20px; font-weight: 600; color: #38bdf8; letter-spacing: 5px; margin-top: 5px;">RI STUDIO</h2>
+    <div class="loader-spinner"></div>
+  </div>
 
-      <div class="menu-profile" data-go="screen-profile">
-        <div class="avatar" id="menuProfileAvatar">👷</div>
-        <div class="info">
-          <div class="lbl">Оператор станции</div>
-          <div class="nm" id="menuProfileName">Безымянный</div>
+  <!-- Меню -->
+  <div class="screen active" id="screen-menu">
+    <div class="menu-box">
+      <div class="menu-inner">
+        <div class="rad-badge">☣ ОПАСНАЯ ЗОНА · РЕАКТОР</div>
+        <h1 class="logo">АЭС<span>ЭНЕРГИЯ ГОРОДА</span></h1>
+        <p class="tagline">RI STUDIO · v2.6</p>
+
+        <div class="menu-profile" data-go="screen-profile">
+          <div class="avatar" id="menuProfileAvatar">👷</div>
+          <div class="info">
+            <div class="lbl">Оператор станции</div>
+            <div class="nm" id="menuProfileName">Безымянный</div>
+          </div>
+          <div style="font-size:11px;color:#7dd3fc;font-weight:800">ИЗМЕНИТЬ ›</div>
         </div>
-        <div style="font-size:11px;color:#7dd3fc;font-weight:800">ИЗМЕНИТЬ ›</div>
-      </div>
 
-      <div class="menu-buttons">
-        <button class="btn primary" data-go="screen-game">☢ &nbsp;НАЧАТЬ СМЕНУ</button>
-        <button class="btn rad" data-go="screen-help">📖 &nbsp;КАК ИГРАТЬ</button>
-        <button class="btn" data-go="screen-settings">⚙ &nbsp;НАСТРОЙКИ</button>
-        <button class="btn" data-go="screen-about">🏢 &nbsp;О РАЗРАБОТЧИКЕ</button>
-        <button class="btn danger" id="wipeBtn">🗑 &nbsp;СБРОСИТЬ ПРОГРЕСС</button>
+        <div class="menu-buttons">
+          <button class="btn primary" data-go="screen-game">☢ &nbsp;НАЧАТЬ СМЕНУ</button>
+          <button class="btn rad" data-go="screen-help">📖 &nbsp;КАК ИГРАТЬ</button>
+          <button class="btn" data-go="screen-settings">⚙ &nbsp;НАСТРОЙКИ</button>
+          <button class="btn" data-go="screen-about">🏢 &nbsp;О РАЗРАБОТЧИКЕ</button>
+          <button class="btn danger" id="wipeBtn">🗑 &nbsp;СБРОСИТЬ ПРОГРЕСС</button>
+        </div>
       </div>
-      <div class="menu-footer"><b>© 2026 RI STUDIO</b> · Все права защищены</div>
     </div>
   </div>
-</div>
 
-<!-- Профиль -->
-<div class="screen" id="screen-profile">
-  <div class="page"><div class="page-inner">
-    <h2>👤 ПРОФИЛЬ ОПЕРАТОРА</h2>
-    <div class="profile-hero">
-      <div class="profile-avatar-big" id="profileAvatarBig">👷</div>
-      <div>
-        <div style="font-size:11px;letter-spacing:1px;color:#fbbf24;font-weight:800">ОПЕРАТОР</div>
-        <div id="profileNameDisplay" style="font-size:20px;font-weight:800;color:#fff">Безымянный</div>
-        <div id="profileRank" style="font-size:11.5px;color:#7dd3fc;margin-top:4px">МНОЖИТЕЛЬ ДОХОДА: <span id="profileRb">1.0x</span></div>
-      </div>
-    </div>
-    <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px">ИМЯ ОПЕРАТОРА</label>
-    <input class="name-input" id="profileNameInput" type="text" maxlength="16" placeholder="Введите имя...">
-    <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin:16px 0 8px">ВЫБОР АВАТАРА</label>
-    <div class="avatar-grid" id="avatarGrid"></div>
-    <div class="back-row" style="margin-top:20px">
-      <button class="btn small" data-go="screen-menu">← Назад</button>
-      <button class="btn small primary" id="saveProfileBtn">Сохранить</button>
-    </div>
-  </div></div>
-</div>
-
-<!-- Как играть -->
-<div class="screen" id="screen-help">
-  <div class="page"><div class="page-inner">
-    <h2>📖 КАК ИГРАТЬ</h2>
-    <p style="font-size:14px;line-height:1.6;color:#cbd5e1">
-      <b>1. Кликайте по станции</b> в верхней части экрана, чтобы вырабатывать энергию ⚡.<br><br>
-      <b>2. Прокачивайте отделы и улучшения</b> во вкладках снизу, чтобы увеличить пассивный доход и силу клика.<br><br>
-      <b>3. Развивайте город</b> — при накоплении энергии город будет расти и давать новые уровни.<br><br>
-      <b>4. Ребиты</b> — делайте сброс станции, чтобы навсегда увеличить общий множитель дохода!
-    </p>
-    <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
-  </div></div>
-</div>
-
-<!-- Настройки -->
-<div class="screen" id="screen-settings">
-  <div class="page"><div class="page-inner">
-    <h2>⚙ НАСТРОЙКИ</h2>
-    <div class="setting-row">
-      <div><div class="setting-label">Музыка</div><div class="setting-sub">Фоновый эмбиент</div></div>
-      <label class="switch"><input type="checkbox" id="setMusic"><span class="slider"></span></label>
-    </div>
-    <div class="setting-row">
-      <div><div class="setting-label">Звуковые эффекты</div><div class="setting-sub">Клики и покупки</div></div>
-      <label class="switch"><input type="checkbox" id="setSfx"><span class="slider"></span></label>
-    </div>
-    <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
-  </div></div>
-</div>
-
-<!-- О разработчике -->
-<div class="screen" id="screen-about">
-  <div class="page"><div class="page-inner">
-    <h2>🏢 О РАЗРАБОТЧИКЕ</h2>
-    <p style="font-size:14px;line-height:1.6;color:#cbd5e1">
-      <b>«АЭС: Энергия Города»</b> — кликер-стратегия с улучшенным визуалом и механикой ребитов.<br><br>
-      Студия: <b>RI STUDIO</b> (2026).<br>
-      Полностью адаптировано для мобильных устройств.
-    </p>
-    <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
-  </div></div>
-</div>
-
-<!-- Игровой экран -->
-<div class="screen" id="screen-game">
-  <header class="topbar">
-    <button class="icon-btn" data-go="screen-menu">←</button>
-    <div class="profile-chip" data-go="screen-profile">
-      <div class="avatar" id="topbarAvatar">👷</div>
-      <div class="name" id="topbarName">Оператор</div>
-    </div>
-    <div class="stat energy">
-      <div class="lbl">⚡ Энергия</div>
-      <div class="val" id="uiEnergy">0</div>
-    </div>
-    <div class="stat cps">
-      <div class="lbl">CPS</div>
-      <div class="val"><span id="uiCps">0</span></div>
-    </div>
-    <div class="stat city">
-      <div class="lbl">🏙 ур.<span id="uiCityLvl">0</span></div>
-      <div class="city-progress"><div class="fill" id="uiCityFill"></div></div>
-    </div>
-    <div class="spacer"></div>
-    <div class="stat" style="text-align:right">
-      <div class="lbl">Множитель</div>
-      <div class="val" style="color:#a78bfa" id="uiMult">1.0x</div>
-    </div>
-  </header>
-
-  <main class="game-main">
-    <!-- Детализированная 3D-подобная SVG панорама -->
-    <div class="scene-wrap">
-      <svg id="scene" viewBox="0 0 1000 350" preserveAspectRatio="xMidYMid meet"></svg>
-    </div>
-
-    <!-- Вкладки -->
-    <aside class="panel">
-      <div class="tabs-header" id="gameTabs">
-        <button class="tab-btn active" data-target="tab-depts">ОТДЕЛЫ 🏭</button>
-        <button class="tab-btn" data-target="tab-upgs">УЛУЧШЕНИЯ 🔬</button>
-        <button class="tab-btn" data-target="tab-rebirth">РЕБИТЫ ☢</button>
-      </div>
-      <div class="tab-pane active" id="tab-depts"></div>
-      <div class="tab-pane" id="tab-upgs"></div>
-      <div class="tab-pane" id="tab-rebirth">
-        <div class="rebirth-box">
-          <div style="font-size:12px; color:var(--muted); font-weight:800; letter-spacing:1px;">ТЕКУЩИЙ МНОЖИТЕЛЬ ДОХОДА</div>
-          <div class="rebirth-stat" id="rb-current">1.0x</div>
-          <div style="font-size:13px; color:#cbd5e1;">Следующий ребит даст: <b style="color:#34d399" id="rb-next">1.1x</b></div>
-          <div class="rebirth-warning">
-            <b>ВНИМАНИЕ!</b><br>
-            Для совершения ребита <u>вся энергия ⚡</u> и <u>уровни отделов</u> будут списаны!<br>Уровень города сохраняется навсегда.
-          </div>
-          <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin-bottom:14px;">
-            <div style="font-size:11px; color:#7dd3fc; font-weight:bold; margin-bottom:4px;">ТРЕБОВАНИЯ ДЛЯ РЕБИТА:</div>
-            <div id="rb-req" style="font-size:13px; font-weight:bold;"></div>
-          </div>
-          <button class="btn rad" id="btn-rebirth" style="font-size:16px;">☢ СДЕЛАТЬ РЕБИТ</button>
+  <!-- Профиль -->
+  <div class="screen" id="screen-profile">
+    <div class="page"><div class="page-inner">
+      <h2>👤 ПРОФИЛЬ ОПЕРАТОРА</h2>
+      <div class="profile-hero">
+        <div class="profile-avatar-big" id="profileAvatarBig">👷</div>
+        <div>
+          <div style="font-size:11px;letter-spacing:1px;color:#fbbf24;font-weight:800">ОПЕРАТОР</div>
+          <div id="profileNameDisplay" style="font-size:20px;font-weight:800;color:#fff">Безымянный</div>
+          <div id="profileRank" style="font-size:11.5px;color:#7dd3fc;margin-top:4px">МНОЖИТЕЛЬ ДОХОДА: <span id="profileRb">1.0x</span></div>
         </div>
       </div>
-    </aside>
-  </main>
-</div>
+      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px">ИМЯ ОПЕРАТОРА</label>
+      <input class="name-input" id="profileNameInput" type="text" maxlength="16" placeholder="Введите имя...">
+      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin:16px 0 8px">ВЫБОР АВАТАРА</label>
+      <div class="avatar-grid" id="avatarGrid"></div>
+      <div class="back-row" style="margin-top:20px">
+        <button class="btn small" data-go="screen-menu">← Назад</button>
+        <button class="btn small primary" id="saveProfileBtn">Сохранить</button>
+      </div>
+    </div></div>
+  </div>
 
-<div id="toasts"></div>
+  <!-- Как играть -->
+  <div class="screen" id="screen-help">
+    <div class="page"><div class="page-inner">
+      <h2>📖 КАК ИГРАТЬ</h2>
+      <p style="font-size:14px;line-height:1.6;color:#cbd5e1">
+        <b>1. Кликайте по станции</b> в верхней части экрана, чтобы вырабатывать энергию ⚡.<br><br>
+        <b>2. Прокачивайте отделы и улучшения</b> во вкладках снизу, чтобы увеличить пассивный доход и силу клика.<br><br>
+        <b>3. Развивайте город</b> — при накоплении энергии город будет расти и давать новые уровни.<br><br>
+        <b>4. Ребиты</b> — делайте сброс станции, чтобы навсегда увеличить общий множитель дохода!
+      </p>
+      <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
+    </div></div>
+  </div>
+
+  <!-- Настройки -->
+  <div class="screen" id="screen-settings">
+    <div class="page"><div class="page-inner">
+      <h2>⚙ НАСТРОЙКИ</h2>
+      <div class="setting-row">
+        <div><div class="setting-label">Музыка</div><div class="setting-sub">Фоновый эмбиент</div></div>
+        <label class="switch"><input type="checkbox" id="setMusic"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Звуковые эффекты</div><div class="setting-sub">Клики и покупки</div></div>
+        <label class="switch"><input type="checkbox" id="setSfx"><span class="slider"></span></label>
+      </div>
+      <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
+    </div></div>
+  </div>
+
+  <!-- О разработчике -->
+  <div class="screen" id="screen-about">
+    <div class="page"><div class="page-inner" style="text-align: center;">
+      <h2>🏢 О РАЗРАБОТЧИКЕ</h2>
+      <p style="font-size:15px;line-height:1.8;color:#cbd5e1; margin-top: 10px;">
+        <b>«АЭС: Энергия Города»</b><br><br>
+        Разработчик: <b>RI Studio</b><br>
+        <span style="color: #fbbf24; font-weight: 800;">Все права защищены © 2026</span><br><br>
+        Игра адаптирована для мобильных устройств и ПК. Включает механику вкладок, систему ребитов и облачные сохранения.
+      </p>
+      <div class="back-row" style="margin-top: 30px;"><button class="btn small" data-go="screen-menu">← Назад</button></div>
+    </div></div>
+  </div>
+
+  <!-- Игровой экран -->
+  <div class="screen" id="screen-game">
+    <header class="topbar">
+      <button class="icon-btn" data-go="screen-menu">←</button>
+      <div class="profile-chip" data-go="screen-profile">
+        <div class="avatar" id="topbarAvatar">👷</div>
+        <div class="name" id="topbarName">Оператор</div>
+      </div>
+      <div class="stat energy">
+        <div class="lbl">⚡ Энергия</div>
+        <div class="val" id="uiEnergy">0</div>
+      </div>
+      <div class="stat cps">
+        <div class="lbl">CPS</div>
+        <div class="val"><span id="uiCps">0</span></div>
+      </div>
+      <div class="stat city">
+        <div class="lbl">🏙 ур.<span id="uiCityLvl">0</span></div>
+        <div class="city-progress"><div class="fill" id="uiCityFill"></div></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="stat" style="text-align:right">
+        <div class="lbl">Множитель</div>
+        <div class="val" style="color:#a78bfa" id="uiMult">1.0x</div>
+      </div>
+    </header>
+
+    <main class="game-main">
+      <!-- Детализированная 3D-подобная SVG панорама -->
+      <div class="scene-wrap">
+        <svg id="scene" viewBox="0 0 1000 350" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <!-- Вкладки -->
+      <aside class="panel">
+        <div class="tabs-header" id="gameTabs">
+          <button class="tab-btn active" data-target="tab-depts">ОТДЕЛЫ 🏭</button>
+          <button class="tab-btn" data-target="tab-upgs">УЛУЧШЕНИЯ 🔬</button>
+          <button class="tab-btn" data-target="tab-rebirth">РЕБИТЫ ☢</button>
+        </div>
+        <div class="tab-pane active" id="tab-depts"></div>
+        <div class="tab-pane" id="tab-upgs"></div>
+        <div class="tab-pane" id="tab-rebirth">
+          <div class="rebirth-box">
+            <div style="font-size:12px; color:var(--muted); font-weight:800; letter-spacing:1px;">ТЕКУЩИЙ МНОЖИТЕЛЬ ДОХОДА</div>
+            <div class="rebirth-stat" id="rb-current">1.0x</div>
+            <div style="font-size:13px; color:#cbd5e1;">Следующий ребит даст: <b style="color:#34d399" id="rb-next">1.1x</b></div>
+            <div class="rebirth-warning">
+              <b>ВНИМАНИЕ!</b><br>
+              Для совершения ребита <u>вся энергия ⚡</u> и <u>уровни отделов</u> будут списаны!<br>Уровень города сохраняется навсегда.
+            </div>
+            <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin-bottom:14px;">
+              <div style="font-size:11px; color:#7dd3fc; font-weight:bold; margin-bottom:4px;">ТРЕБОВАНИЯ ДЛЯ РЕБИТА:</div>
+              <div id="rb-req" style="font-size:13px; font-weight:bold;"></div>
+            </div>
+            <button class="btn rad" id="btn-rebirth" style="font-size:16px;">☢ СДЕЛАТЬ РЕБИТ</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+  
+  <div id="toasts"></div>
+
+</div> <!-- Конец app-container -->
 
 <script>
 // --- ИНИЦИАЛИЗАЦИЯ ИНТЕГРАЦИИ ПОЛЬЗОВАТЕЛЯ ---
@@ -572,7 +589,7 @@ async function load(){
       }
     }
   } catch (err) {
-    console.log("Локальный режим: сервер пока недоступен");
+    console.log("Сервер пока недоступен, загружено локальное сохранение.");
   }
 }
 
@@ -709,7 +726,7 @@ function updateRebirthUI() {
   if (S.energy >= reqEnergy && S.cityLevel >= reqCity) {
       btn.classList.remove('disabled'); reqText.innerHTML = `<span style="color:#34d399">✓ ТРЕБОВАНИЯ ВЫПОЛНЕНЫ</span>`;
       btn.onclick = () => {
-        if(confirm("Вы уверены? Это сбросит всю накопленную энергию и улучшения! Город останется.")) {
+        if(confirm("Вы уверены? Это сбросит всю накопленную энергию и уровни отделов! Город останется.")) {
           S.energy = 0; S.up = { reactor:0, turbine:0, cooling:0, wires:0 }; S.rebirths += 1;
           save(); updateUI(); showToast("☢ РЕБИТ УСПЕШЕН! Множитель увеличен.");
         }
@@ -727,8 +744,13 @@ sceneEl.addEventListener('click', (e) => {
 
   const d = document.createElement('div');
   d.className = 'float-text'; d.textContent = '+' + fmt(gain);
-  d.style.left = (e.clientX || window.innerWidth/2) + 'px'; d.style.top = (e.clientY || window.innerHeight/4) + 'px';
-  document.body.appendChild(d); setTimeout(()=>d.remove(), 800);
+  // Определяем позицию внутри контейнера для адаптивности
+  const rect = document.querySelector('.app-container').getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  d.style.left = x + 'px'; d.style.top = y + 'px';
+  
+  document.querySelector('.app-container').appendChild(d); setTimeout(()=>d.remove(), 800);
 
   let lvl = 0;
   for(let i = 0; i < CITY_THRESHOLDS.length; i++) if(S.cityProgress >= CITY_THRESHOLDS[i]) lvl = i;
