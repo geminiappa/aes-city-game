@@ -22,6 +22,19 @@ body{
   font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
   user-select:none;-webkit-user-select:none;
 }
+/* ============ ЭКРАН ЗАГРУЗКИ ============ */
+#loading-screen {
+  position: fixed; inset: 0; background: #05070f; z-index: 99999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s; color: #fbbf24;
+}
+.loader-spinner {
+  margin-top: 24px; width: 44px; height: 44px; border: 4px solid rgba(251,191,36,0.2);
+  border-top-color: #fbbf24; border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ БАЗОВЫЕ ЭКРАНЫ ============ */
 .screen{
   position:absolute;inset:0;display:flex;flex-direction:column;
   opacity:0;visibility:hidden;pointer-events:none;
@@ -84,11 +97,14 @@ body{
   width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);
   background:linear-gradient(180deg,#1b2740,#131c30);color:var(--text);
   font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
+  display:flex; align-items:center; justify-content:center; gap:8px;
 }
+.btn:active { transform: scale(0.97); }
 .btn.primary{background:linear-gradient(180deg,#0ea5e9,#0369a1);border-color:#38bdf8}
-.btn.danger{color:#fca5a5;border-color:#4c2020}
+.btn.danger{color:#fca5a5;border-color:#4c2020; background:linear-gradient(180deg,#3f1a1a,#251010);}
 .btn.rad{background:linear-gradient(180deg,#fbbf24,#d97706);border-color:#fbbf24;color:#111827}
 .btn.small{width:auto;padding:9px 16px;font-size:13px}
+.btn.disabled{background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed;transform:none;}
 
 /* ============ МОДАЛКИ (СТРАНИЦЫ) ============ */
 .page{
@@ -103,11 +119,9 @@ body{
   background:radial-gradient(circle at 50% 0%, rgba(251,191,36,.07), transparent 55%), var(--bg);
 }
 .page h2{font-size:20px;margin-bottom:16px;color:#fbbf24;font-weight:800}
-.page h3{font-size:13px;margin:16px 0 8px;color:#38bdf8;text-transform:uppercase;font-weight:800}
 .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(34,48,77,.5)}
 .setting-label{font-size:13.5px;font-weight:600}
 .setting-sub{font-size:11px;color:var(--muted)}
-input[type=range]{width:130px;accent-color:#fbbf24}
 .switch{position:relative;width:48px;height:26px;flex:0 0 auto}
 .switch input{opacity:0;width:0;height:0}
 .slider{position:absolute;inset:0;background:#2a3854;border-radius:26px;cursor:pointer}
@@ -136,114 +150,139 @@ input[type=range]{width:130px;accent-color:#fbbf24}
 /* ============ ИГРОВОЙ ЭКРАН ============ */
 #screen-game{background:#05070f;flex-direction:column;overflow:hidden}
 .topbar{
-  display:flex;align-items:center;gap:6px;padding:6px 10px;
+  display:flex;align-items:center;gap:6px;padding:8px 10px;
   background:rgba(13,18,32,.94);border-bottom:1px solid var(--border);flex:0 0 auto;z-index:5;
 }
 .icon-btn{
-  width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
-  background:#121a2c;color:var(--text);font-size:14px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:#121a2c;color:var(--text);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center; font-weight:bold;
 }
 .profile-chip{
   display:flex;align-items:center;gap:5px;padding:3px 8px 3px 3px;
   border-radius:16px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.3);cursor:pointer;
 }
-.profile-chip .avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;background:rgba(251,191,36,.2)}
-.profile-chip .name{font-size:11px;font-weight:800;color:#fff;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.profile-chip .avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:rgba(251,191,36,.2)}
+.profile-chip .name{font-size:12px;font-weight:800;color:#fff;max-width:65px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-.stat{display:flex;flex-direction:column;gap:1px}
-.stat .lbl{font-size:8.5px;color:var(--muted);text-transform:uppercase;font-weight:700}
-.stat .val{font-size:13px;font-weight:800;color:#fff;line-height:1}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:800}
+.stat .val{font-size:14px;font-weight:800;color:#fff;line-height:1}
 .stat.energy .val{color:#fbbf24}
 .stat.cps .val{color:#34d399}
 .stat.city .val{color:#67e8f9}
 .spacer{flex:1}
-.city-progress{width:45px;height:4px;background:#1a2338;border-radius:3px;overflow:hidden;margin-top:2px}
+.city-progress{width:45px;height:5px;background:#1a2338;border-radius:3px;overflow:hidden;margin-top:2px}
 .city-progress .fill{height:100%;width:0%;background:#fbbf24}
 
-/* СЦЕНА АЭС + ГОРОД (ВМЕЩАЕТСЯ НА 100%) */
+/* СЦЕНА АЭС + ГОРОД */
 .game-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .scene-wrap{
-  flex:0 0 34vh;position:relative;width:100%;overflow:hidden;
-  background:radial-gradient(ellipse at 50% 30%, rgba(251,191,36,.04), transparent 65%);
-  border-bottom:1px solid var(--border);
+  flex:0 0 38vh;position:relative;width:100%;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 30%, rgba(251,191,36,.06), transparent 70%);
+  border-bottom:2px solid #fbbf24;
 }
-#scene{
-  width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation;
-}
+#scene{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation;}
 
-/* ПАНЕЛЬ УЛУЧШЕНИЙ */
+/* ============ ПАНЕЛЬ ВКЛАДОК (ОТДЕЛЫ, УЛУЧШЕНИЯ, РЕБИТЫ) ============ */
 .panel{
   flex:1;display:flex;flex-direction:column;background:rgba(13,18,32,.98);min-height:0;position:relative;overflow:hidden;
 }
-.panel-head{
-  padding:6px 12px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;
+.tabs-header{
+  display:flex; background: #0b1019; border-bottom:1px solid var(--border); flex:0 0 auto;
 }
-.panel-head .title{font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:#fbbf24}
-.panel-body{
-  flex:1;overflow-y:auto;padding:6px;-webkit-overflow-scrolling:touch;
+.tab-btn{
+  flex:1; background:transparent; border:none; color:var(--muted); padding:14px 0; font-size:11px;
+  font-weight:800; cursor:pointer; font-family:inherit; border-bottom:3px solid transparent;
+  transition: all 0.2s ease; letter-spacing:1px;
 }
+.tab-btn.active{
+  color:#fbbf24; border-bottom-color:#fbbf24; background:linear-gradient(0deg, rgba(251,191,36,0.1), transparent);
+}
+.tab-pane{
+  display:none; flex:1; overflow-y:auto; padding:10px; -webkit-overflow-scrolling:touch;
+}
+.tab-pane.active{ display:block; }
 
 /* КАРТОЧКИ УЛУЧШЕНИЙ */
 .upg-card{
-  display:flex;gap:8px;padding:8px;margin-bottom:6px;
+  display:flex;gap:10px;padding:10px;margin-bottom:8px;
   background:linear-gradient(160deg,#131c30,#0d1524);
-  border:1px solid var(--border);border-radius:10px;align-items:center;
+  border:1px solid var(--border);border-radius:12px;align-items:center;
 }
 .upg-card.maxed{border-color:rgba(52,211,153,.4)}
 .upg-icon{
-  width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-  background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);font-size:18px;flex:0 0 36px;
+  width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);font-size:20px;flex:0 0 42px;
 }
-.upg-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-.upg-name{font-size:11.5px;font-weight:800;color:#fff;display:flex;align-items:center;gap:4px}
-.upg-level{font-size:8.5px;padding:1px 5px;border-radius:4px;background:rgba(56,189,248,.15);color:#7dd3fc}
+.upg-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.upg-name{font-size:13px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px}
+.upg-level{font-size:9.5px;padding:2px 6px;border-radius:6px;background:rgba(56,189,248,.15);color:#7dd3fc}
 .upg-level.max{background:rgba(52,211,153,.18);color:#6ee7b7}
-.upg-current,.upg-next{font-size:9.5px;color:var(--muted)}
+.upg-current,.upg-next{font-size:10.5px;color:var(--muted)}
 .upg-next b{color:#34d399}
-.upg-btn{
-  flex:0 0 auto;min-width:75px;padding:6px 8px;border-radius:8px;cursor:pointer;
-  font-family:inherit;font-weight:800;font-size:10px;text-align:center;
+.upg-buy{
+  flex:0 0 auto;min-width:85px;padding:10px 8px;border-radius:10px;cursor:pointer;
+  font-family:inherit;font-weight:800;font-size:11px;text-align:center;
   background:linear-gradient(180deg,#fbbf24,#d97706);border:1px solid #fbbf24;color:#111827;
 }
-.upg-btn.disabled{background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed}
-.upg-btn.maxed{background:#10b981;border-color:#34d399;color:#fff}
+.upg-buy:active:not(.disabled):not(.maxed){transform:scale(0.95)}
+.upg-buy.disabled{background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed}
+.upg-buy.maxed{background:#10b981;border-color:#34d399;color:#fff}
+
+/* РЕБИТЫ */
+.rebirth-box {
+  background:linear-gradient(160deg,#1a1313,#170c0c); border:1px solid #4c2020;
+  border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 12px;
+}
+.rebirth-stat { font-size: 24px; font-weight: 800; color: #fbbf24; margin: 10px 0; }
+.rebirth-warning {
+  background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5; font-size: 11px; padding: 10px; border-radius: 8px; margin: 14px 0; line-height: 1.4;
+}
 
 /* Эффекты клика и тосты */
 .float-text{
-  position:fixed;pointer-events:none;font-weight:800;font-size:18px;color:#fbbf24;
-  text-shadow:0 0 12px rgba(251,191,36,.95);z-index:999;
+  position:fixed;pointer-events:none;font-weight:800;font-size:20px;color:#fbbf24;
+  text-shadow:0 0 12px rgba(251,191,36,1);z-index:999;
   animation:floatUp .8s cubic-bezier(.2,.7,.4,1) forwards;transform:translate(-50%,-50%);
 }
 @keyframes floatUp{
   0%{opacity:1;transform:translate(-50%,-50%) scale(.7)}
-  100%{opacity:0;transform:translate(-50%,-180%) scale(1.3)}
+  100%{opacity:0;transform:translate(-50%,-180%) scale(1.4)}
 }
-#toasts{position:fixed;top:10px;right:10px;z-index:1000;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+#toasts{position:fixed;top:15px;right:15px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
 .toast{
-  padding:8px 12px;border-radius:8px;font-size:11px;font-weight:600;
+  padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;
   background:rgba(30,44,72,.97);border:1px solid var(--rad);color:#fde68a;
   box-shadow:0 6px 20px rgba(0,0,0,.6);animation:toastIn .3s ease;
 }
-@keyframes toastIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
 
-/* Анимации */
-@keyframes corePulse{0%,100%{opacity:.85}50%{opacity:1}}
-.core-pulse{animation:corePulse 1.8s ease-in-out infinite}
+/* Анимации деталей станции */
+@keyframes corePulse{0%,100%{opacity:.8; transform:scale(1)}50%{opacity:1; transform:scale(1.05)}}
+.core-pulse{animation:corePulse 1.5s ease-in-out infinite; transform-origin:center;}
 @keyframes rotateTur{to{transform:rotate(360deg)}}
 .turbine-rotor{transform-box:fill-box;transform-origin:center;animation:rotateTur 1s linear infinite}
+@keyframes smokeRise { 0%{opacity:0.6; transform:translateY(0) scale(1);} 100%{opacity:0; transform:translateY(-40px) scale(1.5);}}
 </style>
 </head>
 <body>
 
+<!-- Загрузочный экран -->
+<div id="loading-screen">
+  <h1 style="font-family: inherit; font-size: 26px; font-weight: 800; letter-spacing: 3px; margin: 0;">Powered by</h1>
+  <h2 style="font-family: inherit; font-size: 20px; font-weight: 600; color: #38bdf8; letter-spacing: 5px; margin-top: 5px;">RI STUDIO</h2>
+  <div class="loader-spinner"></div>
+</div>
+
 <!-- Меню -->
-<div class="screen active" id="screen-menu">
+<div class="screen" id="screen-menu">
   <div class="menu-box">
     <div class="menu-inner">
-      <div class="rad-badge">ОПАСНАЯ ЗОНА · РЕАКТОР</div>
+      <div class="rad-badge">☣ ОПАСНАЯ ЗОНА · РЕАКТОР</div>
       <h1 class="logo">АЭС<span>ЭНЕРГИЯ ГОРОДА</span></h1>
-      <p class="tagline">RI STUDIO · v2.5 · МОБИЛЬНЫЙ АДАПТИВ</p>
+      <p class="tagline">RI STUDIO · v2.5 · MOBILE OPTIMIZED</p>
 
       <div class="menu-profile" data-go="screen-profile">
         <div class="avatar" id="menuProfileAvatar">👷</div>
@@ -251,7 +290,7 @@ input[type=range]{width:130px;accent-color:#fbbf24}
           <div class="lbl">Оператор станции</div>
           <div class="nm" id="menuProfileName">Безымянный</div>
         </div>
-        <div style="font-size:11px;color:#7dd3fc;font-weight:700">ИЗМЕНИТЬ ›</div>
+        <div style="font-size:11px;color:#7dd3fc;font-weight:800">ИЗМЕНИТЬ ›</div>
       </div>
 
       <div class="menu-buttons">
@@ -273,16 +312,16 @@ input[type=range]{width:130px;accent-color:#fbbf24}
     <div class="profile-hero">
       <div class="profile-avatar-big" id="profileAvatarBig">👷</div>
       <div>
-        <div style="font-size:10px;letter-spacing:1px;color:#fbbf24;font-weight:800">ОПЕРАТОР</div>
-        <div id="profileNameDisplay" style="font-size:18px;font-weight:800;color:#fff">Безымянный</div>
-        <div id="profileRank" style="font-size:10.5px;color:#7dd3fc;margin-top:2px">СТАЖЁР</div>
+        <div style="font-size:11px;letter-spacing:1px;color:#fbbf24;font-weight:800">ОПЕРАТОР</div>
+        <div id="profileNameDisplay" style="font-size:20px;font-weight:800;color:#fff">Безымянный</div>
+        <div id="profileRank" style="font-size:11.5px;color:#7dd3fc;margin-top:4px">МНОЖИТЕЛЬ ДОХОДА: <span id="profileRb">1.0x</span></div>
       </div>
     </div>
-    <label style="display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px">ИМЯ ОПЕРАТОРА</label>
+    <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px">ИМЯ ОПЕРАТОРА</label>
     <input class="name-input" id="profileNameInput" type="text" maxlength="16" placeholder="Введите имя...">
-    <label style="display:block;font-size:11px;font-weight:800;color:var(--muted);margin:14px 0 6px">АВАТАР</label>
+    <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin:16px 0 8px">ВЫБОР АВАТАРА</label>
     <div class="avatar-grid" id="avatarGrid"></div>
-    <div class="back-row" style="margin-top:16px">
+    <div class="back-row" style="margin-top:20px">
       <button class="btn small" data-go="screen-menu">← Назад</button>
       <button class="btn small primary" id="saveProfileBtn">Сохранить</button>
     </div>
@@ -293,10 +332,11 @@ input[type=range]{width:130px;accent-color:#fbbf24}
 <div class="screen" id="screen-help">
   <div class="page"><div class="page-inner">
     <h2>📖 КАК ИГРАТЬ</h2>
-    <p style="font-size:13px;line-height:1.6;color:#cbd5e1">
-      <b>1. Кликайте по станции</b> в верхней части экрана, чтобы вырабатывать энергю ⚡.<br><br>
-      <b>2. Покупайте улучшения</b> внизу (Реактор, Турбины, Охлаждение, ЛЭП), чтобы автоматизировать добычу.<br><br>
-      <b>3. Развивайте город</b> — при накоплении энергии город на заднем плане будет расти и расстраиваться.
+    <p style="font-size:14px;line-height:1.6;color:#cbd5e1">
+      <b>1. Кликайте по станции</b> в верхней части экрана, чтобы вырабатывать энергию ⚡.<br><br>
+      <b>2. Прокачивайте отделы и улучшения</b> во вкладках снизу, чтобы увеличить пассивный доход и силу клика.<br><br>
+      <b>3. Развивайте город</b> — при накоплении энергии город будет расти и давать новые уровни.<br><br>
+      <b>4. Ребиты</b> — делайте сброс станции, чтобы навсегда увеличить общий множитель дохода!
     </p>
     <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
   </div></div>
@@ -322,8 +362,10 @@ input[type=range]{width:130px;accent-color:#fbbf24}
 <div class="screen" id="screen-about">
   <div class="page"><div class="page-inner">
     <h2>🏢 О РАЗРАБОТЧИКЕ</h2>
-    <p style="font-size:13px;line-height:1.6;color:#cbd5e1">
-      <b>«АЭС: Энергия Города»</b> — инди-кликер студии <b>RI STUDIO</b> (2026). Полностью автономная браузерная игра с поддержкой офлайн-дохода.
+    <p style="font-size:14px;line-height:1.6;color:#cbd5e1">
+      <b>«АЭС: Энергия Города»</b> — кликер-стратегия с улучшенным визуалом и механикой ребитов.<br><br>
+      Студия: <b>RI STUDIO</b> (2026).<br>
+      Полностью адаптировано для мобильных устройств.
     </p>
     <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
   </div></div>
@@ -351,22 +393,52 @@ input[type=range]{width:130px;accent-color:#fbbf24}
     </div>
     <div class="spacer"></div>
     <div class="stat" style="text-align:right">
-      <div class="lbl">Клик</div>
-      <div class="val" style="color:#a78bfa" id="uiClick">1</div>
+      <div class="lbl">Множитель</div>
+      <div class="val" style="color:#a78bfa" id="uiMult">1.0x</div>
     </div>
   </header>
 
   <main class="game-main">
-    <!-- Адаптированная панорама с preserveAspectRatio="xMidYMid meet" -->
+    <!-- Детализированная 3D-подобная SVG панорама -->
     <div class="scene-wrap">
       <svg id="scene" viewBox="0 0 1000 350" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
+
+    <!-- Вкладки вместо одного списка -->
     <aside class="panel">
-      <div class="panel-head">
-        <span class="title">УЛУЧШЕНИЯ АЭС</span>
-        <span style="font-size:10px;color:var(--muted)">Клик по станции</span>
+      <div class="tabs-header" id="gameTabs">
+        <button class="tab-btn active" data-target="tab-depts">ОТДЕЛЫ 🏭</button>
+        <button class="tab-btn" data-target="tab-upgs">УЛУЧШЕНИЯ 🔬</button>
+        <button class="tab-btn" data-target="tab-rebirth">РЕБИТЫ ☢</button>
       </div>
-      <div class="panel-body" id="upgrades"></div>
+
+      <!-- Вкладка 1: Отделы -->
+      <div class="tab-pane active" id="tab-depts"></div>
+
+      <!-- Вкладка 2: Улучшения -->
+      <div class="tab-pane" id="tab-upgs"></div>
+
+      <!-- Вкладка 3: Ребиты -->
+      <div class="tab-pane" id="tab-rebirth">
+        <div class="rebirth-box">
+          <div style="font-size:12px; color:var(--muted); font-weight:800; letter-spacing:1px;">ТЕКУЩИЙ МНОЖИТЕЛЬ ДОХОДА</div>
+          <div class="rebirth-stat" id="rb-current">1.0x</div>
+          <div style="font-size:13px; color:#cbd5e1;">Следующий ребит даст: <b style="color:#34d399" id="rb-next">1.1x</b></div>
+          
+          <div class="rebirth-warning">
+            <b>ВНИМАНИЕ!</b><br>
+            Для совершения ребита <u>вся накопленная энергия ⚡</u> и <u>уровни отделов/улучшений</u> будут списаны!<br>
+            Уровень города и множитель сохраняются навсегда.
+          </div>
+
+          <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin-bottom:14px;">
+            <div style="font-size:11px; color:#7dd3fc; font-weight:bold; margin-bottom:4px;">ТРЕБОВАНИЯ ДЛЯ РЕБИТА:</div>
+            <div id="rb-req" style="font-size:13px; font-weight:bold;"></div>
+          </div>
+
+          <button class="btn rad" id="btn-rebirth" style="font-size:16px;">☢ СДЕЛАТЬ РЕБИТ</button>
+        </div>
+      </div>
     </aside>
   </main>
 </div>
@@ -374,32 +446,54 @@ input[type=range]{width:130px;accent-color:#fbbf24}
 <div id="toasts"></div>
 
 <script>
+// --- УБИРАЕМ ЗАГРУЗОЧНЫЙ ЭКРАН ---
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('loading-screen');
+    if(loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => loader.remove(), 600);
+    }
+  }, 1000); // Имитация загрузки ресурсов
+});
+
+// --- ТАБЫ (ВКЛАДКИ) ---
+document.querySelectorAll('#gameTabs .tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#gameTabs .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+
 const AVATARS = ['👷','👨‍🔬','👩‍🔬','🧑‍🚀','👨‍💼','👩‍💼','🦺','🔧','⚛️','☢️','👨‍💻','👩‍💻'];
 const DEFAULT_AVATAR = '👷';
 const DEFAULT_NAME = 'Оператор';
 
+// Добавлено поле `tab` для разделения по вкладкам
 const UPGRADES = [
-  { id:'reactor', name:'Реактор', icon:'☢', levels:[
+  { id:'reactor', tab:'depts', name:'Реактор', icon:'☢', levels:[
     {cost:0, click:1, cps:0, title:'Базовый'},
     {cost:100, click:5, cps:1, title:'Улучшенный'},
     {cost:800, click:20, cps:8, title:'Продвинутый'},
     {cost:6000, click:80, cps:40, title:'Плазменный'},
     {cost:50000, click:300, cps:200, title:'Термоядерный'},
   ]},
-  { id:'turbine', name:'Турбины', icon:'⚙', levels:[
+  { id:'turbine', tab:'depts', name:'Турбины', icon:'⚙', levels:[
     {cost:0, cps:0, title:'Нет'},
     {cost:200, cps:3, title:'Малые'},
     {cost:1500, cps:15, title:'Средние'},
     {cost:12000, cps:80, title:'Мощные'},
     {cost:90000, cps:450, title:'Промышленные'},
   ]},
-  { id:'cooling', name:'Охлаждение', icon:'❄', levels:[
+  { id:'cooling', tab:'upgs', name:'Охлаждение', icon:'❄', levels:[
     {cost:0, mult:0, title:'Нет'},
     {cost:400, mult:0.3, title:'Пассивное'},
     {cost:3000, mult:0.8, title:'Активное'},
     {cost:25000, mult:1.8, title:'Жидкостное'},
   ]},
-  { id:'wires', name:'ЛЭП', icon:'⚡', levels:[
+  { id:'wires', tab:'upgs', name:'ЛЭП', icon:'⚡', levels:[
     {cost:0, cityMult:0, title:'Нет'},
     {cost:300, cityMult:0.5, title:'Местные'},
     {cost:2500, cityMult:1.0, title:'Регион'},
@@ -407,11 +501,11 @@ const UPGRADES = [
   ]},
 ];
 
-const CITY_THRESHOLDS = [0, 30, 150, 600, 2500, 10000, 50000, 250000];
+const CITY_THRESHOLDS = [0, 30, 150, 600, 2500, 10000, 50000, 250000, 1000000];
 
-const SAVE_KEY = 'aes_city_clicker_v2_5';
+const SAVE_KEY = 'aes_city_clicker_v2_6';
 let S = {
-  energy: 0, totalProduced: 0, cityProgress: 0, cityLevel: 0,
+  energy: 0, totalProduced: 0, cityProgress: 0, cityLevel: 0, rebirths: 0, // <-- rebirths добавлен
   up: { reactor:0, turbine:0, cooling:0, wires:0 },
   profile: { name:'', avatar: DEFAULT_AVATAR },
   settings: { music:true, sfx:true },
@@ -431,11 +525,16 @@ function getStats(){
   const t = UPGRADES[1].levels[S.up.turbine];
   const c = UPGRADES[2].levels[S.up.cooling];
   const w = UPGRADES[3].levels[S.up.wires];
+  
+  // Учитываем МНОЖИТЕЛЬ РЕБИТА
+  const rbMult = parseFloat((1.0 + (S.rebirths * 0.1)).toFixed(1));
+  
   const baseCps = (r.cps || 0) + (t.cps || 0);
-  const cps = baseCps * (1 + (c.mult || 0));
-  const click = r.click || 1;
-  const cityMult = 1 + (w.cityMult || 0);
-  return { cps, click, cityMult };
+  const cps = baseCps * (1 + (c.mult || 0)) * rbMult;
+  const click = (r.click || 1) * rbMult;
+  const cityMult = (1 + (w.cityMult || 0)) * rbMult;
+  
+  return { cps, click, cityMult, rbMult };
 }
 
 // Звуки
@@ -473,71 +572,108 @@ function showToast(text){
   setTimeout(()=>t.remove(), 2500);
 }
 
-// РЕНДЕР КОМПАКТНОЙ АДАПТИВНОЙ СЦЕНЫ (АЭС слева, Город справа, всё на одном экране)
+// ДЕТАЛИЗИРОВАННАЯ СЦЕНА (SVG)
 const sceneEl = document.getElementById('scene');
 function buildScene(){
   const rl = S.up.reactor, tl = S.up.turbine, cl = S.up.cooling, cityLvl = S.cityLevel;
   const coreColor = rl > 3 ? '#22d3ee' : '#60a5fa';
 
   let h = `<defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#03050c"/><stop offset="100%" stop-color="#1a1530"/></linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#050b14"/><stop offset="100%" stop-color="#14192b"/></linearGradient>
     <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${coreColor}"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <linearGradient id="gradTower" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e2636"/><stop offset="50%" stop-color="#2a3442"/><stop offset="100%" stop-color="#131a26"/></linearGradient>
+    <linearGradient id="cityGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1b253b"/><stop offset="100%" stop-color="#0b0f1a"/></linearGradient>
   </defs>`;
 
-  // Небо и земля
+  // Небо, звезды, луна
   h += `<rect width="1000" height="350" fill="url(#sky)"/>`;
-  h += `<rect y="280" width="1000" height="70" fill="#060a0f"/>`;
-
-  // 1. Градирни (Слева)
-  [100, 170].forEach(cx => {
-    h += `<path d="M ${cx-18} 180 Q ${cx-15} 230, ${cx-26} 280 L ${cx+26} 280 Q ${cx+15} 230, ${cx+18} 180 Z" fill="#2a3442" stroke="#4a5464"/>`;
-    if(cl > 0) h += `<circle cx="${cx}" cy="175" r="8" fill="#cbd5e1" opacity="0.4"/>`;
-  });
-
-  // 2. Реактор (Центр-Лево)
-  h += `<rect x="330" y="210" width="120" height="70" fill="#1e2636" stroke="#4a5464"/>`;
-  h += `<path d="M 330 210 Q 390 120 450 210 Z" fill="#3a4452" stroke="#4a5464"/>`;
-  h += `<circle cx="390" cy="180" r="30" fill="url(#glow)" opacity="0.8"/>`;
-  h += `<circle cx="390" cy="180" r="${6 + rl*2}" fill="${coreColor}" class="core-pulse"/>`;
-
-  // 3. Турбины
-  h += `<rect x="470" y="230" width="90" height="50" fill="#1e2636" stroke="#4a5464"/>`;
-  if(tl > 0){
-    h += `<circle cx="515" cy="255" r="10" fill="none" stroke="#34d399" stroke-width="2.5" class="turbine-rotor"/>`;
+  h += `<circle cx="850" cy="80" r="30" fill="#fde68a" opacity="0.9"/>`;
+  h += `<circle cx="840" cy="70" r="25" fill="url(#sky)"/>`; // Полумесяц
+  for(let i=0; i<30; i++) {
+     h += `<circle cx="${Math.random()*1000}" cy="${Math.random()*200}" r="${Math.random()*1.5}" fill="#fff" opacity="${Math.random()*0.8}"/>`;
   }
 
-  // 4. ГОРОД (Справа — теперь полностью помещается в поле зрения)
+  // Земля и дорога
+  h += `<rect y="280" width="1000" height="70" fill="#080c14"/>`;
+  h += `<path d="M 0 320 Q 500 320 1000 350 L 0 350 Z" fill="#0d141f"/>`;
+  h += `<line x1="0" y1="310" x2="1000" y2="310" stroke="#1e2b44" stroke-width="2"/>`;
+
+  // --- 1. ТРУБЫ ГРАДИРНИ (Слева) ---
+  [100, 180].forEach((cx, idx) => {
+    // Пар
+    if(cl > 0) {
+      h += `<circle cx="${cx-10}" cy="160" r="15" fill="#94a3b8" opacity="0.3" style="animation: smokeRise ${2 + idx}s infinite"/>`;
+      h += `<circle cx="${cx+10}" cy="150" r="20" fill="#94a3b8" opacity="0.2" style="animation: smokeRise ${2.5 + idx}s infinite 0.5s"/>`;
+    }
+    // Сама башня
+    h += `<path d="M ${cx-22} 170 Q ${cx-15} 230, ${cx-32} 290 L ${cx+32} 290 Q ${cx+15} 230, ${cx+22} 170 Z" fill="url(#gradTower)" stroke="#4a5464" stroke-width="1.5"/>`;
+    // Декоративный обод
+    h += `<ellipse cx="${cx}" cy="170" rx="22" ry="5" fill="#161e2b" stroke="#4a5464"/>`;
+  });
+
+  // --- 2. РЕАКТОР (Центр-Лево) ---
+  // Купол
+  h += `<path d="M 320 230 A 60 60 0 0 1 440 230 Z" fill="#2a3442" stroke="#4a5464" stroke-width="2"/>`;
+  h += `<rect x="320" y="230" width="120" height="60" fill="#1e2636" stroke="#4a5464" stroke-width="2"/>`;
+  // Трубы охлаждения к реактору
+  h += `<path d="M 212 275 L 320 275" stroke="#38bdf8" stroke-width="4" opacity="${cl>0?1:0.2}"/>`;
+  h += `<path d="M 212 285 L 320 285" stroke="#38bdf8" stroke-width="4" opacity="${cl>1?1:0.2}"/>`;
+
+  // Ядро
+  h += `<circle cx="380" cy="220" r="40" fill="url(#glow)" opacity="0.85"/>`;
+  h += `<circle cx="380" cy="220" r="${8 + rl*2}" fill="${coreColor}" class="core-pulse"/>`;
+  // Предупреждающие полосы
+  h += `<rect x="322" y="280" width="116" height="8" fill="#fbbf24"/>`;
+  h += `<path d="M 330 280 L 340 288 M 350 280 L 360 288 M 370 280 L 380 288 M 390 280 L 400 288 M 410 280 L 420 288 M 430 280 L 440 288" stroke="#000" stroke-width="4"/>`;
+
+  // --- 3. ТУРБИННЫЙ ЗАЛ ---
+  h += `<rect x="460" y="240" width="100" height="50" fill="#1a2233" stroke="#4a5464" stroke-width="2"/>`;
+  h += `<path d="M 440 260 L 460 260" stroke="#f87171" stroke-width="6"/>`; // Труба от реактора
+  if(tl > 0){
+    h += `<circle cx="510" cy="265" r="14" fill="none" stroke="#34d399" stroke-width="3" class="turbine-rotor"/>`;
+    h += `<circle cx="510" cy="265" r="5" fill="#34d399"/>`;
+  }
+
+  // --- 4. ГОРОД (Справа) ---
   const buildings = [
     {x:630, w:35, h:120, lvl:1},
-    {x:680, w:40, h:160, lvl:2},
-    {x:730, w:30, h:140, lvl:3},
-    {x:770, w:45, h:190, lvl:4},
-    {x:830, w:35, h:150, lvl:5},
-    {x:880, w:40, h:210, lvl:6},
-    {x:930, w:35, h:170, lvl:7},
+    {x:670, w:45, h:180, lvl:2},
+    {x:720, w:35, h:150, lvl:3},
+    {x:765, w:50, h:230, lvl:4},
+    {x:825, w:40, h:170, lvl:5},
+    {x:870, w:45, h:260, lvl:6},
+    {x:925, w:40, h:190, lvl:7},
   ];
   buildings.forEach(b => {
     if(b.lvl <= cityLvl + 1){
-      const y = 280 - b.h;
-      h += `<rect x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" fill="#111827" stroke="#1e2b44"/>`;
-      // Свет в окнах
-      h += `<rect x="${b.x+6}" y="${y+8}" width="4" height="6" fill="#fbbf24" opacity="0.8"/>`;
-      h += `<rect x="${b.x+b.w-10}" y="${y+8}" width="4" height="6" fill="#fbbf24" opacity="0.8"/>`;
+      const y = 290 - b.h;
+      h += `<rect x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" fill="url(#cityGrad)" stroke="#1e2b44" stroke-width="2"/>`;
+      // Рандомные окна (желтые горящие)
+      for(let wx = b.x + 8; wx < b.x + b.w - 10; wx += 12) {
+        for(let wy = y + 10; wy < y + b.h - 20; wy += 15) {
+          if (Math.random() > 0.4) {
+            h += `<rect x="${wx}" y="${wy}" width="6" height="8" fill="#fde68a" opacity="0.85"/>`;
+          } else {
+            h += `<rect x="${wx}" y="${wy}" width="6" height="8" fill="#111" opacity="0.5"/>`;
+          }
+        }
+      }
     }
   });
 
-  // Подписи зон
-  h += `<text x="390" y="315" text-anchor="middle" font-size="11" fill="#fbbf24" opacity="0.6" font-weight="bold">АЭС</text>`;
-  h += `<text x="810" y="315" text-anchor="middle" font-size="11" fill="#67e8f9" opacity="0.6" font-weight="bold">ГОРОД</text>`;
+  h += `<text x="380" y="325" text-anchor="middle" font-size="12" fill="#fbbf24" font-weight="800" letter-spacing="2">БЛОК АЭС</text>`;
+  h += `<text x="800" y="325" text-anchor="middle" font-size="12" fill="#67e8f9" font-weight="800" letter-spacing="2">МЕГАПОЛИС</text>`;
 
   sceneEl.innerHTML = h;
 }
 
-// Карточки улучшений
+// Построение карточек улучшений по вкладкам
 const upgRefs = {};
 function buildUpgradeCards(){
-  const panel = document.getElementById('upgrades');
-  panel.innerHTML = '';
+  const tabDepts = document.getElementById('tab-depts');
+  const tabUpgs = document.getElementById('tab-upgs');
+  tabDepts.innerHTML = ''; tabUpgs.innerHTML = '';
+  
   UPGRADES.forEach(u => {
     const card = document.createElement('div');
     card.className = 'upg-card';
@@ -548,14 +684,18 @@ function buildUpgradeCards(){
         <div class="upg-current"></div>
         <div class="upg-next"></div>
       </div>
-      <button class="upg-btn">КУПИТЬ</button>`;
+      <button class="upg-buy">КУПИТЬ</button>`;
+      
     const refs = {
       card, level:card.querySelector('.upg-level'), current:card.querySelector('.upg-current'),
-      next:card.querySelector('.upg-next'), btn:card.querySelector('.upg-btn')
+      next:card.querySelector('.upg-next'), btn:card.querySelector('.upg-buy')
     };
     refs.btn.addEventListener('click', () => buyUpgrade(u.id));
     upgRefs[u.id] = refs;
-    panel.appendChild(card);
+    
+    // Раскладываем по вкладкам
+    if (u.tab === 'depts') tabDepts.appendChild(card);
+    else tabUpgs.appendChild(card);
   });
 }
 
@@ -569,15 +709,18 @@ function updateUpgradeCards(){
     ref.level.textContent = `ур.${lvl}`;
     ref.level.classList.toggle('max', maxed);
 
-    if(u.id === 'reactor') ref.current.innerHTML = `Клик: <b>${fmt(cur.click)}</b>`;
-    if(u.id === 'turbine') ref.current.innerHTML = `Доход: <b>+${fmt(cur.cps)}/с</b>`;
-    if(u.id === 'cooling') ref.current.innerHTML = `Бонус: <b>+${Math.round(cur.mult*100)}%</b>`;
-    if(u.id === 'wires') ref.current.innerHTML = `Город: <b>×${(1+cur.cityMult).toFixed(1)}</b>`;
+    // Учитываем ребит-множитель для отображения характеристик
+    const rbMult = parseFloat((1.0 + (S.rebirths * 0.1)).toFixed(1));
+
+    if(u.id === 'reactor') ref.current.innerHTML = `Клик: <b>${fmt((cur.click||1) * rbMult)}</b>`;
+    if(u.id === 'turbine') ref.current.innerHTML = `Доход: <b>+${fmt((cur.cps||0) * rbMult)}/с</b>`;
+    if(u.id === 'cooling') ref.current.innerHTML = `Бонус CPS: <b>+${Math.round(cur.mult*100)}%</b>`;
+    if(u.id === 'wires') ref.current.innerHTML = `Рост города: <b>×${((1+cur.cityMult)*rbMult).toFixed(1)}</b>`;
 
     if(next){
       ref.next.innerHTML = `→ <b>${fmt(next.cost)} ⚡</b>`;
     } else {
-      ref.next.innerHTML = '<b>МАКС</b>';
+      ref.next.innerHTML = '<b style="color:#6ee7b7">МАКСИМУМ</b>';
     }
 
     if(maxed){
@@ -598,6 +741,45 @@ function buyUpgrade(id){
   S.energy -= next.cost; S.up[id] = lvl + 1;
   Sound.click(); showToast(`🔧 ${u.name} улучшен!`);
   updateUI(); save();
+}
+
+// --- ЛОГИКА РЕБИТА ---
+function updateRebirthUI() {
+  const currentMult = (1.0 + S.rebirths * 0.1).toFixed(1);
+  const nextMult = (1.0 + (S.rebirths + 1) * 0.1).toFixed(1);
+  
+  // Порог: каждый следующий ребит стоит дороже и требует более развитого города
+  const reqEnergy = 500000 * Math.pow(10, S.rebirths);
+  const reqCity = 3 + S.rebirths;
+
+  document.getElementById('rb-current').textContent = currentMult + 'x';
+  document.getElementById('rb-next').textContent = nextMult + 'x';
+  document.getElementById('uiMult').textContent = currentMult + 'x';
+  document.getElementById('profileRb').textContent = currentMult + 'x';
+
+  const btn = document.getElementById('btn-rebirth');
+  const reqText = document.getElementById('rb-req');
+
+  if (S.energy >= reqEnergy && S.cityLevel >= reqCity) {
+      btn.classList.remove('disabled');
+      reqText.innerHTML = `<span style="color:#34d399">✓ ТРЕБОВАНИЯ ВЫПОЛНЕНЫ</span>`;
+      btn.onclick = () => performRebirth();
+  } else {
+      btn.classList.add('disabled');
+      reqText.innerHTML = `<span style="color:#fca5a5">Нужно: ⚡ ${fmt(reqEnergy)} энергии и 🏙 ур.${reqCity}</span>`;
+      btn.onclick = null;
+  }
+}
+
+function performRebirth() {
+  if(confirm("Вы уверены? Это сбросит всю накопленную энергию и улучшения! Город останется.")) {
+      S.energy = 0;
+      S.up = { reactor:0, turbine:0, cooling:0, wires:0 };
+      S.rebirths += 1;
+      save();
+      updateUI();
+      showToast("☢ РЕБИТ УСПЕШЕН! Множитель увеличен.");
+  }
 }
 
 // Клик по станции
@@ -624,7 +806,6 @@ function updateUI(){
   const st = getStats();
   document.getElementById('uiEnergy').textContent = fmt(S.energy);
   document.getElementById('uiCps').textContent = fmt(st.cps);
-  document.getElementById('uiClick').textContent = fmt(st.click);
   document.getElementById('uiCityLvl').textContent = S.cityLevel;
 
   const curThr = CITY_THRESHOLDS[S.cityLevel] || 0, nextThr = CITY_THRESHOLDS[S.cityLevel + 1];
@@ -633,6 +814,7 @@ function updateUI(){
   document.getElementById('uiCityFill').style.width = pct + '%';
 
   updateUpgradeCards();
+  updateRebirthUI();
   buildScene();
 }
 
@@ -677,6 +859,7 @@ function refreshProfileUI(){
 
 document.addEventListener('DOMContentLoaded', () => {
   load();
+  if(S.rebirths === undefined) S.rebirths = 0; // Инициализация для старых сохранений
   buildUpgradeCards();
   refreshProfileUI();
 
@@ -687,11 +870,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('saveProfileBtn').addEventListener('click', () => {
     S.profile.name = document.getElementById('profileNameInput').value.trim().slice(0, 16);
     S.profile.avatar = selectedAvatar;
-    save(); refreshProfileUI(); showToast('✅ Сохранено');
+    save(); refreshProfileUI(); showToast('✅ Профиль сохранен');
   });
 
   document.getElementById('wipeBtn').addEventListener('click', () => {
-    if(confirm('Сбросить весь прогресс?')){
+    if(confirm('Сбросить весь прогресс? (Это безвозвратно)')){
       localStorage.removeItem(SAVE_KEY);
       location.reload();
     }
@@ -715,3 +898,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
