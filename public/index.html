@@ -1,2081 +1,1018 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=no">
-
-<title>АЭС: Энергия Города</title>
-
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>АЭС: Энергия Города — RI Studio</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
--webkit-tap-highlight-color:transparent;
-}
-
-
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-
---bg:#05070d;
---panel:#101827;
---panel2:#162238;
-
---border:#243450;
-
---blue:#38bdf8;
---yellow:#fbbf24;
---green:#34d399;
---red:#ef4444;
-
---text:#e5e7eb;
---muted:#94a3b8;
-
+  --bg:#06080e;--bg2:#0a0e18;--panel:#0d1220;--panel2:#121a2c;
+  --border:#1e2b44;--accent:#38bdf8;--accent2:#a78bfa;
+  --rad:#fbbf24;--rad-dark:#111827;--green:#34d399;--red:#ef4444;
+  --text:#e2e8f0;--muted:#7c8aa5;
+}
+html, body {
+  height: 100%; height: 100dvh; width: 100%;
+  background: #020306;
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  user-select: none; -webkit-user-select: none;
+  display: flex; justify-content: center; overflow: hidden;
 }
 
-
-body{
-
-height:100vh;
-width:100%;
-
-background:#020306;
-
-font-family:
-Segoe UI,
-Arial,
-sans-serif;
-
-color:var(--text);
-
-overflow:hidden;
-
-display:flex;
-justify-content:center;
-
+.app-container {
+  position: relative;
+  width: 100%; max-width: 500px;
+  height: 100%; height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+@media (min-width: 501px) {
+  .app-container { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
 }
 
-
-
-
-.app{
-
-width:100%;
-max-width:520px;
-
-height:100vh;
-
-background:var(--bg);
-
-position:relative;
-
-overflow:hidden;
-
+/* ============ ЭКРАН ЗАГРУЗКИ ============ */
+#loading-screen {
+  position: absolute; inset: 0; background: #05070f; z-index: 99999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.6s ease, visibility 0.6s; color: #fbbf24;
 }
+.loader-spinner {
+  margin-top: 24px; width: 44px; height: 44px; border: 4px solid rgba(251,191,36,0.2);
+  border-top-color: #fbbf24; border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-
-
+/* ============ БАЗОВЫЕ ЭКРАНЫ ============ */
 .screen{
-
-position:absolute;
-
-inset:0;
-
-display:none;
-
-flex-direction:column;
-
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .28s ease, visibility .28s;
 }
+.screen.active{opacity:1;visibility:visible;pointer-events:auto}
 
-
-.screen.active{
-
-display:flex;
-
+/* ============ МЕНЮ ============ */
+#screen-menu{
+  align-items:center;justify-content:center;padding:16px;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(251,191,36,.10), transparent 55%),
+    radial-gradient(circle at 15% 10%, rgba(56,189,248,.12), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(167,139,250,.10), transparent 45%),
+    var(--bg);
+  overflow-y:auto;
 }
-
-
-
-
-/* MENU */
-
-
-.menu{
-
-justify-content:center;
-
-align-items:center;
-
-padding:20px;
-
-background:
-
-radial-gradient(circle,
-rgba(56,189,248,.15),
-transparent 60%),
-
-var(--bg);
-
+.menu-box{
+  width:100%;max-width:460px;text-align:center;
+  background:linear-gradient(160deg,rgba(20,30,52,.96),rgba(10,14,24,.98));
+  border:1px solid var(--border);border-radius:22px;padding:0 0 22px;
+  box-shadow:0 24px 70px rgba(0,0,0,.75);position:relative;overflow:hidden;
 }
-
-
-
-.card{
-
-width:100%;
-
-background:
-
-linear-gradient(
-160deg,
-#172338,
-#080d18
-);
-
-border:1px solid var(--border);
-
-border-radius:22px;
-
-padding:25px;
-
+.menu-inner{padding:28px 20px 4px}
+.rad-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 14px;border-radius:22px;font-size:11px;font-weight:800;
+  letter-spacing:2px;color:#fbbf24;background:rgba(251,191,36,.08);
+  border:1px solid rgba(251,191,36,.35);margin-bottom:14px;
 }
-
-
-
 .logo{
-
-text-align:center;
-
-font-size:34px;
-
-font-weight:900;
-
-background:
-
-linear-gradient(
-90deg,
-#38bdf8,
-#fbbf24
-);
-
--webkit-background-clip:text;
-
-color:transparent;
-
+  font-size:34px;line-height:1.1;letter-spacing:2px;font-weight:800;
+  background:linear-gradient(90deg,#38bdf8,#a78bfa,#fbbf24);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
 }
-
-
-
-.subtitle{
-
-text-align:center;
-
-color:var(--muted);
-
-margin:10px 0 20px;
-
+.logo span{font-size:18px;letter-spacing:5px;display:block;margin-top:6px;
+  background:linear-gradient(90deg,#fbbf24,#f59e0b);
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.tagline{color:var(--muted);font-size:12px;margin:12px 0 16px;letter-spacing:2px;font-weight:600}
+.menu-profile{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:10px 14px;margin:0 0 16px;border-radius:12px;
+  background:linear-gradient(160deg,rgba(56,189,248,.08),rgba(56,189,248,.02));
+  border:1px solid rgba(56,189,248,.28);cursor:pointer;
 }
+.menu-profile .avatar{
+  width:42px;height:42px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  background:radial-gradient(circle at 30% 25%,rgba(251,191,36,.35),rgba(251,191,36,.08));
+  border:2px solid rgba(251,191,36,.5);
+}
+.menu-profile .info{flex:1;text-align:left;min-width:0}
+.menu-profile .lbl{font-size:10px;letter-spacing:1.5px;color:var(--muted);font-weight:800}
+.menu-profile .nm{font-size:15px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-buttons{display:flex;flex-direction:column;gap:10px}
+.menu-footer{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);color:#4b5a78;font-size:11px}
 
-
-
+/* ============ КНОПКИ ============ */
 .btn{
-
-width:100%;
-
-padding:15px;
-
-margin-top:10px;
-
-border-radius:14px;
-
-border:1px solid var(--border);
-
-background:#172338;
-
-color:white;
-
-font-size:15px;
-
-font-weight:800;
-
+  width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);
+  background:linear-gradient(180deg,#1b2740,#131c30);color:var(--text);
+  font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
+  display:flex; align-items:center; justify-content:center; gap:8px;
 }
+.btn:active:not(.disabled) { transform: scale(0.97); }
+.btn.primary{background:linear-gradient(180deg,#0ea5e9,#0369a1);border-color:#38bdf8}
+.btn.danger{color:#fca5a5;border-color:#4c2020; background:linear-gradient(180deg,#3f1a1a,#251010);}
+.btn.rad{background:linear-gradient(180deg,#fbbf24,#d97706);border-color:#fbbf24;color:#111827}
+.btn.leaderboard{background:linear-gradient(180deg,#8b5cf6,#6d28d9);border-color:#a78bfa;color:#fff}
+.btn.small{width:auto;padding:9px 16px;font-size:13px}
+.btn.disabled{background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed;transform:none;}
 
-
-
-.btn.primary{
-
-background:
-
-linear-gradient(
-180deg,
-#0ea5e9,
-#0369a1
-);
-
+/* ============ МОДАЛКИ (СТРАНИЦЫ) ============ */
+.page{
+  width:100%;max-width:540px;margin:auto;
+  background:linear-gradient(160deg,rgba(20,30,52,.96),rgba(10,14,24,.98));
+  border:1px solid var(--border);border-radius:20px;
+  max-height:85vh;display:flex;flex-direction:column;overflow:hidden;position:relative;
 }
-
-
-
-.btn.gold{
-
-background:
-
-linear-gradient(
-180deg,
-#fbbf24,
-#d97706
-);
-
-color:#111;
-
+.page-inner{flex:1;overflow-y:auto;padding:24px 20px; -webkit-overflow-scrolling:touch}
+#screen-settings,#screen-about,#screen-help,#screen-profile,#screen-leaderboard{
+  padding:16px;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 0%, rgba(251,191,36,.07), transparent 55%), var(--bg);
 }
+.page h2{font-size:20px;margin-bottom:16px;color:#fbbf24;font-weight:800;text-align:center;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(34,48,77,.5)}
+.setting-label{font-size:13.5px;font-weight:600}
+.setting-sub{font-size:11px;color:var(--muted)}
+.switch{position:relative;width:48px;height:26px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#2a3854;border-radius:26px;cursor:pointer}
+.slider::before{content:'';position:absolute;width:18px;height:18px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.25s}
+.switch input:checked + .slider{background:#fbbf24}
+.switch input:checked + .slider::before{transform:translateX(22px)}
+.back-row{margin-top:18px;display:flex;gap:10px;justify-content:center}
 
-
-
-/* PROFILE */
-
-
-.profile{
-
-display:flex;
-
-align-items:center;
-
-gap:12px;
-
-background:#101827;
-
-padding:12px;
-
-border-radius:14px;
-
-margin-bottom:15px;
-
+/* Профиль */
+.profile-hero{
+  display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;margin-bottom:18px;
+  background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);
 }
-
-
-
-.avatar{
-
-width:45px;
-
-height:45px;
-
-border-radius:50%;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-font-size:25px;
-
-background:#1e293b;
-
+.profile-avatar-big{
+  width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;
+  background:radial-gradient(circle,rgba(251,191,36,.4),rgba(251,191,36,.08));border:3px solid rgba(251,191,36,.6);
 }
-
-
-
-
-
-/* GAME */
-
-
-#game{
-
-background:#05070d;
-
+.name-input{
+  width:100%;padding:12px 14px;border-radius:12px;background:#0a1220;color:#fff;
+  border:1px solid var(--border);font-size:16px;outline:none;
 }
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:10px;background:rgba(10,14,24,.5);border-radius:12px}
+.avatar-opt{aspect-ratio:1;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid var(--border)}
+.avatar-opt.selected{border-color:#fbbf24;background:rgba(251,191,36,.2)}
 
+/* Таблица лидеров */
+.lb-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.lb-tab {
+  flex: 1; padding: 10px 4px; text-align: center; background: #0f172a; border-radius: 10px;
+  cursor: pointer; font-size: 11px; font-weight: 800; border: 1px solid var(--border); color: var(--muted);
+  transition: all 0.2s ease;
+}
+.lb-tab.active { background: rgba(139,92,246,0.18); color: #c4b5fd; border-color: #8b5cf6; }
+.lb-list { display: flex; flex-direction: column; gap: 6px; max-height: 52vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 2px;}
+.lb-row {
+  display: flex; align-items: center; padding: 8px 12px; background: rgba(13,18,32,0.85);
+  border: 1px solid var(--border); border-radius: 10px; gap: 8px;
+}
+.lb-row.my-row { border-color: rgba(251,191,36,0.6); background: rgba(251,191,36,0.06); }
+.lb-rank { font-weight: 900; font-size: 14px; width: 30px; text-align: center; color: var(--muted); }
+.lb-rank.gold { color: #fbbf24; font-size: 16px; }
+.lb-rank.silver { color: #e2e8f0; font-size: 15px; }
+.lb-rank.bronze { color: #d97706; font-size: 15px; }
+.lb-user { flex: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.lb-user .av { font-size: 18px; flex: 0 0 24px; text-align: center; }
+.lb-user .nm { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
+.lb-val { font-weight: 800; color: #34d399; font-size: 12px; text-align: right; }
+.lb-status { text-align: center; padding: 25px 10px; color: var(--muted); font-size: 12px; font-weight: 600; }
 
-
+/* ============ ИГРОВОЙ ЭКРАН ============ */
+#screen-game{background:#05070f;flex-direction:column;overflow:hidden}
 .topbar{
-
-height:65px;
-
-display:flex;
-
-align-items:center;
-
-gap:8px;
-
-padding:8px;
-
-background:#101827;
-
-border-bottom:1px solid var(--border);
-
+  display:flex;align-items:center;gap:6px;padding:8px 10px;
+  background:rgba(13,18,32,.94);border-bottom:1px solid var(--border);flex:0 0 auto;z-index:5;
 }
-
-
-
-.stat{
-
-font-size:11px;
-
-font-weight:800;
-
+.icon-btn{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:#121a2c;color:var(--text);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center; font-weight:bold;
 }
-
-
-
-.stat span{
-
-display:block;
-
-font-size:16px;
-
+.profile-chip{
+  display:flex;align-items:center;gap:5px;padding:3px 8px 3px 3px;
+  border-radius:16px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.3);cursor:pointer;
 }
+.profile-chip .avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:rgba(251,191,36,.2)}
+.profile-chip .name{font-size:12px;font-weight:800;color:#fff;max-width:65px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .lbl{font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:800}
+.stat .val{font-size:14px;font-weight:800;color:#fff;line-height:1}
+.stat.energy .val{color:#fbbf24}
+.stat.cps .val{color:#34d399}
+.stat.city .val{color:#67e8f9}
+.spacer{flex:1}
+.city-progress{width:45px;height:5px;background:#1a2338;border-radius:3px;overflow:hidden;margin-top:2px}
+.city-progress .fill{height:100%;width:0%;background:#fbbf24}
 
-
-.energy span{
-
-color:var(--yellow);
-
+/* СЦЕНА АЭС + ГОРОД */
+.game-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.scene-wrap{
+  flex:0 0 38vh;position:relative;width:100%;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 30%, rgba(251,191,36,.06), transparent 70%);
+  border-bottom:2px solid #fbbf24;
 }
+#scene{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation;}
 
-
-.money span{
-
-color:#4ade80;
-
-}
-
-
-.rb span{
-
-color:#c084fc;
-
-}
-
-
-
-
-
-.scene{
-
-height:38vh;
-
-background:
-
-radial-gradient(
-circle,
-rgba(251,191,36,.15),
-transparent
-);
-
-border-bottom:2px solid var(--yellow);
-
-}
-
-
-
-#reactor{
-
-width:100%;
-
-height:100%;
-
-}
-
-
-
-
-
+/* ============ ПАНЕЛЬ ВКЛАДОК ============ */
 .panel{
+  flex:1;display:flex;flex-direction:column;background:rgba(13,18,32,.98);min-height:0;position:relative;overflow:hidden;
+}
+.tabs-header{
+  display:flex; background: #0b1019; border-bottom:1px solid var(--border); flex:0 0 auto;
+}
+.tab-btn{
+  flex:1; background:transparent; border:none; color:var(--muted); padding:14px 0; font-size:11px;
+  font-weight:800; cursor:pointer; font-family:inherit; border-bottom:3px solid transparent;
+  transition: all 0.2s ease; letter-spacing:1px;
+}
+.tab-btn.active{
+  color:#fbbf24; border-bottom-color:#fbbf24; background:linear-gradient(0deg, rgba(251,191,36,0.1), transparent);
+}
+.tab-pane{
+  display:none; flex:1; overflow-y:auto; padding:10px; -webkit-overflow-scrolling:touch;
+}
+.tab-pane.active{ display:block; }
 
-flex:1;
+/* КАРТОЧКИ УЛУЧШЕНИЙ */
+.upg-card{
+  display:flex;gap:10px;padding:10px;margin-bottom:8px;
+  background:linear-gradient(160deg,#131c30,#0d1524);
+  border:1px solid var(--border);border-radius:12px;align-items:center;
+}
+.upg-card.maxed{border-color:rgba(52,211,153,.4)}
+.upg-icon{
+  width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);font-size:20px;flex:0 0 42px;
+}
+.upg-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.upg-name{font-size:13px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px}
+.upg-level{font-size:9.5px;padding:2px 6px;border-radius:6px;background:rgba(56,189,248,.15);color:#7dd3fc}
+.upg-level.max{background:rgba(52,211,153,.18);color:#6ee7b7}
+.upg-current,.upg-next{font-size:10.5px;color:var(--muted)}
+.upg-next b{color:#34d399}
+.upg-buy{
+  flex:0 0 auto;min-width:85px;padding:10px 8px;border-radius:10px;cursor:pointer;
+  font-family:inherit;font-weight:800;font-size:11px;text-align:center;
+  background:linear-gradient(180deg,#fbbf24,#d97706);border:1px solid #fbbf24;color:#111827;
+}
+.upg-buy:active:not(.disabled):not(.maxed){transform:scale(0.95)}
+.upg-buy.disabled{background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed}
+.upg-buy.maxed{background:#10b981;border-color:#34d399;color:#fff}
 
-background:#0b1220;
-
-overflow:auto;
-
+/* РЕБИТЫ */
+.rebirth-box {
+  background:linear-gradient(160deg,#1a1313,#170c0c); border:1px solid #4c2020;
+  border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 12px;
+}
+.rebirth-stat { font-size: 24px; font-weight: 800; color: #fbbf24; margin: 10px 0; }
+.rebirth-warning {
+  background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5; font-size: 11px; padding: 10px; border-radius: 8px; margin: 14px 0; line-height: 1.4;
 }
 
-
-
-
-
-.tabs{
-
-display:flex;
-
-background:#090f1b;
-
+/* Эффекты клика и тосты */
+.float-text{
+  position:absolute;pointer-events:none;font-weight:800;font-size:20px;color:#fbbf24;
+  text-shadow:0 0 12px rgba(251,191,36,1);z-index:999;
+  animation:floatUp .8s cubic-bezier(.2,.7,.4,1) forwards;transform:translate(-50%,-50%);
 }
-
-
-.tab{
-
-flex:1;
-
-padding:14px 5px;
-
-background:none;
-
-border:0;
-
-color:#94a3b8;
-
-font-weight:900;
-
-font-size:11px;
-
+@keyframes floatUp{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(.7)}
+  100%{opacity:0;transform:translate(-50%,-180%) scale(1.4)}
 }
-
-
-
-.tab.active{
-
-color:#fbbf24;
-
-border-bottom:3px solid #fbbf24;
-
+#toasts{position:absolute;top:15px;right:15px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none; width: 220px;}
+.toast{
+  padding:10px 14px;border-radius:10px;font-size:12px;font-weight:700;
+  background:rgba(30,44,72,.97);border:1px solid var(--rad);color:#fde68a;
+  box-shadow:0 6px 20px rgba(0,0,0,.6);animation:toastIn .3s ease;
 }
-
-
-
-.content{
-
-padding:12px;
-
-}
-
-
-
-
-.item{
-
-display:flex;
-
-align-items:center;
-
-gap:12px;
-
-padding:12px;
-
-margin-bottom:10px;
-
-border-radius:14px;
-
-background:#131d31;
-
-border:1px solid var(--border);
-
-}
-
-
-
-.item button{
-
-margin-left:auto;
-
-padding:10px;
-
-border-radius:10px;
-
-background:#fbbf24;
-
-border:0;
-
-font-weight:900;
-
-}
-
-
-
-
-
-/* LEADERBOARD */
-
-
-.leader{
-
-padding:15px;
-
-}
-
-
-
-.rank-card{
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
-background:#131d31;
-
-border:1px solid var(--border);
-
-border-radius:14px;
-
-padding:12px;
-
-margin-bottom:8px;
-
-}
-
-
-
-.rank{
-
-font-size:22px;
-
-font-weight:900;
-
-color:#fbbf24;
-
-}
-
-
-
-.back{
-
-margin-top:15px;
-
-}
-
-
-
-
-@media(min-width:700px){
-
-.app{
-
-border-left:1px solid #243450;
-
-border-right:1px solid #243450;
-
-}
-
-}
-
-
+@keyframes toastIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
+
+/* Анимации деталей станции */
+@keyframes corePulse{0%,100%{opacity:.8; transform:scale(1)}50%{opacity:1; transform:scale(1.05)}}
+.core-pulse{animation:corePulse 1.5s ease-in-out infinite; transform-origin:center;}
+@keyframes rotateTur{to{transform:rotate(360deg)}}
+.turbine-rotor{transform-box:fill-box;transform-origin:center;animation:rotateTur 1s linear infinite}
+@keyframes smokeRise { 0%{opacity:0.6; transform:translateY(0) scale(1);} 100%{opacity:0; transform:translateY(-40px) scale(1.5);}}
 </style>
-
-
-<style>
-/* EXTRA MOBILE/PC ADAPTATION */
-.app{min-height:100dvh}
-@media(max-width:600px){
-.topbar{height:58px}
-.tab{font-size:10px;padding:12px 2px}
-.item{min-height:70px}
-.btn{min-height:50px}
-}
-@media(min-width:900px){
-.app{height:95vh;margin-top:2.5vh;border-radius:24px;box-shadow:0 0 80px #000}
-}
-
-/* LOADING SCREEN */
-#loading-screen{
-position:absolute;inset:0;z-index:99999;
-display:flex;flex-direction:column;
-align-items:center;justify-content:center;
-background:radial-gradient(circle,#172554,#020617);
-transition:opacity .8s;
-}
-.load-reactor{
-font-size:70px;color:#fbbf24;
-animation:pulseReactor 1.2s infinite;
-}
-.load-bar{width:260px;height:8px;background:#1e293b;border-radius:20px;overflow:hidden;margin-top:25px}
-.load-fill{height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#fbbf24);transition:.3s}
-@keyframes pulseReactor{50%{transform:scale(1.15);text-shadow:0 0 40px #fbbf24}}
-</style>
-
 </head>
-
-
 <body>
 
+<div class="app-container">
 
-<div class="app">
+  <!-- Загрузочный экран -->
+  <div id="loading-screen">
+    <h1 style="font-family: inherit; font-size: 26px; font-weight: 800; letter-spacing: 3px; margin: 0;">Powered by</h1>
+    <h2 style="font-family: inherit; font-size: 20px; font-weight: 600; color: #38bdf8; letter-spacing: 5px; margin-top: 5px;">RI STUDIO</h2>
+    <div class="loader-spinner"></div>
+  </div>
 
-<div id="loading-screen">
-<div class="load-reactor">☢</div>
-<h1>АЭС</h1>
-<p>Запуск энергетической сети</p>
-<div class="load-bar"><div class="load-fill" id="load-fill"></div></div>
+  <!-- Меню -->
+  <div class="screen active" id="screen-menu">
+    <div class="menu-box">
+      <div class="menu-inner">
+        <div class="rad-badge">☣ ОПАСНАЯ ЗОНА · РЕАКТОР</div>
+        <h1 class="logo">АЭС<span>ЭНЕРГИЯ ГОРОДА</span></h1>
+        <p class="tagline">RI STUDIO · v2.7</p>
+
+        <div class="menu-profile" data-go="screen-profile">
+          <div class="avatar" id="menuProfileAvatar">👷</div>
+          <div class="info">
+            <div class="lbl">Оператор станции</div>
+            <div class="nm" id="menuProfileName">Безымянный</div>
+          </div>
+          <div style="font-size:11px;color:#7dd3fc;font-weight:800">ИЗМЕНИТЬ ›</div>
+        </div>
+
+        <div class="menu-buttons">
+          <button class="btn primary" data-go="screen-game">☢ &nbsp;НАЧАТЬ СМЕНУ</button>
+          <button class="btn leaderboard" data-go="screen-leaderboard" id="openLbBtn">🏆 &nbsp;ТАБЛИЦА ЛИДЕРОВ</button>
+          <button class="btn rad" data-go="screen-help">📖 &nbsp;КАК ИГРАТЬ</button>
+          <button class="btn" data-go="screen-settings">⚙ &nbsp;НАСТРОЙКИ</button>
+          <button class="btn" data-go="screen-about">🏢 &nbsp;О РАЗРАБОТЧИКЕ</button>
+          <button class="btn danger" id="wipeBtn">🗑 &nbsp;СБРОСИТЬ ПРОГРЕСС</button>
+        </div>
+        <div class="menu-footer"><b>© 2026 RI STUDIO</b> · Все права защищены</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Таблица Лидеров -->
+  <div class="screen" id="screen-leaderboard">
+    <div class="page"><div class="page-inner">
+      <h2>🏆 ТАБЛИЦА ЛИДЕРОВ</h2>
+      <div class="lb-tabs">
+        <div class="lb-tab active" data-sort="rebirths">☢ РЕБИТЫ</div>
+        <div class="lb-tab" data-sort="energy">⚡ ЭНЕРГИЯ</div>
+        <div class="lb-tab" data-sort="total">🔋 ВСЕГО</div>
+      </div>
+      <div class="lb-list" id="lb-content">
+        <div class="lb-status">Загрузка данных с сервера...</div>
+      </div>
+      <div class="back-row" style="margin-top:16px">
+        <button class="btn small" data-go="screen-menu">← Назад</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Профиль -->
+  <div class="screen" id="screen-profile">
+    <div class="page"><div class="page-inner">
+      <h2>👤 ПРОФИЛЬ ОПЕРАТОРА</h2>
+      <div class="profile-hero">
+        <div class="profile-avatar-big" id="profileAvatarBig">👷</div>
+        <div>
+          <div style="font-size:11px;letter-spacing:1px;color:#fbbf24;font-weight:800">ОПЕРАТОР</div>
+          <div id="profileNameDisplay" style="font-size:20px;font-weight:800;color:#fff">Безымянный</div>
+          <div id="profileRank" style="font-size:11.5px;color:#7dd3fc;margin-top:4px">МНОЖИТЕЛЬ ДОХОДА: <span id="profileRb">1.0x</span></div>
+        </div>
+      </div>
+      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px">ИМЯ ОПЕРАТОРА</label>
+      <input class="name-input" id="profileNameInput" type="text" maxlength="16" placeholder="Введите имя...">
+      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin:16px 0 8px">ВЫБОР АВАТАРА</label>
+      <div class="avatar-grid" id="avatarGrid"></div>
+      <div class="back-row" style="margin-top:20px">
+        <button class="btn small" data-go="screen-menu">← Назад</button>
+        <button class="btn small primary" id="saveProfileBtn">Сохранить</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Как играть -->
+  <div class="screen" id="screen-help">
+    <div class="page"><div class="page-inner">
+      <h2>📖 КАК ИГРАТЬ</h2>
+      <p style="font-size:14px;line-height:1.6;color:#cbd5e1">
+        <b>1. Кликайте по станции</b> в верхней части экрана, чтобы вырабатывать энергию ⚡.<br><br>
+        <b>2. Прокачивайте отделы и улучшения</b> во вкладках снизу, чтобы увеличить пассивный доход и силу клика.<br><br>
+        <b>3. Развивайте город</b> — при накоплении энергии город будет расти и давать новые уровни.<br><br>
+        <b>4. Ребиты</b> — делайте сброс станции, чтобы навсегда увеличить общий множитель дохода!
+      </p>
+      <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
+    </div></div>
+  </div>
+
+  <!-- Настройки -->
+  <div class="screen" id="screen-settings">
+    <div class="page"><div class="page-inner">
+      <h2>⚙ НАСТРОЙКИ</h2>
+      <div class="setting-row">
+        <div><div class="setting-label">Музыка</div><div class="setting-sub">Фоновый эмбиент</div></div>
+        <label class="switch"><input type="checkbox" id="setMusic"><span class="slider"></span></label>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Звуковые эффекты</div><div class="setting-sub">Клики и покупки</div></div>
+        <label class="switch"><input type="checkbox" id="setSfx"><span class="slider"></span></label>
+      </div>
+      <div class="back-row"><button class="btn small" data-go="screen-menu">← Назад</button></div>
+    </div></div>
+  </div>
+
+  <!-- О разработчике -->
+  <div class="screen" id="screen-about">
+    <div class="page"><div class="page-inner" style="text-align: center;">
+      <h2>🏢 О РАЗРАБОТЧИКЕ</h2>
+      <p style="font-size:14px;line-height:1.7;color:#cbd5e1; margin-top: 10px;">
+        <b>«АЭС: Энергия Города»</b> — кликер-стратегия с улучшенным визуалом, ребитами и онлайн таблицей лидеров.<br><br>
+        Студия: <b>RI STUDIO</b> (2026).<br>
+        <span style="color: #fbbf24; font-weight: 700;">Все права защищены.</span>
+      </p>
+      <div class="back-row" style="margin-top: 24px;"><button class="btn small" data-go="screen-menu">← Назад</button></div>
+    </div></div>
+  </div>
+
+  <!-- Игровой экран -->
+  <div class="screen" id="screen-game">
+    <header class="topbar">
+      <button class="icon-btn" data-go="screen-menu">←</button>
+      <div class="profile-chip" data-go="screen-profile">
+        <div class="avatar" id="topbarAvatar">👷</div>
+        <div class="name" id="topbarName">Оператор</div>
+      </div>
+      <div class="stat energy">
+        <div class="lbl">⚡ Энергия</div>
+        <div class="val" id="uiEnergy">0</div>
+      </div>
+      <div class="stat cps">
+        <div class="lbl">CPS</div>
+        <div class="val"><span id="uiCps">0</span></div>
+      </div>
+      <div class="stat city">
+        <div class="lbl">🏙 ур.<span id="uiCityLvl">0</span></div>
+        <div class="city-progress"><div class="fill" id="uiCityFill"></div></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="stat" style="text-align:right">
+        <div class="lbl">Множитель</div>
+        <div class="val" style="color:#a78bfa" id="uiMult">1.0x</div>
+      </div>
+    </header>
+
+    <main class="game-main">
+      <div class="scene-wrap">
+        <svg id="scene" viewBox="0 0 1000 350" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <aside class="panel">
+        <div class="tabs-header" id="gameTabs">
+          <button class="tab-btn active" data-target="tab-depts">ОТДЕЛЫ 🏭</button>
+          <button class="tab-btn" data-target="tab-upgs">УЛУЧШЕНИЯ 🔬</button>
+          <button class="tab-btn" data-target="tab-rebirth">РЕБИТЫ ☢</button>
+        </div>
+
+        <div class="tab-pane active" id="tab-depts"></div>
+        <div class="tab-pane" id="tab-upgs"></div>
+
+        <div class="tab-pane" id="tab-rebirth">
+          <div class="rebirth-box">
+            <div style="font-size:12px; color:var(--muted); font-weight:800; letter-spacing:1px;">ТЕКУЩИЙ МНОЖИТЕЛЬ ДОХОДА</div>
+            <div class="rebirth-stat" id="rb-current">1.0x</div>
+            <div style="font-size:13px; color:#cbd5e1;">Следующий ребит даст: <b style="color:#34d399" id="rb-next">1.1x</b></div>
+            
+            <div class="rebirth-warning">
+              <b>ВНИМАНИЕ!</b><br>
+              Для совершения ребита <u>вся накопленная энергия ⚡</u> и <u>уровни отделов/улучшений</u> будут списаны!<br>
+              Уровень города и множитель сохраняются навсегда.
+            </div>
+
+            <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin-bottom:14px;">
+              <div style="font-size:11px; color:#7dd3fc; font-weight:bold; margin-bottom:4px;">ТРЕБОВАНИЯ ДЛЯ РЕБИТА:</div>
+              <div id="rb-req" style="font-size:13px; font-weight:bold;"></div>
+            </div>
+
+            <button class="btn rad" id="btn-rebirth" style="font-size:16px;">☢ СДЕЛАТЬ РЕБИТ</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="toasts"></div>
 </div>
 
-
-
-<!-- MENU -->
-
-<div class="screen active menu" id="menu">
-
-
-<div class="card">
-
-
-<h1 class="logo">
-АЭС
-</h1>
-
-<div class="subtitle">
-ЭНЕРГИЯ ГОРОДА
-</div>
-
-
-
-<div class="profile">
-
-<div class="avatar">
-👷
-</div>
-
-<div>
-
-Оператор
-
-<br>
-
-<span id="menuName">
-Безымянный
-</span>
-
-</div>
-
-
-</div>
-
-
-
-<button class="btn primary"
-onclick="openScreen('game')">
-
-☢ Начать смену
-
-</button>
-
-
-
-<button class="btn gold"
-onclick="openScreen('leaders')">
-
-🏆 Таблица лидеров
-
-</button>
-
-
-
-<button class="btn">
-
-⚙ Настройки
-
-</button>
-
-
-</div>
-
-
-</div>
-<!-- ИГРА -->
-
-<div class="screen" id="game">
-
-
-<div class="topbar">
-
-
-<button class="btn"
-style="width:40px;padding:8px"
-onclick="openScreen('menu')">
-←
-</button>
-
-
-<div class="stat energy">
-⚡ Энергия
-<span id="energy">
-0
-</span>
-</div>
-
-
-<div class="stat money">
-💰 Деньги
-<span id="money">
-0
-</span>
-</div>
-
-
-<div class="stat rb">
-☢ Ребиты
-<span id="rebirths">
-0
-</span>
-</div>
-
-
-</div>
-
-
-
-<div class="scene">
-
-
-<svg id="reactor"
-viewBox="0 0 500 250">
-
-
-<!-- фон -->
-
-<rect width="500"
-height="250"
-fill="#070b14"/>
-
-
-
-<!-- башни -->
-
-<path d="
-M80 210
-Q100 80 140 210
-"
-fill="#334155"/>
-
-
-<path d="
-M160 210
-Q180 80 220 210
-"
-fill="#334155"/>
-
-
-
-<!-- реактор -->
-
-
-<circle
-cx="300"
-cy="140"
-r="60"
-fill="#172554"
-/>
-
-
-
-<circle
-cx="300"
-cy="140"
-r="30"
-fill="#fbbf24"
->
-
-
-
-<animate
-
-attributeName="r"
-
-values="30;38;30"
-
-dur="1s"
-
-repeatCount="indefinite"
-
-/>
-
-
-</circle>
-
-
-
-
-<!-- турбина -->
-
-
-<g transform="translate(400 150)">
-
-
-<circle
-r="35"
-fill="#064e3b"
-/>
-
-
-<path d="
-M0-30L10 0L0 30L-10 0Z
-"
-fill="#34d399">
-
-
-<animateTransform
-
-attributeName="transform"
-
-type="rotate"
-
-from="0"
-
-to="360"
-
-dur="2s"
-
-repeatCount="indefinite"
-
-/>
-
-
-</path>
-
-
-</g>
-
-
-
-</svg>
-
-
-</div>
-
-
-
-
-
-<div class="panel">
-
-
-
-<div class="tabs">
-
-
-<button class="tab active"
-onclick="showTab('upgrades')">
-
-🔧 Улучшения
-
-</button>
-
-
-<button class="tab"
-onclick="showTab('rebirth')">
-
-☢ Ребиты
-
-</button>
-
-
-<button class="tab"
-onclick="showTab('factory')">
-
-🏭 Завод
-
-</button>
-
-
-
-</div>
-
-
-
-
-
-<div class="content"
-id="gameContent">
-
-
-</div>
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-<!-- ЛИДЕРЫ -->
-
-
-<div class="screen" id="leaders">
-
-
-<div class="card leader">
-
-
-<h2>
-🏆 Таблица лидеров
-</h2>
-
-
-
-<div class="tabs">
-
-
-<button class="tab active"
-onclick="loadLeaderboard('rebirths')">
-
-☢ Ребиты
-
-</button>
-
-
-<button class="tab"
-onclick="loadLeaderboard('energy')">
-
-⚡ Энергия
-
-</button>
-
-
-<button class="tab"
-onclick="loadLeaderboard('money')">
-
-💰 Деньги
-
-</button>
-
-
-</div>
-
-
-
-
-<div id="leaderList">
-
-
-Загрузка...
-
-
-</div>
-
-
-
-<button class="btn back"
-onclick="openScreen('menu')">
-
-← Назад
-
-</button>
-
-
-</div>
-
-
-</div>
 <script>
-
-
-let userId = localStorage.getItem("aes_user_id");
-
-
-if(!userId){
-
-userId =
-"user_"+Math.random().toString(36).slice(2);
-
-localStorage.setItem(
-"aes_user_id",
-userId
-);
-
+// --- ИДЕНТИФИКАТОР ИГРОКА ДЛЯ СЕРВЕРА ---
+let userId = localStorage.getItem('aes_user_id');
+if (!userId) {
+  userId = 'user_' + Math.random().toString(36).substring(2, 10);
+  localStorage.setItem('aes_user_id', userId);
 }
 
-
-
-let S={
-
-energy:0,
-
-money:0,
-
-rebirths:0,
-
-cityLevel:0,
-
-lastTime:Date.now(),
-
-
-upgrades:{
-
-
-turbine:0,
-
-generator:0,
-
-ai:0,
-
-reactor:0
-
-
-},
-
-
-profile:{
-
-
-name:"Оператор"
-
-
-}
-
-
-};
-
-
-
-
-
-const upgrades={
-
-
-turbine:[
-
-{
-name:"Малая турбина",
-cost:1000,
-cps:20
-},
-
-{
-name:"Паровая турбина",
-cost:10000,
-cps:250
-},
-
-{
-name:"Ядерная турбина",
-cost:100000,
-cps:5000
-}
-
-],
-
-
-
-generator:[
-
-{
-name:"Генератор",
-cost:5000,
-cps:100
-},
-
-{
-name:"Усиленный генератор",
-cost:50000,
-cps:1500
-},
-
-{
-name:"Квантовый генератор",
-cost:1000000,
-cps:50000
-}
-
-],
-
-
-
-ai:[
-
-{
-name:"ИИ оператор",
-cost:100000,
-mult:2
-},
-
-{
-name:"ИИ станция",
-cost:1000000,
-mult:5
-}
-
-]
-
-
-};
-
-
-
-
-
-
-
-function openScreen(id){
-
-document.querySelectorAll(".screen")
-.forEach(x=>x.classList.remove("active"));
-
-
-document.getElementById(id)
-.classList.add("active");
-
-
-}
-
-
-
-
-
-function fmt(n){
-
-if(n>=1000000)
-
-return (n/1000000).toFixed(1)+"M";
-
-
-if(n>=1000)
-
-return (n/1000).toFixed(1)+"K";
-
-
-return Math.floor(n);
-
-}
-
-
-
-
-
-
-function stats(){
-
-
-let cps=1;
-
-
-Object.keys(S.upgrades)
-.forEach(type=>{
-
-
-let lvl=S.upgrades[type];
-
-
-if(upgrades[type]){
-
-
-for(let i=0;i<lvl;i++)
-
-cps+=upgrades[type][i].cps||0;
-
-
-}
-
-
-
+// --- УБИРАЕМ ЗАГРУЗОЧНЫЙ ЭКРАН ---
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('loading-screen');
+    if(loader) {
+      loader.style.opacity = '0';
+      setTimeout(() => loader.remove(), 600);
+    }
+  }, 900);
 });
 
-
-
-return cps;
-
-
-}
-
-
-
-
-
-
-
-function update(){
-
-
-document.getElementById("energy")
-.textContent=fmt(S.energy);
-
-
-
-document.getElementById("money")
-.textContent=fmt(S.money);
-
-
-
-document.getElementById("rebirths")
-.textContent=S.rebirths;
-
-
-
-render();
-
-
-}
-
-
-
-
-
-
-
-
-function render(){
-
-
-let box=document.getElementById("gameContent");
-
-
-box.innerHTML="";
-
-
-
-Object.keys(upgrades).forEach(type=>{
-
-
-let lvl=S.upgrades[type];
-
-
-let next=upgrades[type][lvl];
-
-
-
-if(next){
-
-
-box.innerHTML+=`
-
-<div class="item">
-
-
-<div>
-
-<b>${next.name}</b>
-
-<br>
-
-Цена:
-${fmt(next.cost)}
-
-</div>
-
-
-
-<button onclick="buy('${type}')">
-
-Купить
-
-</button>
-
-
-
-</div>
-
-`;
-
-}
-
-
+// --- ТАБЫ (ВКЛАДКИ ИГРЫ) ---
+document.querySelectorAll('#gameTabs .tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#gameTabs .tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
 });
 
-
-}
-
-
-
-
-
-
-
-function buy(type){
-
-
-let lvl=S.upgrades[type];
-
-
-let item=upgrades[type][lvl];
-
-
-if(!item)
-return;
-
-
-
-if(S.energy>=item.cost){
-
-
-S.energy-=item.cost;
-
-
-S.upgrades[type]++;
-
-
-save();
-
-
-update();
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-// клик по станции
-
-
-document
-.getElementById("reactor")
-.onclick=function(){
-
-
-S.energy+=1;
-
-
-S.money+=0.1;
-
-
-
-update();
-
-
-};
-
-
-
-
-
-
-
-
-
-
-function showTab(name){
-
-
-render();
-
-
-}
-
-
-
-
-
-
-
-
-async function save(){
-
-
-S.lastTime=Date.now();
-
-
-
-localStorage.setItem(
-"aes_save",
-JSON.stringify(S)
-);
-
-
-
-fetch("/api/save",{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-
-body:JSON.stringify({
-
-userId:userId,
-
-saveData:S
-
-})
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-async function load(){
-
-
-
-let local=
-localStorage.getItem("aes_save");
-
-
-
-if(local)
-
-S=Object.assign(
-S,
-JSON.parse(local)
-);
-
-
-
-
-try{
-
-
-let r=await fetch(
-"/api/save/"+userId
-);
-
-
-
-let j=await r.json();
-
-
-
-if(j.data)
-
-S=j.data;
-
-
-
-}catch(e){}
-
-
-
-}
-
-
-
-
-
-async function loadLeaderboard(type){
-
-
-
-let box=document.getElementById(
-"leaderList"
-);
-
-
-
-box.innerHTML="Загрузка...";
-
-
-
-let r=await fetch(
-"/api/leaderboard/"+type
-);
-
-
-
-let j=await r.json();
-
-
-
-box.innerHTML="";
-
-
-
-j.data.forEach((p,i)=>{
-
-
-box.innerHTML+=`
-
-<div class="rank-card">
-
-
-<div class="rank">
-
-#${i+1}
-
-</div>
-
-
-<div>
-
-<b>${p.username}</b>
-
-
-<br>
-
-
-☢ ${fmt(p.rebirths)}
-
-&nbsp;
-
-⚡ ${fmt(p.energy)}
-
-&nbsp;
-
-💰 ${fmt(p.money)}
-
-
-</div>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-
-// пассивный доход
-
-
-setInterval(()=>{
-
-
-let cps=stats();
-
-
-S.energy+=cps/10;
-
-
-S.money+=cps/100;
-
-
-
-update();
-
-
-},100);
-
-
-
-
-
-
-
-// автосохранение
-
-
-setInterval(save,10000);
-
-
-
-
-
-
-
-
-(async()=>{
-
-
-await load();
-
-
-update();
-
-
-})();
-
-
-
-</script>
-<script>
-
-
-// ================= РЕБИТЫ =================
-
-
-function doRebirth(){
-
-
-let need = 1000000 * (S.rebirths+1);
-
-
-
-if(S.energy < need){
-
-alert(
-"Нужно ⚡ "+fmt(need)
-);
-
-return;
-
-}
-
-
-
-if(confirm(
-"Сделать ребит?\nЭнергия и улучшения сбросятся."
-)){
-
-
-S.rebirths++;
-
-
-S.energy=0;
-
-
-S.upgrades={
-
-turbine:0,
-
-generator:0,
-
-ai:0,
-
-reactor:0
-
-};
-
-
-
-S.money+=10000;
-
-
-
-save();
-
-update();
-
-
-alert(
-"☢ Ребит выполнен!"
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-// ================= ОФЛАЙН ДОХОД =================
-
-
-
-function offlineReward(){
-
-
-let now=Date.now();
-
-
-let diff=(now-S.lastTime)/1000;
-
-
-
-if(diff>60){
-
-
-let reward=
-Math.floor(
-stats()*diff
-);
-
-
-
-S.energy+=reward;
-
-
-
-alert(
-
-"⚡ Пока вас не было:\n+"+
-fmt(reward)+
-" энергии"
-
-);
-
-
-
-}
-
-
-
-S.lastTime=now;
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
-// ================= РАНГИ =================
-
-
-
-function getRank(){
-
-
-
-if(S.rebirths>=50)
-
-return "👑 Архитектор АЭС";
-
-
-if(S.rebirths>=20)
-
-return "⭐ Главный инженер";
-
-
-if(S.rebirths>=10)
-
-return "🔧 Старший оператор";
-
-
-if(S.rebirths>=5)
-
-return "⚛ Инженер";
-
-
-return "👷 Оператор";
-
-
-
-}
-
-
-
-
-
-
-
-// ================= ГОРОД =================
-
-
-
-function updateCity(){
-
-
-let lvl=Math.floor(
-Math.log10(
-S.energy+10
-)
-);
-
-
-
-if(lvl>S.cityLevel){
-
-
-S.cityLevel=lvl;
-
-
-alert(
-
-"🏙 Город вырос!\nУровень "+
-lvl
-
-);
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-// ================= БАТАРЕИ =================
-
-
-let battery={
-
-level:0,
-
-max:1000
-
-};
-
-
-
-function chargeBattery(){
-
-
-let add=Math.min(
-
-S.energy,
-
-battery.max
-
-);
-
-
-
-S.energy-=add;
-
-
-battery.level+=add;
-
-
-
-}
-
-
-
-
-
-function useBattery(){
-
-
-S.energy+=battery.level;
-
-
-battery.level=0;
-
-
-}
-
-
-
-
-
-// ================= НОВЫЕ ЗАВОДЫ =================
-
-
-
-const factories=[
-
-
-{
-
-name:"☢ Плазменный реактор",
-
-bonus:50000,
-
-cost:5000000
-
-},
-
-
-{
-
-name:"🌎 Орбитальная станция",
-
-bonus:500000,
-
-cost:50000000
-
-},
-
-
-{
-
-name:"🚀 Колония Марса",
-
-bonus:5000000,
-
-cost:500000000
-
-}
-
-
+const AVATARS = ['👷','👨‍🔬','👩‍🔬','🧑‍🚀','👨‍💼','👩‍💼','🦺','🔧','⚛️','☢️','👨‍💻','👩‍💻'];
+const DEFAULT_AVATAR = '👷';
+const DEFAULT_NAME = 'Оператор';
+
+const UPGRADES = [
+  { id:'reactor', tab:'depts', name:'Реактор', icon:'☢', levels:[
+    {cost:0, click:1, cps:0, title:'Базовый'},
+    {cost:100, click:5, cps:1, title:'Улучшенный'},
+    {cost:800, click:20, cps:8, title:'Продвинутый'},
+    {cost:6000, click:80, cps:40, title:'Плазменный'},
+    {cost:50000, click:300, cps:200, title:'Термоядерный'},
+  ]},
+  { id:'turbine', tab:'depts', name:'Турбины', icon:'⚙', levels:[
+    {cost:0, cps:0, title:'Нет'},
+    {cost:200, cps:3, title:'Малые'},
+    {cost:1500, cps:15, title:'Средние'},
+    {cost:12000, cps:80, title:'Мощные'},
+    {cost:90000, cps:450, title:'Промышленные'},
+  ]},
+  { id:'cooling', tab:'upgs', name:'Охлаждение', icon:'❄', levels:[
+    {cost:0, mult:0, title:'Нет'},
+    {cost:400, mult:0.3, title:'Пассивное'},
+    {cost:3000, mult:0.8, title:'Активное'},
+    {cost:25000, mult:1.8, title:'Жидкостное'},
+  ]},
+  { id:'wires', tab:'upgs', name:'ЛЭП', icon:'⚡', levels:[
+    {cost:0, cityMult:0, title:'Нет'},
+    {cost:300, cityMult:0.5, title:'Местные'},
+    {cost:2500, cityMult:1.0, title:'Регион'},
+    {cost:20000, cityMult:2.0, title:'Магистраль'},
+  ]},
 ];
 
-
-
-function buyFactory(id){
-
-
-let f=factories[id];
-
-
-if(S.money>=f.cost){
-
-
-S.money-=f.cost;
-
-
-S.energy+=f.bonus;
-
-
-alert(
-f.name+" построен!"
-);
-
-
-save();
-
-update();
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-// ================= АНИМАЦИЯ СТАНЦИИ =================
-
-
-
-let power=0;
-
-
-setInterval(()=>{
-
-
-power++;
-
-
-let reactor=document
-.querySelector("#reactor circle");
-
-
-
-if(reactor){
-
-
-reactor.style.opacity=
-0.5+
-Math.sin(power/5)*0.5;
-
-
-}
-
-
-
-},100);
-
-
-
-
-
-
-
-// ================= ЗАПУСК =================
-
-
-
-window.addEventListener(
-"load",
-()=>{
-
-
-offlineReward();
-
-
-updateCity();
-
-
-update();
-
-
-}
-
-);
-
-
-
-
-</script>
-
-<script>
-// Extended systems
-
-if(!S.money) S.money=0;
-if(!S.factory) S.factory=[];
-if(!S.upgrades.generator) S.upgrades.generator=0;
-
-const EXTRA_UPGRADES={
-generator:[
-{name:"🔋 Генератор",cost:5000,cps:100},
-{name:"⚡ Термогенератор",cost:50000,cps:1500},
-{name:"☢ Квантовый генератор",cost:1000000,cps:50000}
-],
-factory:[
-{name:"🏭 Завод",cost:100000,bonus:10000},
-{name:"🌆 Энергоцентр",cost:1000000,bonus:200000}
-]
+const CITY_THRESHOLDS = [0, 30, 150, 600, 2500, 10000, 50000, 250000, 1000000];
+const SAVE_KEY = 'aes_city_clicker_v2_7';
+
+let S = {
+  energy: 0, totalProduced: 0, cityProgress: 0, cityLevel: 0, rebirths: 0,
+  up: { reactor:0, turbine:0, cooling:0, wires:0 },
+  profile: { name:'', avatar: DEFAULT_AVATAR },
+  settings: { music:true, sfx:true },
+  lastSave: Date.now()
 };
 
-async function loadLeaderboard(type="money"){
-let box=document.getElementById("leaderList");
-if(!box)return;
-try{
-let r=await fetch("/api/leaderboard/"+type);
-let j=await r.json();
-box.innerHTML="";
-(j.data||[]).forEach((p,i)=>{
-box.innerHTML+=`<div class="rank-card">
-<div class="rank">#${i+1}</div>
-<div>${p.username||"Оператор"}<br>
-☢ ${p.rebirths||0}
-⚡ ${fmt(p.energy||0)}
-💰 ${fmt(p.money||0)}
-</div></div>`;
+const SUF = ['','K','M','B','T','Qa','Qi','Sx','Sp','Oc'];
+function fmt(n){
+  if(!isFinite(n)) return '∞';
+  if(n < 1000) return Math.floor(n).toString();
+  let i = 0; while(n >= 1000 && i < SUF.length-1){ n /= 1000; i++; }
+  return n.toFixed(1) + SUF[i];
+}
+
+function getStats(){
+  const r = UPGRADES[0].levels[S.up.reactor] || UPGRADES[0].levels[0];
+  const t = UPGRADES[1].levels[S.up.turbine] || UPGRADES[1].levels[0];
+  const c = UPGRADES[2].levels[S.up.cooling] || UPGRADES[2].levels[0];
+  const w = UPGRADES[3].levels[S.up.wires] || UPGRADES[3].levels[0];
+  
+  const rbMult = parseFloat((1.0 + ((S.rebirths || 0) * 0.1)).toFixed(1));
+  const baseCps = (r.cps || 0) + (t.cps || 0);
+  const cps = baseCps * (1 + (c.mult || 0)) * rbMult;
+  const click = (r.click || 1) * rbMult;
+  const cityMult = (1 + (w.cityMult || 0)) * rbMult;
+  
+  return { cps, click, cityMult, rbMult };
+}
+
+const Sound = {
+  ctx:null,
+  init(){ if(this.ctx) return; try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} },
+  click(){
+    if(!S.settings.sfx) return;
+    this.init(); if(!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.frequency.setValueAtTime(600, t); o.frequency.exponentialRampToValueAtTime(300, t + 0.08);
+    g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t); o.stop(t + 0.1);
+  }
+};
+
+async function save(){
+  S.lastSave = Date.now();
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){}
+  try {
+    fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: userId, saveData: S })
+    });
+  } catch (err) {}
+}
+
+async function load(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(raw) S = Object.assign(S, JSON.parse(raw));
+  } catch(e){}
+
+  try {
+    const res = await fetch('/api/save/' + userId);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        S = Object.assign(S, json.data);
+        localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+      }
+    }
+  } catch (err) {}
+}
+
+function showToast(text){
+  const box = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = text;
+  box.appendChild(t);
+  setTimeout(()=>t.remove(), 2500);
+}
+
+// ДЕТАЛИЗИРОВАННАЯ СЦЕНА (SVG)
+const sceneEl = document.getElementById('scene');
+function buildScene(){
+  const rl = S.up.reactor, tl = S.up.turbine, cl = S.up.cooling, cityLvl = S.cityLevel;
+  const coreColor = rl > 3 ? '#22d3ee' : '#60a5fa';
+
+  let h = `<defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#050b14"/><stop offset="100%" stop-color="#14192b"/></linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${coreColor}"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <linearGradient id="gradTower" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1e2636"/><stop offset="50%" stop-color="#2a3442"/><stop offset="100%" stop-color="#131a26"/></linearGradient>
+    <linearGradient id="cityGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1b253b"/><stop offset="100%" stop-color="#0b0f1a"/></linearGradient>
+  </defs>`;
+
+  h += `<rect width="1000" height="350" fill="url(#sky)"/>`;
+  h += `<circle cx="850" cy="80" r="30" fill="#fde68a" opacity="0.9"/>`;
+  h += `<circle cx="840" cy="70" r="25" fill="url(#sky)"/>`;
+  for(let i=0; i<30; i++) {
+     h += `<circle cx="${Math.random()*1000}" cy="${Math.random()*200}" r="${Math.random()*1.5}" fill="#fff" opacity="${Math.random()*0.8}"/>`;
+  }
+
+  h += `<rect y="280" width="1000" height="70" fill="#080c14"/>`;
+  h += `<path d="M 0 320 Q 500 320 1000 350 L 0 350 Z" fill="#0d141f"/>`;
+  h += `<line x1="0" y1="310" x2="1000" y2="310" stroke="#1e2b44" stroke-width="2"/>`;
+
+  [100, 180].forEach((cx, idx) => {
+    if(cl > 0) {
+      h += `<circle cx="${cx-10}" cy="160" r="15" fill="#94a3b8" opacity="0.3" style="animation: smokeRise ${2 + idx}s infinite"/>`;
+      h += `<circle cx="${cx+10}" cy="150" r="20" fill="#94a3b8" opacity="0.2" style="animation: smokeRise ${2.5 + idx}s infinite 0.5s"/>`;
+    }
+    h += `<path d="M ${cx-22} 170 Q ${cx-15} 230, ${cx-32} 290 L ${cx+32} 290 Q ${cx+15} 230, ${cx+22} 170 Z" fill="url(#gradTower)" stroke="#4a5464" stroke-width="1.5"/>`;
+    h += `<ellipse cx="${cx}" cy="170" rx="22" ry="5" fill="#161e2b" stroke="#4a5464"/>`;
+  });
+
+  h += `<path d="M 320 230 A 60 60 0 0 1 440 230 Z" fill="#2a3442" stroke="#4a5464" stroke-width="2"/>`;
+  h += `<rect x="320" y="230" width="120" height="60" fill="#1e2636" stroke="#4a5464" stroke-width="2"/>`;
+  h += `<path d="M 212 275 L 320 275" stroke="#38bdf8" stroke-width="4" opacity="${cl>0?1:0.2}"/>`;
+  h += `<path d="M 212 285 L 320 285" stroke="#38bdf8" stroke-width="4" opacity="${cl>1?1:0.2}"/>`;
+
+  h += `<circle cx="380" cy="220" r="40" fill="url(#glow)" opacity="0.85"/>`;
+  h += `<circle cx="380" cy="220" r="${8 + rl*2}" fill="${coreColor}" class="core-pulse"/>`;
+  h += `<rect x="322" y="280" width="116" height="8" fill="#fbbf24"/>`;
+  h += `<path d="M 330 280 L 340 288 M 350 280 L 360 288 M 370 280 L 380 288 M 390 280 L 400 288 M 410 280 L 420 288 M 430 280 L 440 288" stroke="#000" stroke-width="4"/>`;
+
+  h += `<rect x="460" y="240" width="100" height="50" fill="#1a2233" stroke="#4a5464" stroke-width="2"/>`;
+  h += `<path d="M 440 260 L 460 260" stroke="#f87171" stroke-width="6"/>`;
+  if(tl > 0){
+    h += `<circle cx="510" cy="265" r="14" fill="none" stroke="#34d399" stroke-width="3" class="turbine-rotor"/>`;
+    h += `<circle cx="510" cy="265" r="5" fill="#34d399"/>`;
+  }
+
+  const buildings = [
+    {x:630, w:35, h:120, lvl:1},
+    {x:670, w:45, h:180, lvl:2},
+    {x:720, w:35, h:150, lvl:3},
+    {x:765, w:50, h:230, lvl:4},
+    {x:825, w:40, h:170, lvl:5},
+    {x:870, w:45, h:260, lvl:6},
+    {x:925, w:40, h:190, lvl:7},
+  ];
+  buildings.forEach(b => {
+    if(b.lvl <= cityLvl + 1){
+      const y = 290 - b.h;
+      h += `<rect x="${b.x}" y="${y}" width="${b.w}" height="${b.h}" fill="url(#cityGrad)" stroke="#1e2b44" stroke-width="2"/>`;
+      for(let wx = b.x + 8; wx < b.x + b.w - 10; wx += 12) {
+        for(let wy = y + 10; wy < y + b.h - 20; wy += 15) {
+          if (Math.random() > 0.4) {
+            h += `<rect x="${wx}" y="${wy}" width="6" height="8" fill="#fde68a" opacity="0.85"/>`;
+          } else {
+            h += `<rect x="${wx}" y="${wy}" width="6" height="8" fill="#111" opacity="0.5"/>`;
+          }
+        }
+      }
+    }
+  });
+
+  h += `<text x="380" y="325" text-anchor="middle" font-size="12" fill="#fbbf24" font-weight="800" letter-spacing="2">БЛОК АЭС</text>`;
+  h += `<text x="800" y="325" text-anchor="middle" font-size="12" fill="#67e8f9" font-weight="800" letter-spacing="2">МЕГАПОЛИС</text>`;
+
+  sceneEl.innerHTML = h;
+}
+
+const upgRefs = {};
+function buildUpgradeCards(){
+  const tabDepts = document.getElementById('tab-depts');
+  const tabUpgs = document.getElementById('tab-upgs');
+  tabDepts.innerHTML = ''; tabUpgs.innerHTML = '';
+  
+  UPGRADES.forEach(u => {
+    const card = document.createElement('div');
+    card.className = 'upg-card';
+    card.innerHTML = `
+      <div class="upg-icon">${u.icon}</div>
+      <div class="upg-body">
+        <div class="upg-name">${u.name}<span class="upg-level"></span></div>
+        <div class="upg-current"></div>
+        <div class="upg-next"></div>
+      </div>
+      <button class="upg-buy">КУПИТЬ</button>`;
+      
+    const refs = {
+      card, level:card.querySelector('.upg-level'), current:card.querySelector('.upg-current'),
+      next:card.querySelector('.upg-next'), btn:card.querySelector('.upg-buy')
+    };
+    refs.btn.addEventListener('click', () => buyUpgrade(u.id));
+    upgRefs[u.id] = refs;
+    
+    if (u.tab === 'depts') tabDepts.appendChild(card);
+    else tabUpgs.appendChild(card);
+  });
+}
+
+function updateUpgradeCards(){
+  UPGRADES.forEach(u => {
+    const ref = upgRefs[u.id]; if(!ref) return;
+    const lvl = S.up[u.id], maxed = lvl >= u.levels.length - 1;
+    const cur = u.levels[lvl], next = maxed ? null : u.levels[lvl + 1];
+    const canBuy = next && S.energy >= next.cost;
+    const rbMult = parseFloat((1.0 + (S.rebirths * 0.1)).toFixed(1));
+
+    ref.level.textContent = `ур.${lvl}`;
+    ref.level.classList.toggle('max', maxed);
+
+    if(u.id === 'reactor') ref.current.innerHTML = `Клик: <b>${fmt((cur.click||1) * rbMult)}</b>`;
+    if(u.id === 'turbine') ref.current.innerHTML = `Доход: <b>+${fmt((cur.cps||0) * rbMult)}/с</b>`;
+    if(u.id === 'cooling') ref.current.innerHTML = `Бонус CPS: <b>+${Math.round(cur.mult*100)}%</b>`;
+    if(u.id === 'wires') ref.current.innerHTML = `Рост города: <b>×${((1+cur.cityMult)*rbMult).toFixed(1)}</b>`;
+
+    if(next){
+      ref.next.innerHTML = `→ <b>${fmt(next.cost)} ⚡</b>`;
+    } else {
+      ref.next.innerHTML = '<b style="color:#6ee7b7">МАКСИМУМ</b>';
+    }
+
+    if(maxed){
+      ref.btn.classList.add('maxed'); ref.btn.textContent = 'МАКС';
+    } else {
+      ref.btn.classList.toggle('disabled', !canBuy);
+      ref.btn.textContent = fmt(next.cost) + ' ⚡';
+    }
+    ref.card.classList.toggle('maxed', maxed);
+  });
+}
+
+function buyUpgrade(id){
+  const u = UPGRADES.find(x => x.id === id), lvl = S.up[id];
+  if(lvl >= u.levels.length - 1) return;
+  const next = u.levels[lvl + 1];
+  if(S.energy < next.cost) return;
+  S.energy -= next.cost; S.up[id] = lvl + 1;
+  Sound.click(); showToast(`🔧 ${u.name} улучшен!`);
+  updateUI(); save();
+}
+
+// --- ЛОГИКА РЕБИТА ---
+function updateRebirthUI() {
+  const currentMult = (1.0 + S.rebirths * 0.1).toFixed(1);
+  const nextMult = (1.0 + (S.rebirths + 1) * 0.1).toFixed(1);
+  
+  const reqEnergy = 500000 * Math.pow(10, S.rebirths);
+  const reqCity = 3 + S.rebirths;
+
+  document.getElementById('rb-current').textContent = currentMult + 'x';
+  document.getElementById('rb-next').textContent = nextMult + 'x';
+  document.getElementById('uiMult').textContent = currentMult + 'x';
+  document.getElementById('profileRb').textContent = currentMult + 'x';
+
+  const btn = document.getElementById('btn-rebirth');
+  const reqText = document.getElementById('rb-req');
+
+  if (S.energy >= reqEnergy && S.cityLevel >= reqCity) {
+      btn.classList.remove('disabled');
+      reqText.innerHTML = `<span style="color:#34d399">✓ ТРЕБОВАНИЯ ВЫПОЛНЕНЫ</span>`;
+      btn.onclick = () => performRebirth();
+  } else {
+      btn.classList.add('disabled');
+      reqText.innerHTML = `<span style="color:#fca5a5">Нужно: ⚡ ${fmt(reqEnergy)} энергии и 🏙 ур.${reqCity}</span>`;
+      btn.onclick = null;
+  }
+}
+
+function performRebirth() {
+  if(confirm("Вы уверены? Это сбросит всю накопленную энергию и улучшения! Город останется.")) {
+      S.energy = 0;
+      S.up = { reactor:0, turbine:0, cooling:0, wires:0 };
+      S.rebirths = (S.rebirths || 0) + 1;
+      save();
+      updateUI();
+      showToast("☢ РЕБИТ УСПЕШЕН! Множитель увеличен.");
+  }
+}
+
+// --- ТАБЛИЦА ЛИДЕРОВ ---
+let currentLbSort = 'rebirths';
+
+async function loadLeaderboard(sortType) {
+  if (sortType) currentLbSort = sortType;
+  const content = document.getElementById('lb-content');
+  content.innerHTML = '<div class="lb-status">Синхронизация с сервером...</div>';
+
+  try {
+    const res = await fetch('/api/leaderboard?sort=' + currentLbSort);
+    const json = await res.json();
+    
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      content.innerHTML = '';
+      json.data.forEach((row, idx) => {
+        let rankClass = '';
+        let rankIcon = '#' + (idx + 1);
+        if (idx === 0) { rankClass = 'gold'; rankIcon = '🥇'; }
+        else if (idx === 1) { rankClass = 'silver'; rankIcon = '🥈'; }
+        else if (idx === 2) { rankClass = 'bronze'; rankIcon = '🥉'; }
+
+        let valStr = '';
+        if (currentLbSort === 'rebirths') valStr = `☢ ${row.rebirths} реб.`;
+        else if (currentLbSort === 'energy') valStr = `⚡ ${fmt(row.energy)}`;
+        else if (currentLbSort === 'total') valStr = `🔋 ${fmt(row.total)}`;
+
+        const isMe = row.user_id === userId;
+        const rowEl = document.createElement('div');
+        rowEl.className = 'lb-row' + (isMe ? ' my-row' : '');
+        rowEl.innerHTML = `
+          <div class="lb-rank ${rankClass}">${rankIcon}</div>
+          <div class="lb-user">
+            <div class="av">${row.avatar || '👷'}</div>
+            <div class="nm">${escapeHtml(row.name || 'Оператор')}${isMe ? ' (Вы)' : ''}</div>
+          </div>
+          <div class="lb-val">${valStr}</div>
+        `;
+        content.appendChild(rowEl);
+      });
+    } else {
+      content.innerHTML = '<div class="lb-status">Список лидеров пуст. Станьте первым!</div>';
+    }
+  } catch (e) {
+    content.innerHTML = '<div class="lb-status">Не удалось загрузить данные (сервер офлайн).</div>';
+  }
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[m]);
+}
+
+// Переключение табов в лидерборде
+document.querySelectorAll('.lb-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    loadLeaderboard(tab.getAttribute('data-sort'));
+  });
 });
-}catch(e){
-box.innerHTML="Ошибка загрузки";
-}
+
+// Клик по станции
+sceneEl.addEventListener('click', (e) => {
+  const st = getStats(), gain = st.click;
+  S.energy += gain; S.totalProduced += gain; S.cityProgress += gain * st.cityMult;
+  Sound.click();
+
+  const d = document.createElement('div');
+  d.className = 'float-text'; d.textContent = '+' + fmt(gain);
+  const rect = document.querySelector('.app-container').getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  d.style.left = x + 'px'; d.style.top = y + 'px';
+  document.querySelector('.app-container').appendChild(d);
+  setTimeout(()=>d.remove(), 800);
+
+  let lvl = 0;
+  for(let i = 0; i < CITY_THRESHOLDS.length; i++){ if(S.cityProgress >= CITY_THRESHOLDS[i]) lvl = i; }
+  if(lvl > S.cityLevel){ S.cityLevel = lvl; showToast(`🏙 Город вырос до уровня ${lvl}!`); }
+  updateUI();
+});
+
+function updateUI(){
+  const st = getStats();
+  document.getElementById('uiEnergy').textContent = fmt(S.energy);
+  document.getElementById('uiCps').textContent = fmt(st.cps);
+  document.getElementById('uiCityLvl').textContent = S.cityLevel;
+
+  const curThr = CITY_THRESHOLDS[S.cityLevel] || 0, nextThr = CITY_THRESHOLDS[S.cityLevel + 1];
+  let pct = 100;
+  if(nextThr) pct = Math.max(0, Math.min(100, ((S.cityProgress - curThr) / (nextThr - curThr)) * 100));
+  document.getElementById('uiCityFill').style.width = pct + '%';
+
+  updateUpgradeCards();
+  updateRebirthUI();
+  buildScene();
 }
 
-function addMoney(){
-S.money+=stats()/50;
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+  if(id === 'screen-game') updateUI();
+  if(id === 'screen-profile') refreshProfileUI();
+  if(id === 'screen-leaderboard') loadLeaderboard();
 }
 
-setInterval(()=>{
-addMoney();
-update();
-},1000);
+let selectedAvatar = DEFAULT_AVATAR;
+function buildAvatarGrid(){
+  const grid = document.getElementById('avatarGrid');
+  grid.innerHTML = '';
+  AVATARS.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'avatar-opt' + (a === selectedAvatar ? ' selected' : '');
+    div.textContent = a;
+    div.addEventListener('click', () => {
+      selectedAvatar = a;
+      grid.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('profileAvatarBig').textContent = a;
+    });
+    grid.appendChild(div);
+  });
+}
 
-window.addEventListener("load",()=>{
-let p=0;
-let t=setInterval(()=>{
-p+=20;
-let f=document.getElementById("load-fill");
-if(f)f.style.width=p+"%";
-if(p>=100){
-clearInterval(t);
-let l=document.getElementById("loading-screen");
-if(l){
-l.style.opacity=0;
-setTimeout(()=>l.remove(),800);
+function refreshProfileUI(){
+  const nm = S.profile.name || DEFAULT_NAME, av = S.profile.avatar || DEFAULT_AVATAR;
+  document.getElementById('menuProfileAvatar').textContent = av;
+  document.getElementById('menuProfileName').textContent = nm;
+  document.getElementById('topbarAvatar').textContent = av;
+  document.getElementById('topbarName').textContent = nm;
+  selectedAvatar = av;
+  document.getElementById('profileAvatarBig').textContent = av;
+  document.getElementById('profileNameInput').value = S.profile.name || '';
+  document.getElementById('profileNameDisplay').textContent = nm;
+  buildAvatarGrid();
 }
-}
-},200);
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await load();
+  if(S.rebirths === undefined) S.rebirths = 0;
+  buildUpgradeCards();
+  refreshProfileUI();
+  updateUI();
+
+  document.querySelectorAll('[data-go]').forEach(btn => {
+    btn.addEventListener('click', () => showScreen(btn.getAttribute('data-go')));
+  });
+
+  document.getElementById('saveProfileBtn').addEventListener('click', () => {
+    S.profile.name = document.getElementById('profileNameInput').value.trim().slice(0, 16);
+    S.profile.avatar = selectedAvatar;
+    save(); refreshProfileUI(); showToast('✅ Профиль сохранен');
+  });
+
+  document.getElementById('wipeBtn').addEventListener('click', () => {
+    if(confirm('Сбросить весь прогресс? (Это безвозвратно)')){
+      localStorage.removeItem(SAVE_KEY);
+      location.reload();
+    }
+  });
+
+  let lastTick = Date.now();
+  setInterval(() => {
+    const now = Date.now(), dt = (now - lastTick) / 1000; lastTick = now;
+    if(dt > 0 && dt < 1){
+      const st = getStats(), inc = st.cps * dt;
+      if(inc > 0){
+        S.energy += inc; S.totalProduced += inc; S.cityProgress += inc * st.cityMult;
+        updateUI();
+      }
+    }
+  }, 1000 / 30);
+
+  setInterval(save, 10000);
 });
 </script>
+</body>
+</html>
