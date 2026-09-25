@@ -19,7 +19,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ================= ИНИЦИАЛИЗАЦИЯ БД =================
 async function initDB() {
     try {
-        // Таблица для хранения полного JSON-сохранения (чтобы ничего не потерять)
         await pool.query(`
             CREATE TABLE IF NOT EXISTS user_saves(
                 user_id VARCHAR(255) PRIMARY KEY,
@@ -28,21 +27,25 @@ async function initDB() {
             );
         `);
 
-        // Оптимизированная таблица специально для таблицы лидеров
-        // Используем NUMERIC, так как в кликерах числа могут быть огромными
         await pool.query(`
             CREATE TABLE IF NOT EXISTS leaderboard(
                 user_id VARCHAR(255) PRIMARY KEY,
                 username VARCHAR(255),
-                avatar VARCHAR(50),
                 rebirths BIGINT DEFAULT 0,
                 energy NUMERIC DEFAULT 0,
-                total_produced NUMERIC DEFAULT 0,
                 city_level INT DEFAULT 0,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-        console.log("Database ready");
+
+        // ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ТАБЛИЦЫ (для решения ошибки column does not exist)
+        await pool.query(`ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS avatar VARCHAR(50) DEFAULT '👷';`);
+        await pool.query(`ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS total_produced NUMERIC DEFAULT 0;`);
+        
+        // Меняем тип колонки energy с BIGINT на NUMERIC для поддержки огромных чисел
+        await pool.query(`ALTER TABLE leaderboard ALTER COLUMN energy TYPE NUMERIC USING energy::numeric;`);
+
+        console.log("Database ready and schema updated");
     } catch(e) {
         console.error("Ошибка инициализации БД:", e);
     }
@@ -58,7 +61,6 @@ app.post('/api/save', async (req, res) => {
     }
 
     try {
-        // 1. Сохраняем полный прогресс в user_saves
         await pool.query(`
             INSERT INTO user_saves (user_id, save_data)
             VALUES ($1, $2)
@@ -66,7 +68,6 @@ app.post('/api/save', async (req, res) => {
             DO UPDATE SET save_data = $2, updated_at = CURRENT_TIMESTAMP
         `, [userId, saveData]);
 
-        // 2. Обновляем отдельные колонки в таблице лидеров
         await pool.query(`
             INSERT INTO leaderboard (
                 user_id, username, avatar, rebirths, energy, total_produced, city_level
@@ -119,15 +120,13 @@ app.get('/api/save/:id', async (req, res) => {
 
 // ================= ТАБЛИЦА ЛИДЕРОВ =================
 app.get('/api/leaderboard', async (req, res) => {
-    const { sort } = req.query; // Ожидаем 'rebirths', 'energy' или 'total'
+    const { sort } = req.query; 
     
-    // Защита от SQL-инъекций: жестко задаем допустимые колонки для сортировки
     let sortColumn = "rebirths";
     if (sort === "energy") sortColumn = "energy";
     if (sort === "total") sortColumn = "total_produced";
 
     try {
-        // AS name и AS total нужны, чтобы фронтенд правильно прочитал ключи
         const result = await pool.query(`
             SELECT 
                 user_id,
