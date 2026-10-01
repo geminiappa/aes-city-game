@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>АЭС: Энергия Города — RI Studio</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
@@ -55,6 +56,30 @@ html, body {
 .screen{ position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease, visibility .28s; z-index: 10; }
 .screen.active{opacity:1;visibility:visible;pointer-events:auto}
 
+/* Вход и Регистрация */
+#screen-auth {
+  align-items: center; justify-content: center; padding: 16px;
+  background: radial-gradient(circle at 50% 100%, rgba(251,191,36,.12), transparent 60%), var(--bg);
+}
+.auth-box {
+  width: 100%; max-width: 420px; background: linear-gradient(160deg,rgba(20,30,52,.98),rgba(10,14,24,.99));
+  border: 1px solid var(--border); border-radius: 20px; padding: 24px 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+.auth-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.auth-tab-btn {
+  flex: 1; padding: 10px; border-radius: 10px; background: #121a2c; border: 1px solid var(--border);
+  color: var(--muted); font-weight: 700; cursor: pointer; text-align: center;
+}
+.auth-tab-btn.active { background: #fbbf24; color: #111827; border-color: #fbbf24; }
+.input-group { margin-bottom: 14px; text-align: left; }
+.input-group label { display: block; font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+.form-input {
+  width: 100%; padding: 12px 14px; border-radius: 10px; background: #0a1220; color: #fff;
+  border: 1px solid var(--border); font-size: 14px; outline: none;
+}
+.form-input:focus { border-color: #38bdf8; }
+
+/* Меню */
 #screen-menu{
   align-items:center;justify-content:center;padding:16px;
   background: radial-gradient(circle at 50% 100%, rgba(251,191,36,.10), transparent 55%), radial-gradient(circle at 15% 10%, rgba(56,189,248,.12), transparent 45%), radial-gradient(circle at 85% 85%, rgba(167,139,250,.10), transparent 45%), var(--bg);
@@ -85,6 +110,7 @@ html, body {
 .menu-profile .nm{font-size:15px;font-weight:800;color:#fff;}
 .menu-buttons{display:flex;flex-direction:column;gap:10px}
 
+/* Кнопки */
 .btn{
   width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);
   background:linear-gradient(180deg,#1b2740,#131c30);color:var(--text); font-size:15px;font-weight:600;cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition: transform 0.1s;
@@ -93,19 +119,21 @@ html, body {
 .btn.primary{background:linear-gradient(180deg,#0ea5e9,#0369a1);border-color:#38bdf8}
 .btn.danger{color:#fca5a5;border-color:#4c2020; background:linear-gradient(180deg,#3f1a1a,#251010);}
 .btn.rad{background:linear-gradient(180deg,#fbbf24,#d97706);border-color:#fbbf24;color:#111827}
+.btn.admin{background:linear-gradient(180deg,#ef4444,#b91c1c);border-color:#f87171;color:#fff}
 .btn.leader{background:linear-gradient(180deg,#8b5cf6,#6d28d9);border-color:#a78bfa;color:#fff}
 .btn.small{width:auto;padding:9px 16px;font-size:13px}
 .btn.disabled{background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed;}
 
-.page{ width:100%;max-width:540px;margin:auto; background:linear-gradient(160deg,rgba(20,30,52,.96),rgba(10,14,24,.98)); border:1px solid var(--border);border-radius:20px; max-height:85vh;display:flex;flex-direction:column;overflow:hidden;position:relative; }
+/* Страницы */
+.page{ width:100%;max-width:560px;margin:auto; background:linear-gradient(160deg,rgba(20,30,52,.96),rgba(10,14,24,.98)); border:1px solid var(--border);border-radius:20px; max-height:88vh;display:flex;flex-direction:column;overflow:hidden;position:relative; }
 .page-inner{flex:1;overflow-y:auto;padding:24px 20px;}
-#screen-profile, #screen-leaderboard{ padding:16px;align-items:center;justify-content:center; background:radial-gradient(circle at 50% 0%, rgba(251,191,36,.07), transparent 55%), var(--bg); }
+#screen-profile, #screen-leaderboard, #screen-admin{ padding:16px;align-items:center;justify-content:center; background:radial-gradient(circle at 50% 0%, rgba(251,191,36,.07), transparent 55%), var(--bg); }
 .page h2{font-size:20px;margin-bottom:16px;color:#fbbf24;font-weight:800;text-align:center;}
 .back-row{margin-top:18px;display:flex;gap:10px;justify-content:center}
 
+/* Профиль */
 .profile-hero{ display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;margin-bottom:18px; background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35); }
 .profile-avatar-big{ width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px; border:3px solid rgba(251,191,36,.6); }
-.name-input{ width:100%;padding:12px 14px;border-radius:12px;background:#0a1220;color:#fff; border:1px solid var(--border);font-size:16px;outline:none; }
 .avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:10px;background:rgba(10,14,24,.5);border-radius:12px}
 .avatar-opt{aspect-ratio:1;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid var(--border)}
 .avatar-opt.selected{border-color:#fbbf24;background:rgba(251,191,36,.2)}
@@ -117,7 +145,11 @@ html, body {
 .lb-name{ flex:1;font-size:14px;font-weight:700;color:#fff; }
 .lb-stat{ font-size:13px;font-weight:800;color:var(--core); }
 
-/* Игра */
+/* Админ Панель */
+.admin-card { background: rgba(18,26,44,0.7); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+.admin-card-title { font-size: 13px; font-weight: 800; color: #f87171; margin-bottom: 10px; text-transform: uppercase; }
+
+/* Игровой экран */
 #screen-game{background:#05070f;flex-direction:column;}
 .topbar{ display:flex;align-items:center;gap:6px;padding:8px 10px; background:rgba(13,18,32,.94);border-bottom:1px solid var(--border);flex:0 0 auto;z-index:5; }
 .icon-btn{ width:36px;height:36px;border-radius:8px;border:1px solid var(--border); background:#121a2c;color:var(--text);font-size:16px;cursor:pointer; display:flex;align-items:center;justify-content:center; }
@@ -135,7 +167,7 @@ html, body {
 .scene-wrap{ flex:0 0 35vh;position:relative;width:100%;overflow:hidden; background:radial-gradient(ellipse at 50% 30%, rgba(251,191,36,.06), transparent 70%); border-bottom:2px solid #fbbf24;}
 #scene{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation;}
 
-/* Режим Форсажа */
+/* Форсаж */
 .boost-btn {
   position: absolute; bottom: 15px; left: 15px; z-index: 20;
   background: linear-gradient(180deg, #f59e0b, #d97706);
@@ -213,8 +245,38 @@ html, body {
     <div class="loader-spinner"></div>
   </div>
 
-  <!-- Меню -->
-  <div class="screen active" id="screen-menu">
+  <!-- Экран Входа / Регистрации -->
+  <div class="screen" id="screen-auth">
+    <div class="auth-box">
+      <h2 style="color:#fbbf24;text-align:center;font-size:22px;margin-bottom:14px;font-weight:800;">АЭС: АВТОРИЗАЦИЯ</h2>
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tabBtnLogin">Вход</button>
+        <button class="auth-tab-btn" id="tabBtnRegister">Регистрация</button>
+      </div>
+
+      <form id="authForm" onsubmit="return false;">
+        <div class="input-group">
+          <label>Никнейм</label>
+          <input type="text" id="authUsername" class="form-input" placeholder="Введите ник..." required maxlength="20">
+        </div>
+
+        <div class="input-group">
+          <label>Пароль</label>
+          <input type="password" id="authPassword" class="form-input" placeholder="Введите пароль..." required minlength="4">
+        </div>
+
+        <div class="input-group" id="tgIdGroup" style="display:none;">
+          <label>Telegram ID (Для админов)</label>
+          <input type="text" id="authTelegramId" class="form-input" placeholder="Ваш ID (если есть)">
+        </div>
+
+        <button class="btn primary" id="authSubmitBtn" style="margin-top:14px;">ВОЙТИ В ИГРУ</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Главное меню -->
+  <div class="screen" id="screen-menu">
     <div class="menu-box">
       <div class="menu-inner">
         <div class="rad-badge">☣ ОПАСНАЯ ЗОНА · РЕАКТОР</div>
@@ -232,13 +294,14 @@ html, body {
         <div class="menu-buttons">
           <button class="btn primary" id="btn-start">☢ &nbsp;НАЧАТЬ СМЕНУ</button>
           <button class="btn leader" data-go="screen-leaderboard">🏆 &nbsp;ТАБЛИЦА ЛИДЕРОВ</button>
-          <button class="btn rad" id="wipeBtn">🗑 &nbsp;СБРОС ИГРЫ / ОЧИСТКА БД</button>
+          <button class="btn admin" id="btn-admin-menu" data-go="screen-admin" style="display:none;">🛠 &nbsp;АДМИН-ПАНЕЛЬ</button>
+          <button class="btn rad" id="wipeBtn">🗑 &nbsp;СБРОС ДАННЫХ</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Профиль -->
+  <!-- Профиль оператора -->
   <div class="screen" id="screen-profile">
     <div class="page"><div class="page-inner">
       <h2>👤 ПРОФИЛЬ ОПЕРАТОРА</h2>
@@ -248,15 +311,70 @@ html, body {
           <div id="profileRankTitle" style="font-size:11px;letter-spacing:1px;color:#fbbf24;font-weight:800;text-transform:uppercase;">СТАЖЁР</div>
           <div id="profileNameDisplay" style="font-size:20px;font-weight:800;color:#fff">Безымянный</div>
           <div style="font-size:11.5px;color:#d8b4fe;margin-top:4px">РЕБИТОВ: <span id="profileRbCount">0</span></div>
+          <div id="profileRoleBadge" style="font-size:11px;color:#38bdf8;font-weight:bold;margin-top:2px;">Роль: Игрок</div>
         </div>
       </div>
-      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px">ИМЯ</label>
-      <input class="name-input" id="profileNameInput" type="text" maxlength="16" placeholder="Введите имя...">
-      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin:16px 0 8px">АВАТАР</label>
+
+      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:8px">ИМЯ (НИКНЕЙМ)</label>
+      <input class="name-input form-input" id="profileNameInput" type="text" maxlength="16" placeholder="Введите имя..." style="margin-bottom:14px;">
+
+      <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin:12px 0 8px">АВАТАР</label>
       <div class="avatar-grid" id="avatarGrid"></div>
+
       <div class="back-row" style="margin-top:20px">
         <button class="btn small" data-go="screen-menu">← Назад</button>
         <button class="btn small primary" id="saveProfileBtn">Сохранить</button>
+      </div>
+
+      <div style="margin-top: 24px; text-align: center;">
+        <button class="btn danger small" id="btnLogout" style="margin: 0 auto;">🚪 Выйти из аккаунта</button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Админ панель -->
+  <div class="screen" id="screen-admin">
+    <div class="page"><div class="page-inner">
+      <h2>🛠 АДМИН ПАНЕЛЬ</h2>
+      
+      <div class="admin-card">
+        <div class="admin-card-title">💣 Очистка Базы Данных</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="btn danger" id="adminWipeAllBtn">💥 Очистить ВСЮ базу данных (Сброс всех)</button>
+          <button class="btn rad" id="adminResetLeaderboardBtn">🏆 Сбросить только лидерборд</button>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-title">⚡ Выдача ресурсов игрокам</div>
+        <div class="input-group">
+          <label>Выберите игрока</label>
+          <select id="adminUserSelect" class="form-input" style="background:#0b111e;color:#fff;"></select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:10px;color:var(--muted)">Энергия ⚡</label>
+            <input type="number" id="adminAddEnergy" class="form-input" placeholder="+Кол-во" value="1000000">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted)">Ядра 💎</label>
+            <input type="number" id="adminAddCores" class="form-input" placeholder="+Кол-во" value="100">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--muted)">Ребиты ☢️</label>
+            <input type="number" id="adminAddRebirths" class="form-input" placeholder="+Кол-во" value="5">
+          </div>
+        </div>
+        <button class="btn primary small" id="adminGiveResourcesBtn">Выдать выбранному игроку</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-title">👥 Игроки в системе</div>
+        <div id="adminUsersList" style="max-height:160px;overflow-y:auto;font-size:12px;"></div>
+      </div>
+
+      <div class="back-row">
+        <button class="btn small" data-go="screen-menu">← Назад в меню</button>
       </div>
     </div></div>
   </div>
@@ -264,10 +382,8 @@ html, body {
   <!-- Лидерборд -->
   <div class="screen" id="screen-leaderboard">
     <div class="page"><div class="page-inner">
-      <h2>🏆 МИРОВОЙ ТОП ИЗ БД</h2>
-      <div id="lb-list">
-        <!-- Загружается из PostgreSQL -->
-      </div>
+      <h2>🏆 МИРОВОЙ ТОП (ИЗ БД)</h2>
+      <div id="lb-list"></div>
       <div class="back-row">
         <button class="btn small" data-go="screen-menu">← Назад</button>
       </div>
@@ -279,6 +395,7 @@ html, body {
     <header class="topbar">
       <button class="icon-btn" data-go="screen-menu">←</button>
       <button class="icon-btn" id="musicToggle">🔊</button>
+      <button class="icon-btn" id="btn-admin-top" data-go="screen-admin" style="display:none;" title="Админка">🛠</button>
       <div class="stat cores" style="margin-left:5px;">
         <div class="lbl">💎 Ядра</div>
         <div class="val" id="uiCores">0</div>
@@ -297,9 +414,7 @@ html, body {
     <main class="game-main">
       <div class="scene-wrap" id="sceneWrap">
         <div id="event-banner">Событие!</div>
-        <!-- Кнопка форсажа -->
         <button id="btn-boost" class="boost-btn">⚡ ФОРСАЖ</button>
-
         <svg id="scene" viewBox="0 0 1000 350" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
 
@@ -351,30 +466,19 @@ html, body {
 </div>
 
 <script>
-// --- УПРАВЛЕНИЕ ВКЛАДКАМИ ---
-document.querySelectorAll('#gameTabs .tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#gameTabs .tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.target).classList.add('active');
-  });
-});
-
-const AVATARS = ['👷','👨‍🔬','🧑‍🚀','👨‍‍💼','🦺','🔧','⚛️','☢️','👨‍💻','⚡','💎','🌍'];
-const DEFAULT_AVATAR = '👷';
-const SAVE_KEY = 'aes_city_clicker_v5';
-
-// Генерация или получение стабильного уникального ID пользователя
-function getOrCreateUserId() {
-  let uid = localStorage.getItem('aes_user_id_v5');
-  if (!uid) {
-    uid = 'op_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-    localStorage.setItem('aes_user_id_v5', uid);
+// Автоопределение Telegram WebApp ID
+let tgUserId = null;
+try {
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user?.id) {
+    tgUserId = String(window.Telegram.WebApp.initDataUnsafe.user.id);
   }
-  return uid;
-}
-const USER_ID = getOrCreateUserId();
+} catch(e){}
+
+const AVATARS = ['👷','👨‍🔬','🧑‍🚀','👨‍💼','🦺','🔧','⚛️','☢️','👨‍💻','⚡','💎','🌍'];
+const DEFAULT_AVATAR = '👷';
+const SAVE_KEY = 'aes_city_clicker_auth_v1';
+
+let currentUser = null; // { id, username, avatar, role, isAdmin, telegramId }
 
 const UPGRADES = [
   { id:'reactor', tab:'depts', name:'Реактор', icon:'☢', levels:[
@@ -403,21 +507,18 @@ const CITY_THRESHOLDS = [0, 30, 150, 600, 2500, 10000, 50000, 250000, 1000000, 5
 
 let S = {
   energy: 0,
-  totalProduced: 0, 
-  cityProgress: 0,
-  cityLevel: 0, 
-  rebirths: 0,
   cores: 0,
+  totalProduced: 0,
+  cityProgress: 0,
+  cityLevel: 0,
+  rebirths: 0,
   up: { reactor:0, turbine:0, cooling:0, wires:0 },
   lab: { p_click:0, p_cps:0, p_city:0 },
-  // Временные метки анти-сброса форсажа (ms)
   boost: { activeUntil: 0, cooldownUntil: 0 },
   profile: { name:'Оператор', avatar: DEFAULT_AVATAR },
-  music: true,
-  lastSave: 0
+  music: true
 };
 
-// Временное состояние внутриигровых событий
 let eventData = { active: false, type: '', timer: 0 };
 
 const SUF = ['','K','M','B','T','Qa','Qi'];
@@ -465,61 +566,24 @@ function getStats(){
   return { cps, click, cityMult };
 }
 
-// Сохранение локально и в облако
 let syncTimeout = null;
 function save(syncToCloud = true){
-  S.lastSave = Date.now();
   localStorage.setItem(SAVE_KEY, JSON.stringify(S));
-
-  if(syncToCloud) {
+  if(syncToCloud && currentUser) {
     clearTimeout(syncTimeout);
     syncTimeout = setTimeout(saveToCloud, 1000);
   }
 }
 
 async function saveToCloud() {
+  if (!currentUser?.id) return;
   try {
     await fetch('/api/save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: USER_ID, saveData: S })
+      body: JSON.stringify({ userId: currentUser.id, saveData: S })
     });
-  } catch (err) {
-    console.warn('Сервер БД недоступен, данные сохранены локально');
-  }
-}
-
-function loadLocal(){
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if(raw) {
-      const parsed = JSON.parse(raw);
-      S = Object.assign(S, parsed);
-      if(!S.boost) S.boost = { activeUntil: 0, cooldownUntil: 0 };
-      if(!S.lab) S.lab = { p_click:0, p_cps:0, p_city:0 };
-    }
   } catch(e){}
-}
-
-async function loadFromCloudAndSync(){
-  try {
-    const res = await fetch(`/api/save/${USER_ID}`);
-    const json = await res.json();
-    if(json.success && json.data) {
-      if(!S.lastSave || (json.data.lastSave && json.data.lastSave >= S.lastSave)) {
-        S = Object.assign(S, json.data);
-        if(!S.boost) S.boost = { activeUntil: 0, cooldownUntil: 0 };
-        localStorage.setItem(SAVE_KEY, JSON.stringify(S));
-        refreshProfileUI();
-        updateUI();
-        buildScene();
-      }
-    } else {
-      save(true);
-    }
-  } catch (e) {
-    console.warn('Не удалось загрузить данные с сервера, используем локальные');
-  }
 }
 
 function showToast(text){
@@ -608,7 +672,7 @@ function buildUpgradeCards(){
         const lvl = S.up[u.id]; if(lvl >= u.levels.length - 1) return;
         const next = u.levels[lvl + 1]; if(S.energy < next.cost) return;
         S.energy -= next.cost; S.up[u.id] = lvl + 1;
-        updateUI(); save();
+        updateUI(); save(true);
     });
     upgRefs[u.id] = refs;
     if (u.tab === 'depts') tabDepts.appendChild(card); else tabUpgs.appendChild(card);
@@ -625,7 +689,7 @@ function buildLabCards() {
             const lvl = S.lab[u.id]; const cost = Math.floor(u.baseCost * Math.pow(u.multCost, lvl));
             if(S.cores < cost) return;
             S.cores -= cost; S.lab[u.id] = lvl + 1;
-            updateUI(); save(); showToast(`🔬 ${u.name} изучено!`);
+            updateUI(); save(true); showToast(`🔬 ${u.name} изучено!`);
         });
         labRefs[u.id] = refs; list.appendChild(card);
     });
@@ -683,17 +747,17 @@ async function renderLeaderboard() {
     listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">Загрузка данных из БД...</div>';
 
     try {
-        const res = await fetch('/api/leaderboard?limit=50');
+        const res = await fetch('/api/leaderboard');
         const json = await res.json();
 
         if(!json.success || !json.data || json.data.length === 0) {
-            listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">Таблица лидеров пуста.<br>Будь первым оператором!</div>';
+            listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">Таблица лидеров пуста.</div>';
             return;
         }
 
         let html = '';
         json.data.forEach(p => {
-            const isMe = p.user_id === USER_ID;
+            const isMe = currentUser && p.user_id === currentUser.id;
             html += `<div class="lb-row ${isMe ? 'me' : ''}">
                 <div class="lb-rank">#${p.rank}</div>
                 <div style="font-size:22px;margin:0 4px;">${p.avatar || '👷'}</div>
@@ -706,7 +770,7 @@ async function renderLeaderboard() {
         });
         listEl.innerHTML = html;
     } catch (err) {
-        listEl.innerHTML = '<div style="text-align:center;color:#ef4444;padding:24px;">Не удалось загрузить таблицу с сервера</div>';
+        listEl.innerHTML = '<div style="text-align:center;color:#ef4444;padding:24px;">Ошибка загрузки лидеров</div>';
     }
 }
 
@@ -727,7 +791,7 @@ sceneEl.addEventListener('click', (e) => {
   updateUI();
 });
 
-// --- ФОРСАЖ С АНТИ-СБРОСОМ ПО ТАЙМСТЕМПАМ ---
+// Форсаж
 function updateBoostUI() {
     const bBtn = document.getElementById('btn-boost');
     if (!bBtn) return;
@@ -753,14 +817,13 @@ document.getElementById('btn-boost').addEventListener('click', () => {
     const now = Date.now();
     if (now < (S.boost?.cooldownUntil || 0)) return;
 
-    // 20 секунд активного форсажа + 120 секунд кулдауна после него (итого 140 сек)
     S.boost = {
         activeUntil: now + 20 * 1000,
         cooldownUntil: now + 140 * 1000
     };
     save(true);
     updateBoostUI();
-    showToast("⚡ Режим ФОРСАЖА активен! х3 доход.");
+    showToast("⚡ ФОРСАЖ АКТИВЕН! Доход x3");
     buildScene();
 });
 
@@ -769,7 +832,7 @@ function triggerRandomEvent() {
     const rnd = Math.random();
     if(rnd < 0.4) {
         eventData = { active: true, type: 'boom', timer: 20 };
-        showEventBanner("📈 Энерго-бум! Потребление выросло, доход х2 (20с)");
+        showEventBanner("📈 Энерго-бум! Доход х2 (20с)");
     } else if(rnd < 0.7) {
         eventData = { active: true, type: 'crash', timer: 15 };
         showEventBanner("⚠️ Сбой в сети! Доход снижен (15с)");
@@ -828,32 +891,233 @@ function showScreen(id){
   if(id === 'screen-game') { updateUI(); buildScene(); }
   if(id === 'screen-profile') refreshProfileUI();
   if(id === 'screen-leaderboard') renderLeaderboard();
+  if(id === 'screen-admin') loadAdminData();
 }
 
 function refreshProfileUI(){
-  const nm = S.profile.name || 'Оператор', av = S.profile.avatar || DEFAULT_AVATAR;
+  const nm = currentUser?.username || S.profile.name || 'Оператор';
+  const av = currentUser?.avatar || S.profile.avatar || DEFAULT_AVATAR;
   document.getElementById('menuProfileAvatar').textContent = av;
   document.getElementById('menuProfileName').textContent = nm;
   document.getElementById('menuProfileRank').textContent = getRanks(S.rebirths);
   
   document.getElementById('profileAvatarBig').textContent = av;
-  document.getElementById('profileNameInput').value = S.profile.name || '';
+  document.getElementById('profileNameInput').value = nm;
   document.getElementById('profileNameDisplay').textContent = nm;
   document.getElementById('profileRankTitle').textContent = getRanks(S.rebirths);
   document.getElementById('profileRbCount').textContent = S.rebirths;
+
+  const roleText = currentUser?.isAdmin ? '⭐ Администратор' : '👷 Игрок';
+  document.getElementById('profileRoleBadge').textContent = `Статус: ${roleText}`;
   
   const grid = document.getElementById('avatarGrid'); grid.innerHTML = '';
   AVATARS.forEach(a => {
     const div = document.createElement('div'); div.className = 'avatar-opt' + (a === av ? ' selected' : ''); div.textContent = a;
     div.addEventListener('click', () => {
-      S.profile.avatar = a; grid.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
-      div.classList.add('selected'); document.getElementById('profileAvatarBig').textContent = a;
+      S.profile.avatar = a;
+      if (currentUser) currentUser.avatar = a;
+      grid.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('profileAvatarBig').textContent = a;
     });
     grid.appendChild(div);
   });
 }
 
-// Музыка
+// --- АВТОРИЗАЦИЯ & РЕГИСТРАЦИЯ ---
+let isRegisterMode = false;
+
+document.getElementById('tabBtnLogin').addEventListener('click', () => {
+  isRegisterMode = false;
+  document.getElementById('tabBtnLogin').classList.add('active');
+  document.getElementById('tabBtnRegister').classList.remove('active');
+  document.getElementById('authSubmitBtn').textContent = 'ВОЙТИ В ИГРУ';
+  document.getElementById('tgIdGroup').style.display = 'none';
+});
+
+document.getElementById('tabBtnRegister').addEventListener('click', () => {
+  isRegisterMode = true;
+  document.getElementById('tabBtnRegister').classList.add('active');
+  document.getElementById('tabBtnLogin').classList.remove('active');
+  document.getElementById('authSubmitBtn').textContent = 'ЗАРЕГИСТРИРОВАТЬСЯ';
+  document.getElementById('tgIdGroup').style.display = 'block';
+  if(tgUserId && !document.getElementById('authTelegramId').value) {
+    document.getElementById('authTelegramId').value = tgUserId;
+  }
+});
+
+document.getElementById('authSubmitBtn').addEventListener('click', async () => {
+  const username = document.getElementById('authUsername').value.trim();
+  const password = document.getElementById('authPassword').value.trim();
+  const telegramId = document.getElementById('authTelegramId').value.trim() || tgUserId;
+
+  if(!username || !password) {
+    showToast('❌ Заполните ник и пароль'); return;
+  }
+
+  const endpoint = isRegisterMode ? '/api/auth/register' : '/api/auth/login';
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, telegramId })
+    });
+    const json = await res.json();
+    if (!json.success) {
+      alert(json.error || 'Ошибка входа/регистрации');
+      return;
+    }
+
+    currentUser = json.user;
+    localStorage.setItem('aes_session_user', JSON.stringify(currentUser));
+
+    if (json.saveData) {
+      S = Object.assign(S, json.saveData);
+    }
+    setupAdminUI();
+    refreshProfileUI();
+    updateUI();
+    showToast(`✅ Добро пожаловать, ${currentUser.username}!`);
+    showScreen('screen-menu');
+  } catch (err) {
+    alert('Ошибка соединения с сервером');
+  }
+});
+
+// Кнопка Выйти из аккаунта
+document.getElementById('btnLogout').addEventListener('click', () => {
+  if (confirm('Вы уверены, что хотите выйти из аккаунта?')) {
+    localStorage.removeItem('aes_session_user');
+    currentUser = null;
+    location.reload();
+  }
+});
+
+function setupAdminUI() {
+  const show = Boolean(currentUser?.isAdmin);
+  document.getElementById('btn-admin-menu').style.display = show ? 'flex' : 'none';
+  document.getElementById('btn-admin-top').style.display = show ? 'flex' : 'none';
+}
+
+// --- ФУНКЦИИ АДМИН ПАНЕЛИ ---
+async function loadAdminData() {
+  if (!currentUser?.isAdmin) return;
+  try {
+    const res = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminId: currentUser.id })
+    });
+    const json = await res.json();
+    if (!json.success) return;
+
+    const select = document.getElementById('adminUserSelect');
+    const list = document.getElementById('adminUsersList');
+    select.innerHTML = '';
+    list.innerHTML = '';
+
+    json.users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = `${u.username} (${u.role}) — Ребитов: ${u.rebirths || 0}`;
+      select.appendChild(opt);
+
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:6px;border-bottom:1px solid #1e2b44;display:flex;justify-content:space-between;align-items:center;';
+      div.innerHTML = `
+        <div>
+          <b>${escapeHtml(u.username)}</b> [${u.role}]<br>
+          <span style="color:#7dd3fc">TG: ${u.telegram_id || 'нет'}</span> | ⚡ ${fmt(u.energy || 0)} | ☢ ${u.rebirths || 0}
+        </div>
+        <button class="btn danger small" style="padding:4px 8px;font-size:10px;width:auto;" onclick="adminDeleteUser('${u.id}')">Удалить</button>
+      `;
+      list.appendChild(div);
+    });
+  } catch(e){}
+}
+
+window.adminDeleteUser = async function(targetUserId) {
+  if (!confirm('Точно удалить этого игрока?')) return;
+  try {
+    const res = await fetch('/api/admin/delete-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminId: currentUser.id, targetUserId })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast('Игрок удален');
+      loadAdminData();
+    }
+  } catch(e){}
+};
+
+// Выдача ресурсов
+document.getElementById('adminGiveResourcesBtn').addEventListener('click', async () => {
+  const targetUserId = document.getElementById('adminUserSelect').value;
+  const energy = Number(document.getElementById('adminAddEnergy').value) || 0;
+  const cores = Number(document.getElementById('adminAddCores').value) || 0;
+  const rebirths = Number(document.getElementById('adminAddRebirths').value) || 0;
+
+  try {
+    const res = await fetch('/api/admin/give', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminId: currentUser.id, targetUserId, energy, cores, rebirths })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast('✅ Ресурсы успешно начислены!');
+      if (targetUserId === currentUser.id) {
+        S.energy += energy;
+        S.cores += cores;
+        S.rebirths += rebirths;
+        updateUI();
+        refreshProfileUI();
+      }
+      loadAdminData();
+    } else {
+      alert(json.error);
+    }
+  } catch(e){ alert('Ошибка соединения'); }
+});
+
+// Полная очистка БД
+document.getElementById('adminWipeAllBtn').addEventListener('click', async () => {
+  if (confirm('⚠️ ВНИМАНИЕ! Будет очищена ВСЯ таблица сохранений и лидерборд в PostgreSQL! Продолжить?')) {
+    try {
+      const res = await fetch('/api/admin/wipe-database', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminId: currentUser.id })
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert('✓ База данных очищена! Страница будет перезагружена.');
+        location.reload();
+      }
+    } catch(e){ alert('Ошибка сервера'); }
+  }
+});
+
+// Сброс лидерборда
+document.getElementById('adminResetLeaderboardBtn').addEventListener('click', async () => {
+  if (confirm('Сбросить только таблицу лидеров?')) {
+    try {
+      const res = await fetch('/api/admin/reset-leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminId: currentUser.id })
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast('Лидерборд сброшен');
+      }
+    } catch(e){}
+  }
+});
+
+// Аудио
 const audioEl = document.getElementById('bgMusic');
 audioEl.volume = 0.3;
 const musicBtn = document.getElementById('musicToggle');
@@ -864,78 +1128,76 @@ function toggleMusic() {
 }
 musicBtn.addEventListener('click', toggleMusic);
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadLocal();
+document.addEventListener('DOMContentLoaded', async () => {
   buildUpgradeCards();
   buildLabCards();
-  refreshProfileUI();
-  updateUI();
-  buildScene();
-  
-  if(!S.music) musicBtn.textContent = '🔇';
-  
-  // Фоновая загрузка актуального сейва из базы
-  loadFromCloudAndSync();
+
+  // Проверка сохраненной сессии
+  const rawSession = localStorage.getItem('aes_session_user');
+  if (rawSession) {
+    try {
+      currentUser = JSON.parse(rawSession);
+      const res = await fetch(`/api/save/${currentUser.id}`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        S = Object.assign(S, json.data);
+      }
+      setupAdminUI();
+      refreshProfileUI();
+      updateUI();
+      buildScene();
+      showScreen('screen-menu');
+    } catch(e){
+      showScreen('screen-auth');
+    }
+  } else {
+    showScreen('screen-auth');
+  }
 
   setTimeout(() => {
     const loader = document.getElementById('loading-screen');
     if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 600); }
-  }, 900);
+  }, 800);
 
   document.querySelectorAll('[data-go]').forEach(btn => {
     btn.addEventListener('click', () => showScreen(btn.getAttribute('data-go')));
   });
-  
+
+  document.querySelectorAll('#gameTabs .tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#gameTabs .tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+    });
+  });
+
   document.getElementById('btn-start').addEventListener('click', () => {
       showScreen('screen-game');
       if(S.music && audioEl.paused) audioEl.play().catch(()=>{});
   });
 
   document.getElementById('saveProfileBtn').addEventListener('click', () => {
-    S.profile.name = document.getElementById('profileNameInput').value.trim().slice(0, 16) || 'Оператор';
+    const val = document.getElementById('profileNameInput').value.trim().slice(0, 16);
+    if(val) {
+      S.profile.name = val;
+      if (currentUser) currentUser.username = val;
+    }
     save(true);
     refreshProfileUI();
     showToast('✅ Профиль сохранен');
   });
 
-  // Диалог сброса (одиночный профиль или полная очистка БД)
-  document.getElementById('wipeBtn').addEventListener('click', async () => {
-    const choice = prompt(
-      "Выберите вариант сброса:\n" +
-      "1 — Сбросить ТОЛЬКО МОЙ прогресс\n" +
-      "2 — Полная очистка БД (удалить всех игроков и лидерборд)\n\n" +
-      "Введите 1 или 2:", "1"
-    );
-
-    if (choice === '1') {
-      if(confirm('Сбросить ваш локальный и облачный прогресс?')) {
-        try {
-          await fetch(`/api/save/${USER_ID}`, { method: 'DELETE' });
-        } catch(e) {}
-        localStorage.removeItem(SAVE_KEY);
-        localStorage.removeItem('aes_user_id_v5');
-        location.reload();
-      }
-    } else if (choice === '2') {
-      if(confirm('⚠️ ВНИМАНИЕ! Это действие удалит сохранения ВСЕХ игроков из PostgreSQL и полностью обнулит лидерборд. Продолжить?')) {
-        try {
-          const res = await fetch('/api/admin/wipe-database', { method: 'POST' });
-          const json = await res.json();
-          if (json.success) {
-            localStorage.clear();
-            alert('✓ База данных полностью очищена, все профили сброшены!');
-            location.reload();
-          } else {
-            alert('Ошибка сервера: ' + json.error);
-          }
-        } catch (e) {
-          alert('Ошибка соединения с сервером БД');
-        }
-      }
+  document.getElementById('wipeBtn').addEventListener('click', () => {
+    if(confirm('Сбросить текущий прогресс?')) {
+      S.energy = 0; S.cores = 0; S.rebirths = 0; S.cityProgress = 0; S.cityLevel = 0;
+      S.up = { reactor:0, turbine:0, cooling:0, wires:0 };
+      S.lab = { p_click:0, p_cps:0, p_city:0 };
+      save(true); updateUI(); buildScene(); showToast('Прогресс сброшен');
     }
   });
 
-  // Цикл генерации ресурсов (30 раз в секунду)
+  // Игровой цикл
   let lastTick = Date.now();
   setInterval(() => {
     const now = Date.now(), dt = (now - lastTick) / 1000; lastTick = now;
@@ -950,35 +1212,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 1000 / 30);
 
-  // Секундный цикл: таймеры форсажа, случайные события
-  let prevBoostActive = isBoostActiveNow();
+  // Секундный цикл
+  let prevBoost = isBoostActiveNow();
   setInterval(() => {
-      const curBoostActive = isBoostActiveNow();
-      if(prevBoostActive !== curBoostActive) {
-          prevBoostActive = curBoostActive;
-          buildScene();
-      }
+    const curBoost = isBoostActiveNow();
+    if(prevBoost !== curBoost) {
+      prevBoost = curBoost;
+      buildScene();
+    }
+    updateBoostUI();
 
-      updateBoostUI();
-
-      if(eventData.active) {
-          eventData.timer--;
-          if(eventData.timer <= 0) {
-              eventData.active = false;
-              document.getElementById('event-banner').classList.remove('show');
-          }
-      } else {
-          if(Math.random() < (1 / 120)) triggerRandomEvent();
+    if(eventData.active) {
+      eventData.timer--;
+      if(eventData.timer <= 0) {
+        eventData.active = false;
+        document.getElementById('event-banner').classList.remove('show');
       }
+    } else {
+      if(Math.random() < (1 / 120)) triggerRandomEvent();
+    }
   }, 1000);
 
-  // Регулярный автосейв раз в 10 секунд
   setInterval(() => save(true), 10000);
-
-  window.addEventListener('beforeunload', () => {
-    S.lastSave = Date.now();
-    localStorage.setItem(SAVE_KEY, JSON.stringify(S));
-  });
 });
 </script>
 </body>
