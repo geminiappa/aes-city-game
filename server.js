@@ -11,7 +11,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Парсинг BIGINT (20) и NUMERIC (1700) в JS Number, чтобы база не возвращала числа как строки
+// Парсинг BIGINT (20) и NUMERIC (1700) в JS Number
 types.setTypeParser(20, (val) => (val === null ? 0 : Number(val)));
 types.setTypeParser(1700, (val) => (val === null ? 0 : Number(val)));
 
@@ -31,10 +31,9 @@ pool.on('error', (err) => {
 });
 
 // ======================================================
-// MIDDLEWARE (CORS, JSON, STATIC)
+// MIDDLEWARE
 // ======================================================
 
-// Разрешение CORS для работы с Telegram WebApp, мобильных браузеров и локального тестирования
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -55,7 +54,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 async function initDB() {
     try {
-        // Основная таблица полного сохранения игрока
         await pool.query(`
             CREATE TABLE IF NOT EXISTS user_saves (
                 user_id VARCHAR(255) PRIMARY KEY,
@@ -64,7 +62,6 @@ async function initDB() {
             );
         `);
 
-        // Таблица лидеров и профилей
         await pool.query(`
             CREATE TABLE IF NOT EXISTS leaderboard (
                 user_id VARCHAR(255) PRIMARY KEY,
@@ -79,7 +76,6 @@ async function initDB() {
             );
         `);
 
-        // Миграции структуры для существующих таблиц
         await pool.query(`
             ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS avatar VARCHAR(50) DEFAULT '👷';
             ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS total_produced NUMERIC DEFAULT 0;
@@ -89,12 +85,9 @@ async function initDB() {
             ALTER TABLE leaderboard ALTER COLUMN total_produced TYPE NUMERIC USING total_produced::numeric;
         `);
 
-        // Индексы для быстрого лидерборда
         await pool.query(`
-            CREATE INDEX IF NOT EXISTS leaderboard_rebirths_idx ON leaderboard(rebirths DESC);
-            CREATE INDEX IF NOT EXISTS leaderboard_energy_idx ON leaderboard(energy DESC);
+            CREATE INDEX IF NOT EXISTS leaderboard_rebirths_idx ON leaderboard(rebirths DESC, energy DESC);
             CREATE INDEX IF NOT EXISTS leaderboard_total_idx ON leaderboard(total_produced DESC);
-            CREATE INDEX IF NOT EXISTS leaderboard_city_idx ON leaderboard(city_level DESC, city_progress DESC);
         `);
 
         console.log('✓ PostgreSQL schema initialized & synchronized');
@@ -105,7 +98,7 @@ async function initDB() {
 }
 
 // ======================================================
-// ВАЛИДАЦИЯ И СИНХРОНИЗАЦИЯ ДАННЫХ
+// ВАЛИДАЦИЯ ДАННЫХ
 // ======================================================
 
 function safeNumber(value, fallback = 0) {
@@ -118,15 +111,9 @@ function safeInteger(value, fallback = 0) {
     return Number.isFinite(number) && number >= 0 ? Math.floor(number) : fallback;
 }
 
-/**
- * Нормализует сохранение: проверяет критические поля,
- * объединяет настройки профиля и музыки как из вложенных, так и из плоских структур,
- * сохраняя при этом все кастомные улучшения и достижения игрока.
- */
 function normalizeSaveData(raw) {
     const data = raw && typeof raw === 'object' ? raw : {};
 
-    // Извлечение имени и аватара (поддерживает profile.name, username, name)
     const name = String(
         data.profile?.name ||
         data.profile?.username ||
@@ -141,40 +128,24 @@ function normalizeSaveData(raw) {
         '👷'
     ).trim().slice(0, 50);
 
-    // Извлечение настроек музыки и звука
-    const musicEnabled = data.settings?.music !== undefined
-        ? Boolean(data.settings.music)
-        : (data.music !== undefined ? Boolean(data.music) : true);
-
-    const sfxEnabled = data.settings?.sfx !== undefined
-        ? Boolean(data.settings.sfx)
-        : (data.sfx !== undefined ? Boolean(data.sfx) : true);
-
-    const musicVolume = safeNumber(
-        data.settings?.musicVolume ?? data.musicVolume ?? data.settings?.volume,
-        0.8
-    );
-
-    const sfxVolume = safeNumber(
-        data.settings?.sfxVolume ?? data.sfxVolume,
-        1.0
-    );
-
-    const currentTrack = safeInteger(
-        data.settings?.currentTrack ?? data.currentTrack,
-        0
-    );
-
-    // Сохраняем все улучшения без удаления неизвестных ключей
     const existingUpgrades = (data.up && typeof data.up === 'object') ? data.up : {};
     const sanitizedUpgrades = {};
     for (const [key, val] of Object.entries(existingUpgrades)) {
         sanitizedUpgrades[key] = safeInteger(val, 0);
     }
 
+    const existingLab = (data.lab && typeof data.lab === 'object') ? data.lab : {};
+    const sanitizedLab = {};
+    for (const [key, val] of Object.entries(existingLab)) {
+        sanitizedLab[key] = safeInteger(val, 0);
+    }
+
+    const boost = (data.boost && typeof data.boost === 'object') ? data.boost : {};
+
     return {
         ...data,
         energy: safeNumber(data.energy),
+        cores: safeInteger(data.cores),
         totalProduced: safeNumber(data.totalProduced),
         cityProgress: safeNumber(data.cityProgress),
         cityLevel: safeInteger(data.cityLevel),
@@ -188,46 +159,46 @@ function normalizeSaveData(raw) {
             ...sanitizedUpgrades
         },
 
+        lab: {
+            p_click: 0,
+            p_cps: 0,
+            p_city: 0,
+            ...sanitizedLab
+        },
+
+        boost: {
+            activeUntil: safeInteger(boost.activeUntil, 0),
+            cooldownUntil: safeInteger(boost.cooldownUntil, 0)
+        },
+
         profile: {
             name: name || 'Оператор',
             avatar: avatar || '👷'
         },
 
-        settings: {
-            music: musicEnabled,
-            sfx: sfxEnabled,
-            musicVolume: Math.min(1, Math.max(0, musicVolume)),
-            sfxVolume: Math.min(1, Math.max(0, sfxVolume)),
-            currentTrack: currentTrack
-        },
-
+        music: data.music !== undefined ? Boolean(data.music) : true,
         lastSave: Date.now()
     };
 }
 
 // ======================================================
-// API: ПОЛНОЕ СОХРАНЕНИЕ (ИГРА + ПРОФИЛЬ + НАСТРОЙКИ)
+// API: СОХРАНЕНИЕ И СИНХРОНИЗАЦИЯ С ТОПОМ
 // ======================================================
 
 app.post('/api/save', async (req, res) => {
     const { userId, saveData } = req.body || {};
 
     if (!userId || !saveData) {
-        return res.status(400).json({
-            success: false,
-            error: 'Missing userId or saveData'
-        });
+        return res.status(400).json({ success: false, error: 'Missing userId or saveData' });
     }
 
     const id = String(userId).trim().slice(0, 255);
     const data = normalizeSaveData(saveData);
 
     const client = await pool.connect();
-
     try {
         await client.query('BEGIN');
 
-        // 1. Полный дамп в JSONB
         await client.query(`
             INSERT INTO user_saves (user_id, save_data, updated_at)
             VALUES ($1, $2::jsonb, CURRENT_TIMESTAMP)
@@ -237,7 +208,6 @@ app.post('/api/save', async (req, res) => {
                 updated_at = CURRENT_TIMESTAMP;
         `, [id, JSON.stringify(data)]);
 
-        // 2. Синхронизация профиля и прогресса с лидербордом
         await client.query(`
             INSERT INTO leaderboard (
                 user_id,
@@ -273,24 +243,11 @@ app.post('/api/save', async (req, res) => {
         ]);
 
         await client.query('COMMIT');
-
-        res.json({
-            success: true,
-            updatedAt: data.lastSave,
-            data
-        });
+        res.json({ success: true, updatedAt: data.lastSave, data });
     } catch (error) {
-        try {
-            await client.query('ROLLBACK');
-        } catch (rbErr) {
-            console.error('Rollback error:', rbErr);
-        }
-
+        await client.query('ROLLBACK').catch(() => {});
         console.error('SAVE ERROR:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Database save error'
-        });
+        res.status(500).json({ success: false, error: 'Database save error' });
     } finally {
         client.release();
     }
@@ -303,18 +260,13 @@ app.post('/api/save', async (req, res) => {
 app.get('/api/save/:id', async (req, res) => {
     try {
         const userId = String(req.params.id).trim().slice(0, 255);
-
-        const result = await pool.query(`
-            SELECT save_data, updated_at
-            FROM user_saves
-            WHERE user_id = $1
-        `, [userId]);
+        const result = await pool.query(
+            'SELECT save_data, updated_at FROM user_saves WHERE user_id = $1',
+            [userId]
+        );
 
         if (result.rows.length === 0) {
-            return res.json({
-                success: true,
-                data: null
-            });
+            return res.json({ success: true, data: null });
         }
 
         res.json({
@@ -324,131 +276,15 @@ app.get('/api/save/:id', async (req, res) => {
         });
     } catch (error) {
         console.error('LOAD ERROR:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Database load error'
-        });
+        res.status(500).json({ success: false, error: 'Database load error' });
     }
 });
 
 // ======================================================
-// API: СИНХРОНИЗАЦИЯ ТОЛЬКО ПРОФИЛЯ
-// ======================================================
-
-app.post('/api/profile', async (req, res) => {
-    const { userId, name, avatar } = req.body || {};
-
-    if (!userId) {
-        return res.status(400).json({ success: false, error: 'Missing userId' });
-    }
-
-    const id = String(userId).trim().slice(0, 255);
-    const cleanName = String(name || 'Оператор').trim().slice(0, 32);
-    const cleanAvatar = String(avatar || '👷').trim().slice(0, 50);
-
-    const client = await pool.connect();
-    try {
-        await client.query('BEGIN');
-
-        // Обновляем в лидерборде
-        await client.query(`
-            INSERT INTO leaderboard (user_id, username, avatar, updated_at)
-            VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
-            ON CONFLICT (user_id)
-            DO UPDATE SET
-                username = EXCLUDED.username,
-                avatar = EXCLUDED.avatar,
-                updated_at = CURRENT_TIMESTAMP;
-        `, [id, cleanName, cleanAvatar]);
-
-        // Обновляем внутри JSON сохранения
-        await client.query(`
-            UPDATE user_saves
-            SET save_data = jsonb_set(
-                jsonb_set(save_data, '{profile,name}', to_jsonb($2::text)),
-                '{profile,avatar}', to_jsonb($3::text)
-            ),
-            updated_at = CURRENT_TIMESTAMP
-            WHERE user_id = $1;
-        `, [id, cleanName, cleanAvatar]);
-
-        await client.query('COMMIT');
-
-        res.json({
-            success: true,
-            profile: { name: cleanName, avatar: cleanAvatar }
-        });
-    } catch (error) {
-        try { await client.query('ROLLBACK'); } catch (_) {}
-        console.error('PROFILE UPDATE ERROR:', error);
-        res.status(500).json({ success: false, error: 'Failed to update profile' });
-    } finally {
-        client.release();
-    }
-});
-
-// ======================================================
-// API: СИНХРОНИЗАЦИЯ НАСТРОЕК (МУЗЫКА И ЗВУКИ)
-// ======================================================
-
-app.post('/api/settings', async (req, res) => {
-    const { userId, settings } = req.body || {};
-
-    if (!userId || !settings) {
-        return res.status(400).json({ success: false, error: 'Missing userId or settings' });
-    }
-
-    const id = String(userId).trim().slice(0, 255);
-
-    try {
-        const currentSave = await pool.query(
-            'SELECT save_data FROM user_saves WHERE user_id = $1',
-            [id]
-        );
-
-        if (currentSave.rows.length === 0) {
-            return res.status(404).json({ success: false, error: 'Save not found' });
-        }
-
-        const saveData = currentSave.rows[0].save_data;
-        saveData.settings = {
-            ...saveData.settings,
-            music: settings.music !== undefined ? Boolean(settings.music) : saveData.settings?.music ?? true,
-            sfx: settings.sfx !== undefined ? Boolean(settings.sfx) : saveData.settings?.sfx ?? true,
-            musicVolume: safeNumber(settings.musicVolume ?? settings.volume ?? saveData.settings?.musicVolume, 0.8),
-            sfxVolume: safeNumber(settings.sfxVolume ?? saveData.settings?.sfxVolume, 1.0),
-            currentTrack: safeInteger(settings.currentTrack ?? saveData.settings?.currentTrack, 0)
-        };
-
-        await pool.query(`
-            UPDATE user_saves
-            SET save_data = $2::jsonb, updated_at = CURRENT_TIMESTAMP
-            WHERE user_id = $1
-        `, [id, JSON.stringify(saveData)]);
-
-        res.json({
-            success: true,
-            settings: saveData.settings
-        });
-    } catch (error) {
-        console.error('SETTINGS UPDATE ERROR:', error);
-        res.status(500).json({ success: false, error: 'Failed to update settings' });
-    }
-});
-
-// ======================================================
-// API: ЛИДЕРБОРД
+// API: ЛИДЕРБОРД ИЗ БД
 // ======================================================
 
 app.get('/api/leaderboard', async (req, res) => {
-    const sortMap = {
-        rebirths: 'rebirths',
-        energy: 'energy',
-        total: 'total_produced',
-        city: 'city_level'
-    };
-
-    const sortColumn = sortMap[req.query.sort] || 'rebirths';
     const limit = Math.min(Math.max(safeInteger(req.query.limit, 50), 1), 100);
 
     try {
@@ -463,79 +299,31 @@ app.get('/api/leaderboard', async (req, res) => {
                 city_level,
                 city_progress
             FROM leaderboard
-            ORDER BY ${sortColumn} DESC NULLS LAST, updated_at ASC
+            ORDER BY rebirths DESC, energy DESC, updated_at ASC
             LIMIT $1
         `, [limit]);
 
-        // Присваиваем ранг каждому игроку в выборке
         const leaderboardWithRank = result.rows.map((row, index) => ({
             rank: index + 1,
             ...row
         }));
 
-        res.json({
-            success: true,
-            data: leaderboardWithRank
-        });
+        res.json({ success: true, data: leaderboardWithRank });
     } catch (error) {
         console.error('LEADERBOARD ERROR:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Leaderboard load error'
-        });
+        res.status(500).json({ success: false, error: 'Leaderboard load error' });
     }
 });
 
 // ======================================================
-// API: ИНФОРМАЦИЯ ОБ ИГРОКЕ И ЕГО РАНГ
-// ======================================================
-
-app.get('/api/player/:id', async (req, res) => {
-    try {
-        const userId = String(req.params.id).trim().slice(0, 255);
-
-        const result = await pool.query(`
-            WITH ranked AS (
-                SELECT
-                    user_id,
-                    username AS name,
-                    avatar,
-                    rebirths,
-                    energy,
-                    total_produced AS total,
-                    city_level,
-                    city_progress,
-                    updated_at,
-                    RANK() OVER (ORDER BY rebirths DESC, total_produced DESC) AS rank
-                FROM leaderboard
-            )
-            SELECT * FROM ranked WHERE user_id = $1
-        `, [userId]);
-
-        res.json({
-            success: true,
-            data: result.rows[0] || null
-        });
-    } catch (error) {
-        console.error('PLAYER ERROR:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Player load error'
-        });
-    }
-});
-
-// ======================================================
-// API: УДАЛЕНИЕ СОХРАНЕНИЯ
+// API: УДАЛЕНИЕ СВОЕГО ПРОФИЛЯ
 // ======================================================
 
 app.delete('/api/save/:id', async (req, res) => {
     try {
         const userId = String(req.params.id).trim().slice(0, 255);
-
         await pool.query('DELETE FROM user_saves WHERE user_id = $1', [userId]);
         await pool.query('DELETE FROM leaderboard WHERE user_id = $1', [userId]);
-
         res.json({ success: true });
     } catch (error) {
         console.error('DELETE ERROR:', error);
@@ -544,19 +332,21 @@ app.delete('/api/save/:id', async (req, res) => {
 });
 
 // ======================================================
-// HEALTHCHECK
+// API: ПОЛНЫЙ СБРОС ВСЕХ ПРОФИЛЕЙ И ОЧИСТКА БД
 // ======================================================
 
-app.get('/api/health', async (req, res) => {
+app.post('/api/admin/wipe-database', async (req, res) => {
     try {
-        await pool.query('SELECT 1');
-        res.json({ status: 'ok', db: 'connected', time: new Date().toISOString() });
-    } catch (err) {
-        res.status(500).json({ status: 'error', db: err.message });
+        await pool.query('TRUNCATE TABLE user_saves, leaderboard RESTART IDENTITY CASCADE;');
+        console.log('⚡ All user saves and leaderboard data wiped successfully.');
+        res.json({ success: true, message: 'База данных полностью очищена, все профили сброшены.' });
+    } catch (error) {
+        console.error('WIPE DB ERROR:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// SPA fallback для раздачи index.html при прямых переходах
+// SPA fallback
 app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
     res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
@@ -564,16 +354,10 @@ app.get('*', (req, res, next) => {
     });
 });
 
-// ======================================================
-// СТАРТ СЕРВЕРА
-// ======================================================
-
 async function startServer() {
     await initDB();
-
     app.listen(PORT, () => {
         console.log(`✓ Server started on port ${PORT}`);
-        console.log(`✓ Local URL: http://localhost:${PORT}`);
     });
 }
 
