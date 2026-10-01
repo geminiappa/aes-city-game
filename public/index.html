@@ -28,7 +28,6 @@ html, body {
   display: flex; flex-direction: column;
 }
 
-/* --- АДАПТАЦИЯ (Планшеты и ПК) --- */
 @media (min-width: 768px) {
   .app-container { 
     max-width: 950px; max-height: 90vh; height: 850px; 
@@ -42,7 +41,6 @@ html, body {
   .app-container { max-width: 500px; }
 }
 
-/* ============ ЭКРАН ЗАГРУЗКИ ============ */
 #loading-screen {
   position: absolute; inset: 0; background: #05070f; z-index: 99999;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -54,11 +52,9 @@ html, body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ============ БАЗОВЫЕ ЭКРАНЫ ============ */
 .screen{ position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .28s ease, visibility .28s; z-index: 10; }
 .screen.active{opacity:1;visibility:visible;pointer-events:auto}
 
-/* ============ МЕНЮ ============ */
 #screen-menu{
   align-items:center;justify-content:center;padding:16px;
   background: radial-gradient(circle at 50% 100%, rgba(251,191,36,.10), transparent 55%), radial-gradient(circle at 15% 10%, rgba(56,189,248,.12), transparent 45%), radial-gradient(circle at 85% 85%, rgba(167,139,250,.10), transparent 45%), var(--bg);
@@ -89,7 +85,6 @@ html, body {
 .menu-profile .nm{font-size:15px;font-weight:800;color:#fff;}
 .menu-buttons{display:flex;flex-direction:column;gap:10px}
 
-/* ============ КНОПКИ ============ */
 .btn{
   width:100%;padding:14px 18px;border-radius:12px;border:1px solid var(--border);
   background:linear-gradient(180deg,#1b2740,#131c30);color:var(--text); font-size:15px;font-weight:600;cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition: transform 0.1s;
@@ -102,14 +97,12 @@ html, body {
 .btn.small{width:auto;padding:9px 16px;font-size:13px}
 .btn.disabled{background:#1a2338;border-color:#28344f;color:#54637f;cursor:not-allowed;}
 
-/* ============ СТРАНИЦЫ ============ */
 .page{ width:100%;max-width:540px;margin:auto; background:linear-gradient(160deg,rgba(20,30,52,.96),rgba(10,14,24,.98)); border:1px solid var(--border);border-radius:20px; max-height:85vh;display:flex;flex-direction:column;overflow:hidden;position:relative; }
 .page-inner{flex:1;overflow-y:auto;padding:24px 20px;}
 #screen-profile, #screen-leaderboard{ padding:16px;align-items:center;justify-content:center; background:radial-gradient(circle at 50% 0%, rgba(251,191,36,.07), transparent 55%), var(--bg); }
 .page h2{font-size:20px;margin-bottom:16px;color:#fbbf24;font-weight:800;text-align:center;}
 .back-row{margin-top:18px;display:flex;gap:10px;justify-content:center}
 
-/* Профиль */
 .profile-hero{ display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;margin-bottom:18px; background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35); }
 .profile-avatar-big{ width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px; border:3px solid rgba(251,191,36,.6); }
 .name-input{ width:100%;padding:12px 14px;border-radius:12px;background:#0a1220;color:#fff; border:1px solid var(--border);font-size:16px;outline:none; }
@@ -124,7 +117,7 @@ html, body {
 .lb-name{ flex:1;font-size:14px;font-weight:700;color:#fff; }
 .lb-stat{ font-size:13px;font-weight:800;color:var(--core); }
 
-/* ============ ИГРА ============ */
+/* Игра */
 #screen-game{background:#05070f;flex-direction:column;}
 .topbar{ display:flex;align-items:center;gap:6px;padding:8px 10px; background:rgba(13,18,32,.94);border-bottom:1px solid var(--border);flex:0 0 auto;z-index:5; }
 .icon-btn{ width:36px;height:36px;border-radius:8px;border:1px solid var(--border); background:#121a2c;color:var(--text);font-size:16px;cursor:pointer; display:flex;align-items:center;justify-content:center; }
@@ -138,7 +131,6 @@ html, body {
 .city-progress{width:45px;height:5px;background:#1a2338;border-radius:3px;overflow:hidden;margin-top:2px}
 .city-progress .fill{height:100%;width:0%;background:#fbbf24;transition:width 0.3s}
 
-/* СЦЕНА АЭС + ГОРОД */
 .game-main{display:flex;flex-direction:column;overflow:hidden;}
 .scene-wrap{ flex:0 0 35vh;position:relative;width:100%;overflow:hidden; background:radial-gradient(ellipse at 50% 30%, rgba(251,191,36,.06), transparent 70%); border-bottom:2px solid #fbbf24;}
 #scene{width:100%;height:100%;display:block;cursor:pointer;touch-action:manipulation;}
@@ -149,13 +141,12 @@ html, body {
   background: linear-gradient(180deg, #f59e0b, #d97706);
   border: 2px solid #fff; border-radius: 8px; padding: 8px 14px;
   font-size: 11px; font-weight: 800; color: #000; cursor: pointer;
-  box-shadow: 0 0 10px rgba(251,191,36,0.6); transition: 0.3s;
+  box-shadow: 0 0 10px rgba(251,191,36,0.6); transition: 0.2s;
 }
-.boost-btn.cooldown { filter: grayscale(1); opacity: 0.6; cursor: not-allowed; }
-.boost-btn.active { animation: pulseBoost 0.8s infinite; background: #ef4444; color: #fff; border-color: #fca5a5; box-shadow: 0 0 20px #ef4444; }
+.boost-btn.cooldown { filter: grayscale(1); opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+.boost-btn.active { animation: pulseBoost 0.8s infinite; background: #ef4444; color: #fff; border-color: #fca5a5; box-shadow: 0 0 20px #ef4444; pointer-events: none; }
 @keyframes pulseBoost { 0%, 100%{transform:scale(1)} 50%{transform:scale(1.05)} }
 
-/* События */
 #event-banner {
   position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
   background: linear-gradient(90deg, #ef4444, #b91c1c); color: white; padding: 12px 24px;
@@ -166,7 +157,6 @@ html, body {
 }
 #event-banner.show { opacity: 1; transform: translateX(-50%) translateY(10px); }
 
-/* ПАНЕЛЬ */
 .panel{ flex:1;display:flex;flex-direction:column;background:rgba(13,18,32,.98);min-height:0;}
 .tabs-header{ display:flex; background: #0b1019; border-bottom:1px solid var(--border); flex:0 0 auto; }
 .tab-btn{ position:relative; flex:1; background:transparent; border:none; color:var(--muted); padding:14px 0; font-size:11px; font-weight:800; cursor:pointer; border-bottom:3px solid transparent; transition: all 0.2s ease;}
@@ -176,7 +166,6 @@ html, body {
 .tab-pane{ display:none; flex:1; overflow-y:auto; padding:10px;}
 .tab-pane.active{ display:block; }
 
-/* КАРТОЧКИ УЛУЧШЕНИЙ */
 .upg-card{ display:flex;gap:10px;padding:10px;margin-bottom:8px; background:linear-gradient(160deg,#131c30,#0d1524); border:1px solid var(--border);border-radius:12px;align-items:center; }
 .upg-card.maxed{border-color:rgba(52,211,153,.4)}
 .upg-icon{ width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center; background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.25);font-size:20px;flex:0 0 42px; }
@@ -194,14 +183,12 @@ html, body {
 .lab-card .upg-level { background:rgba(168,85,247,0.15); color:#d8b4fe; }
 .lab-card .upg-buy { background:linear-gradient(180deg,#a855f7,#7e22ce); border-color:#a855f7; color:#fff; }
 
-/* РЕБИТЫ */
 .rebirth-box { background:linear-gradient(160deg,#1a1313,#170c0c); border:1px solid #4c2020; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 12px; }
 .rebirth-stat { font-size: 28px; font-weight: 800; color: var(--core); margin: 6px 0; text-shadow: 0 0 10px rgba(168,85,247,0.4); }
 .rebirth-warning { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; font-size: 11px; padding: 10px; border-radius: 8px; margin: 14px 0; }
 .rb-formula { display:flex; justify-content:space-between; font-size: 11px; color: #94a3b8; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 6px; margin-bottom: 4px; }
 .rb-formula b { color: #fff; }
 
-/* Эффекты */
 .float-text{ position:absolute;pointer-events:none;font-weight:800;font-size:20px;color:#fbbf24; text-shadow:0 0 12px rgba(251,191,36,1);z-index:999; animation:floatUp .8s cubic-bezier(.2,.7,.4,1) forwards;transform:translate(-50%,-50%); }
 @keyframes floatUp{ 0%{opacity:1;transform:translate(-50%,-50%) scale(.7)} 100%{opacity:0;transform:translate(-50%,-180%) scale(1.4)} }
 #toasts{position:absolute;top:15px;right:15px;z-index:1000;display:flex;flex-direction:column;gap:8px;pointer-events:none; width: 220px;}
@@ -216,12 +203,10 @@ html, body {
 </head>
 <body>
 
-<!-- Аудио (Музыка) -->
 <audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8b8175b5f.mp3?filename=ambient-piano-amp-strings-10711.mp3"></audio>
 
 <div class="app-container">
 
-  <!-- Загрузочный экран -->
   <div id="loading-screen">
     <h1 style="font-size: 26px; font-weight: 800; letter-spacing: 3px; margin: 0;">Powered by</h1>
     <h2 style="font-size: 20px; font-weight: 600; color: #38bdf8; letter-spacing: 5px; margin-top: 5px;">RI STUDIO</h2>
@@ -247,7 +232,7 @@ html, body {
         <div class="menu-buttons">
           <button class="btn primary" id="btn-start">☢ &nbsp;НАЧАТЬ СМЕНУ</button>
           <button class="btn leader" data-go="screen-leaderboard">🏆 &nbsp;ТАБЛИЦА ЛИДЕРОВ</button>
-          <button class="btn rad" id="wipeBtn">🗑 &nbsp;СБРОС ИГРЫ</button>
+          <button class="btn rad" id="wipeBtn">🗑 &nbsp;СБРОС ИГРЫ / ОЧИСТКА БД</button>
         </div>
       </div>
     </div>
@@ -279,9 +264,9 @@ html, body {
   <!-- Лидерборд -->
   <div class="screen" id="screen-leaderboard">
     <div class="page"><div class="page-inner">
-      <h2>🏆 МИРОВОЙ ТОП</h2>
+      <h2>🏆 МИРОВОЙ ТОП ИЗ БД</h2>
       <div id="lb-list">
-        <!-- Генерируется через JS -->
+        <!-- Загружается из PostgreSQL -->
       </div>
       <div class="back-row">
         <button class="btn small" data-go="screen-menu">← Назад</button>
@@ -311,7 +296,6 @@ html, body {
 
     <main class="game-main">
       <div class="scene-wrap" id="sceneWrap">
-        <!-- События -->
         <div id="event-banner">Событие!</div>
         <!-- Кнопка форсажа -->
         <button id="btn-boost" class="boost-btn">⚡ ФОРСАЖ</button>
@@ -348,7 +332,7 @@ html, body {
             </div>
             
             <div class="rebirth-warning">
-              <b>ВНИМАНИЕ!</b> Энергия и отделы будут сброшены! Город и Ядра сохраняются.
+              <b>ВНИМАНИЕ!</b> Энергия и отделы будут сброшены! Город, Ядра и Лаба сохраняются.
             </div>
 
             <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; margin-bottom:14px;">
@@ -377,9 +361,20 @@ document.querySelectorAll('#gameTabs .tab-btn').forEach(btn => {
   });
 });
 
-const AVATARS = ['👷','👨‍🔬','🧑‍🚀','👨‍💼','🦺','🔧','⚛️','☢️','👨‍💻','⚡','💎','🌍'];
+const AVATARS = ['👷','👨‍🔬','🧑‍🚀','👨‍‍💼','🦺','🔧','⚛️','☢️','👨‍💻','⚡','💎','🌍'];
 const DEFAULT_AVATAR = '👷';
-const SAVE_KEY = 'aes_city_clicker_v4';
+const SAVE_KEY = 'aes_city_clicker_v5';
+
+// Генерация или получение стабильного уникального ID пользователя
+function getOrCreateUserId() {
+  let uid = localStorage.getItem('aes_user_id_v5');
+  if (!uid) {
+    uid = 'op_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+    localStorage.setItem('aes_user_id_v5', uid);
+  }
+  return uid;
+}
+const USER_ID = getOrCreateUserId();
 
 const UPGRADES = [
   { id:'reactor', tab:'depts', name:'Реактор', icon:'☢', levels:[
@@ -407,24 +402,36 @@ const LAB_UPGRADES = [
 const CITY_THRESHOLDS = [0, 30, 150, 600, 2500, 10000, 50000, 250000, 1000000, 5000000];
 
 let S = {
-  energy: 0, totalProduced: 0, 
-  cityProgress: 0, cityLevel: 0, 
-  rebirths: 0, cores: 0,
+  energy: 0,
+  totalProduced: 0, 
+  cityProgress: 0,
+  cityLevel: 0, 
+  rebirths: 0,
+  cores: 0,
   up: { reactor:0, turbine:0, cooling:0, wires:0 },
   lab: { p_click:0, p_cps:0, p_city:0 },
-  profile: { name:'', avatar: DEFAULT_AVATAR },
-  music: true
+  // Временные метки анти-сброса форсажа (ms)
+  boost: { activeUntil: 0, cooldownUntil: 0 },
+  profile: { name:'Оператор', avatar: DEFAULT_AVATAR },
+  music: true,
+  lastSave: 0
 };
 
-// Режимы и события
-let eventData = { active: false, type: '', mult: 1, timer: 0 };
-let boostData = { active: false, timer: 0, cd: 0 };
+// Временное состояние внутриигровых событий
+let eventData = { active: false, type: '', timer: 0 };
 
 const SUF = ['','K','M','B','T','Qa','Qi'];
 function fmt(n){
+  if(n === null || n === undefined || isNaN(n)) return '0';
   if(n < 1000) return Math.floor(n).toString();
   let i = 0; while(n >= 1000 && i < SUF.length-1){ n /= 1000; i++; }
   return n.toFixed(1) + SUF[i];
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
 }
 
 function getRanks(rebirths) {
@@ -436,31 +443,83 @@ function getRanks(rebirths) {
     return "Стажёр";
 }
 
+function isBoostActiveNow() {
+  return Date.now() < (S.boost?.activeUntil || 0);
+}
+
 function getStats(){
   const r = UPGRADES[0].levels[S.up.reactor] || UPGRADES[0].levels[0];
   const t = UPGRADES[1].levels[S.up.turbine] || UPGRADES[1].levels[0];
   const c = UPGRADES[2].levels[S.up.cooling] || UPGRADES[2].levels[0];
   const w = UPGRADES[3].levels[S.up.wires] || UPGRADES[3].levels[0];
   
-  let baseCps = ((r.cps || 0) + (t.cps || 0)) * (1 + S.lab.p_cps * 0.20);
+  let baseCps = ((r.cps || 0) + (t.cps || 0)) * (1 + (S.lab.p_cps || 0) * 0.20);
   let cps = baseCps * (1 + (c.mult || 0));
-  let click = (r.click || 1) * (1 + S.lab.p_click * 0.25);
-  let cityMult = (1 + (w.cityMult || 0)) * (1 + S.lab.p_city * 0.15);
+  let click = (r.click || 1) * (1 + (S.lab.p_click || 0) * 0.25);
+  let cityMult = (1 + (w.cityMult || 0)) * (1 + (S.lab.p_city || 0) * 0.15);
 
-  // Бонусы от событий и форсажа
   if(eventData.active && eventData.type === 'boom') cps *= 2;
   if(eventData.active && eventData.type === 'crash') cps *= 0.5;
-  if(boostData.active) { cps *= 3; click *= 2; }
+  if(isBoostActiveNow()) { cps *= 3; click *= 2; }
   
   return { cps, click, cityMult };
 }
 
-function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }
-function load(){
+// Сохранение локально и в облако
+let syncTimeout = null;
+function save(syncToCloud = true){
+  S.lastSave = Date.now();
+  localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+
+  if(syncToCloud) {
+    clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(saveToCloud, 1000);
+  }
+}
+
+async function saveToCloud() {
+  try {
+    await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: USER_ID, saveData: S })
+    });
+  } catch (err) {
+    console.warn('Сервер БД недоступен, данные сохранены локально');
+  }
+}
+
+function loadLocal(){
   try {
     const raw = localStorage.getItem(SAVE_KEY);
-    if(raw) S = Object.assign(S, JSON.parse(raw));
+    if(raw) {
+      const parsed = JSON.parse(raw);
+      S = Object.assign(S, parsed);
+      if(!S.boost) S.boost = { activeUntil: 0, cooldownUntil: 0 };
+      if(!S.lab) S.lab = { p_click:0, p_cps:0, p_city:0 };
+    }
   } catch(e){}
+}
+
+async function loadFromCloudAndSync(){
+  try {
+    const res = await fetch(`/api/save/${USER_ID}`);
+    const json = await res.json();
+    if(json.success && json.data) {
+      if(!S.lastSave || (json.data.lastSave && json.data.lastSave >= S.lastSave)) {
+        S = Object.assign(S, json.data);
+        if(!S.boost) S.boost = { activeUntil: 0, cooldownUntil: 0 };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+        refreshProfileUI();
+        updateUI();
+        buildScene();
+      }
+    } else {
+      save(true);
+    }
+  } catch (e) {
+    console.warn('Не удалось загрузить данные с сервера, используем локальные');
+  }
 }
 
 function showToast(text){
@@ -472,7 +531,7 @@ function showToast(text){
 
 // --- ВИЗУАЛ АЭС ---
 function getCoreColor() {
-    if(boostData.active) return '#ef4444'; // Красный при форсаже
+    if(isBoostActiveNow()) return '#ef4444';
     if(S.rebirths >= 20) return '#ef4444';
     if(S.rebirths >= 10) return '#fbbf24';
     if(S.rebirths >= 5) return '#a855f7';
@@ -483,6 +542,7 @@ function getCoreColor() {
 
 const sceneEl = document.getElementById('scene');
 function buildScene(){
+  const isBoost = isBoostActiveNow();
   const coreColor = getCoreColor();
   document.documentElement.style.setProperty('--core', S.rebirths > 0 ? '#d8b4fe' : '#a855f7');
 
@@ -499,7 +559,7 @@ function buildScene(){
 
   [100, 180].forEach((cx, idx) => {
     if(S.up.cooling > 0) {
-      let speed = boostData.active ? (1 + idx) : (2 + idx);
+      let speed = isBoost ? (1 + idx) : (2 + idx);
       h += `<circle cx="${cx-10}" cy="160" r="15" fill="#94a3b8" opacity="0.3" style="animation: smokeRise ${speed}s infinite"/>`;
     }
     h += `<path d="M ${cx-22} 170 Q ${cx-15} 230, ${cx-32} 290 L ${cx+32} 290 Q ${cx+15} 230, ${cx+22} 170 Z" fill="url(#gradTower)" stroke="#4a5464" stroke-width="1.5"/>`;
@@ -508,15 +568,15 @@ function buildScene(){
 
   h += `<path d="M 320 230 A 60 60 0 0 1 440 230 Z" fill="#2a3442" stroke="#4a5464" stroke-width="2"/>`;
   h += `<rect x="320" y="230" width="120" height="60" fill="#1e2636" stroke="#4a5464" stroke-width="2"/>`;
-  h += `<circle cx="380" cy="220" r="40" fill="url(#glow)" opacity="${boostData.active ? 1 : 0.85}"/>`;
+  h += `<circle cx="380" cy="220" r="40" fill="url(#glow)" opacity="${isBoost ? 1 : 0.85}"/>`;
   
-  let pClass = boostData.active ? "" : "core-pulse";
-  let cRad = boostData.active ? (10 + S.up.reactor*2.5) : (8 + S.up.reactor*2);
+  let pClass = isBoost ? "" : "core-pulse";
+  let cRad = isBoost ? (10 + S.up.reactor*2.5) : (8 + S.up.reactor*2);
   h += `<circle cx="380" cy="220" r="${cRad}" fill="${coreColor}" class="${pClass}"/>`;
 
   if(S.up.turbine > 0){
     h += `<rect x="460" y="240" width="100" height="50" fill="#1a2233" stroke="#4a5464" stroke-width="2"/>`;
-    let tSpeed = boostData.active ? "0.3s" : "1s";
+    let tSpeed = isBoost ? "0.3s" : "1s";
     h += `<circle cx="510" cy="265" r="14" fill="none" stroke="#34d399" stroke-width="3" class="turbine-rotor" style="animation-duration:${tSpeed}"/>`;
   }
 
@@ -586,7 +646,6 @@ function updateBadges() {
 
 // --- РЕБИТЫ ---
 function calcRebirthReward() {
-    // СБАЛАНСИРОВАННАЯ ФОРМУЛА: не слишком сложно
     const energyFactor = S.energy >= 200000 ? Math.pow(S.energy / 200000, 0.5) : 0;
     const cityFactor = 1 + (S.cityLevel * 0.2);
     return { reward: Math.floor(energyFactor * cityFactor), fEnergy: energyFactor.toFixed(2), fCity: cityFactor.toFixed(2) };
@@ -609,7 +668,7 @@ function updateRebirthUI() {
         if(confirm(`Сбросить Энергию и Отделы?\nВы получите: 💎 ${calc.reward} Ядер.`)) {
             S.energy = 0; S.up = { reactor:0, turbine:0, cooling:0, wires:0 };
             S.rebirths++; S.cores += calc.reward;
-            save(); updateUI(); refreshProfileUI(); showToast("☢ РЕБИТ УСПЕШЕН!");
+            save(true); updateUI(); refreshProfileUI(); showToast("☢ РЕБИТ УСПЕШЕН!");
         }
       };
   } else {
@@ -618,26 +677,37 @@ function updateRebirthUI() {
   }
 }
 
-// Лидерборд Mock
-const fakeDB = [
-    {name: 'Zavodchanin', rb: 45, en: 8.5e9},
-    {name: 'AlexPro', rb: 32, en: 1.2e8},
-    {name: 'Stalker', rb: 18, en: 5.5e7},
-    {name: 'NuclearBoy', rb: 8, en: 3e6},
-    {name: 'Noob2026', rb: 0, en: 1500}
-];
-function renderLeaderboard() {
-    let list = [...fakeDB, {name: (S.profile.name || 'Вы (Я)'), rb: S.rebirths, en: S.energy, isMe: true}];
-    list.sort((a,b) => b.rb !== a.rb ? b.rb - a.rb : b.en - a.en);
-    let html = '';
-    list.forEach((p, i) => {
-        html += `<div class="lb-row ${p.isMe?'me':''}">
-            <div class="lb-rank">#${i+1}</div>
-            <div class="lb-name">${p.name}</div>
-            <div class="lb-stat">☢ ${p.rb}</div>
-        </div>`;
-    });
-    document.getElementById('lb-list').innerHTML = html;
+// --- ЛИДЕРБОРД ИЗ БД ---
+async function renderLeaderboard() {
+    const listEl = document.getElementById('lb-list');
+    listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">Загрузка данных из БД...</div>';
+
+    try {
+        const res = await fetch('/api/leaderboard?limit=50');
+        const json = await res.json();
+
+        if(!json.success || !json.data || json.data.length === 0) {
+            listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:24px;">Таблица лидеров пуста.<br>Будь первым оператором!</div>';
+            return;
+        }
+
+        let html = '';
+        json.data.forEach(p => {
+            const isMe = p.user_id === USER_ID;
+            html += `<div class="lb-row ${isMe ? 'me' : ''}">
+                <div class="lb-rank">#${p.rank}</div>
+                <div style="font-size:22px;margin:0 4px;">${p.avatar || '👷'}</div>
+                <div class="lb-name">${escapeHtml(p.name)} ${isMe ? '<span style="color:#38bdf8;font-size:11px;">(Вы)</span>' : ''}</div>
+                <div class="lb-stat" style="text-align:right;">
+                    <div>☢ ${p.rebirths || 0}</div>
+                    <div style="font-size:10px;color:var(--muted);font-weight:normal;">${fmt(p.energy || 0)} ⚡</div>
+                </div>
+            </div>`;
+        });
+        listEl.innerHTML = html;
+    } catch (err) {
+        listEl.innerHTML = '<div style="text-align:center;color:#ef4444;padding:24px;">Не удалось загрузить таблицу с сервера</div>';
+    }
 }
 
 sceneEl.addEventListener('click', (e) => {
@@ -657,13 +727,40 @@ sceneEl.addEventListener('click', (e) => {
   updateUI();
 });
 
-// Кнопка ФОРСАЖ
+// --- ФОРСАЖ С АНТИ-СБРОСОМ ПО ТАЙМСТЕМПАМ ---
+function updateBoostUI() {
+    const bBtn = document.getElementById('btn-boost');
+    if (!bBtn) return;
+    const now = Date.now();
+    const activeUntil = S.boost?.activeUntil || 0;
+    const cooldownUntil = S.boost?.cooldownUntil || 0;
+
+    if (now < activeUntil) {
+        const rem = Math.ceil((activeUntil - now) / 1000);
+        bBtn.className = 'boost-btn active';
+        bBtn.textContent = `ФОРСАЖ: ${rem}с`;
+    } else if (now < cooldownUntil) {
+        const rem = Math.ceil((cooldownUntil - now) / 1000);
+        bBtn.className = 'boost-btn cooldown';
+        bBtn.textContent = `КД: ${rem}с`;
+    } else {
+        bBtn.className = 'boost-btn';
+        bBtn.textContent = "⚡ ФОРСАЖ";
+    }
+}
+
 document.getElementById('btn-boost').addEventListener('click', () => {
-    if(boostData.cd > 0 || boostData.active) return;
-    boostData.active = true; boostData.timer = 20; 
-    document.getElementById('btn-boost').classList.add('active');
-    document.getElementById('btn-boost').textContent = "ФОРСАЖ АКТИВЕН!";
-    showToast("⚡ Включен режим ФОРСАЖА! х3 доход.");
+    const now = Date.now();
+    if (now < (S.boost?.cooldownUntil || 0)) return;
+
+    // 20 секунд активного форсажа + 120 секунд кулдауна после него (итого 140 сек)
+    S.boost = {
+        activeUntil: now + 20 * 1000,
+        cooldownUntil: now + 140 * 1000
+    };
+    save(true);
+    updateBoostUI();
+    showToast("⚡ Режим ФОРСАЖА активен! х3 доход.");
     buildScene();
 });
 
@@ -701,8 +798,8 @@ function updateUI(){
     const ref = upgRefs[u.id]; if(!ref) return;
     const lvl = S.up[u.id], maxed = lvl >= u.levels.length - 1, cur = u.levels[lvl], next = maxed ? null : u.levels[lvl + 1];
     ref.level.textContent = `ур.${lvl}`; ref.level.classList.toggle('max', maxed);
-    if(u.id === 'reactor') ref.current.innerHTML = `Клик: <b>${fmt((cur.click||1) * (1 + S.lab.p_click * 0.25))}</b>`;
-    if(u.id === 'turbine') ref.current.innerHTML = `Доход: <b>+${fmt((cur.cps||0) * (1 + S.lab.p_cps * 0.2))}</b>`;
+    if(u.id === 'reactor') ref.current.innerHTML = `Клик: <b>${fmt((cur.click||1) * (1 + (S.lab.p_click||0) * 0.25))}</b>`;
+    if(u.id === 'turbine') ref.current.innerHTML = `Доход: <b>+${fmt((cur.cps||0) * (1 + (S.lab.p_cps||0) * 0.2))}</b>`;
     if(u.id === 'cooling') ref.current.innerHTML = `Множитель: <b>+${Math.round(cur.mult*100)}%</b>`;
     if(u.id === 'wires') ref.current.innerHTML = `Город: <b>×${(1 + (cur.cityMult||0)).toFixed(1)}</b>`;
 
@@ -719,14 +816,16 @@ function updateUI(){
     ref.btn.classList.toggle('disabled', S.cores < cost); ref.btn.innerHTML = `${fmt(cost)} 💎`;
   });
 
-  updateBadges(); updateRebirthUI();
+  updateBadges();
+  updateRebirthUI();
+  updateBoostUI();
 }
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById(id);
   if(el) el.classList.add('active');
-  if(id === 'screen-game') updateUI();
+  if(id === 'screen-game') { updateUI(); buildScene(); }
   if(id === 'screen-profile') refreshProfileUI();
   if(id === 'screen-leaderboard') renderLeaderboard();
 }
@@ -759,66 +858,109 @@ const audioEl = document.getElementById('bgMusic');
 audioEl.volume = 0.3;
 const musicBtn = document.getElementById('musicToggle');
 function toggleMusic() {
-    S.music = !S.music; save();
+    S.music = !S.music; save(true);
     if(S.music) { audioEl.play().catch(()=>{}); musicBtn.textContent = '🔊'; }
     else { audioEl.pause(); musicBtn.textContent = '🔇'; }
 }
 musicBtn.addEventListener('click', toggleMusic);
 
 document.addEventListener('DOMContentLoaded', () => {
-  load(); buildUpgradeCards(); buildLabCards(); refreshProfileUI(); updateUI(); buildScene();
+  loadLocal();
+  buildUpgradeCards();
+  buildLabCards();
+  refreshProfileUI();
+  updateUI();
+  buildScene();
   
   if(!S.music) musicBtn.textContent = '🔇';
   
+  // Фоновая загрузка актуального сейва из базы
+  loadFromCloudAndSync();
+
   setTimeout(() => {
     const loader = document.getElementById('loading-screen');
     if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 600); }
   }, 900);
 
-  document.querySelectorAll('[data-go]').forEach(btn => { btn.addEventListener('click', () => showScreen(btn.getAttribute('data-go'))); });
+  document.querySelectorAll('[data-go]').forEach(btn => {
+    btn.addEventListener('click', () => showScreen(btn.getAttribute('data-go')));
+  });
   
   document.getElementById('btn-start').addEventListener('click', () => {
       showScreen('screen-game');
-      if(S.music && audioEl.paused) audioEl.play().catch(()=>{}); // Запуск музыки после клика
+      if(S.music && audioEl.paused) audioEl.play().catch(()=>{});
   });
 
   document.getElementById('saveProfileBtn').addEventListener('click', () => {
-    S.profile.name = document.getElementById('profileNameInput').value.trim().slice(0, 16);
-    save(); refreshProfileUI(); showToast('✅ Профиль сохранен');
+    S.profile.name = document.getElementById('profileNameInput').value.trim().slice(0, 16) || 'Оператор';
+    save(true);
+    refreshProfileUI();
+    showToast('✅ Профиль сохранен');
   });
 
-  document.getElementById('wipeBtn').addEventListener('click', () => {
-    if(confirm('Сбросить весь прогресс безвозвратно?')){ localStorage.removeItem(SAVE_KEY); location.reload(); }
+  // Диалог сброса (одиночный профиль или полная очистка БД)
+  document.getElementById('wipeBtn').addEventListener('click', async () => {
+    const choice = prompt(
+      "Выберите вариант сброса:\n" +
+      "1 — Сбросить ТОЛЬКО МОЙ прогресс\n" +
+      "2 — Полная очистка БД (удалить всех игроков и лидерборд)\n\n" +
+      "Введите 1 или 2:", "1"
+    );
+
+    if (choice === '1') {
+      if(confirm('Сбросить ваш локальный и облачный прогресс?')) {
+        try {
+          await fetch(`/api/save/${USER_ID}`, { method: 'DELETE' });
+        } catch(e) {}
+        localStorage.removeItem(SAVE_KEY);
+        localStorage.removeItem('aes_user_id_v5');
+        location.reload();
+      }
+    } else if (choice === '2') {
+      if(confirm('⚠️ ВНИМАНИЕ! Это действие удалит сохранения ВСЕХ игроков из PostgreSQL и полностью обнулит лидерборд. Продолжить?')) {
+        try {
+          const res = await fetch('/api/admin/wipe-database', { method: 'POST' });
+          const json = await res.json();
+          if (json.success) {
+            localStorage.clear();
+            alert('✓ База данных полностью очищена, все профили сброшены!');
+            location.reload();
+          } else {
+            alert('Ошибка сервера: ' + json.error);
+          }
+        } catch (e) {
+          alert('Ошибка соединения с сервером БД');
+        }
+      }
+    }
   });
 
-  // Главный игровой цикл (Доход и Таймеры)
+  // Цикл генерации ресурсов (30 раз в секунду)
   let lastTick = Date.now();
   setInterval(() => {
     const now = Date.now(), dt = (now - lastTick) / 1000; lastTick = now;
     if(dt > 0 && dt < 1){
       const st = getStats(), inc = st.cps * dt;
-      if(inc > 0){ S.energy += inc; S.totalProduced += inc; S.cityProgress += inc * st.cityMult; updateUI(); }
+      if(inc > 0){
+        S.energy += inc;
+        S.totalProduced += inc;
+        S.cityProgress += inc * st.cityMult;
+        updateUI();
+      }
     }
   }, 1000 / 30);
 
-  // Цикл событий и кулдаунов (раз в секунду)
+  // Секундный цикл: таймеры форсажа, случайные события
+  let prevBoostActive = isBoostActiveNow();
   setInterval(() => {
-      // Кулдаун форсажа
-      const bBtn = document.getElementById('btn-boost');
-      if(boostData.active) {
-          boostData.timer--;
-          if(boostData.timer <= 0) {
-              boostData.active = false; boostData.cd = 120; // 2 минуты кд
-              bBtn.classList.remove('active'); bBtn.classList.add('cooldown');
-              buildScene();
-          }
-      } else if(boostData.cd > 0) {
-          boostData.cd--;
-          bBtn.textContent = `КД: ${boostData.cd}с`;
-          if(boostData.cd <= 0) { bBtn.classList.remove('cooldown'); bBtn.textContent = "⚡ ФОРСАЖ"; }
+      const curBoostActive = isBoostActiveNow();
+      if(prevBoostActive !== curBoostActive) {
+          prevBoostActive = curBoostActive;
+          buildScene();
       }
 
-      // Таймер событий
+      updateBoostUI();
+
       if(eventData.active) {
           eventData.timer--;
           if(eventData.timer <= 0) {
@@ -826,12 +968,17 @@ document.addEventListener('DOMContentLoaded', () => {
               document.getElementById('event-banner').classList.remove('show');
           }
       } else {
-          // Шанс 1 к 120 каждую секунду (в среднем раз в 2 минуты)
           if(Math.random() < (1 / 120)) triggerRandomEvent();
       }
   }, 1000);
 
-  setInterval(save, 10000);
+  // Регулярный автосейв раз в 10 секунд
+  setInterval(() => save(true), 10000);
+
+  window.addEventListener('beforeunload', () => {
+    S.lastSave = Date.now();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(S));
+  });
 });
 </script>
 </body>
